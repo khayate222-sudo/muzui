@@ -11,6 +11,8 @@ for (const name of ['demo', 'terms']) {
 }
 const config = JSON.parse(await readFile(new URL('site.config.json', root), 'utf8'));
 await writeFile(new URL('config.json', dist), JSON.stringify({ contactUrl: safeContact(process.env.CONTACT_URL ?? config.contactUrl) }, null, 2));
+// The exported package is already built and does not need a framework build.
+await writeFile(new URL('netlify.toml', dist), '[build]\n  base = "."\n  command = ""\n  publish = "."\n');
 await writeFile(new URL('_headers', dist), `/*
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
