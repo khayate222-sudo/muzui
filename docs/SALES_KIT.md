@@ -11,7 +11,7 @@
 - 販売ページ・編集デモ・静的公開ファイルを作成済み。
 - 相談先は naoto.ando@unique-travel-jp.com に接続済み。
 - 自動送信・自動注文・オンライン決済は実装していない。
-- 公開URLは https://singular-bonbon-831cf9.netlify.app/ （ユーザーによる公開完了報告）。こちらの環境からのHTTP取得は403となり、外部表示の独立確認はできていません。実際の問い合わせ・売上は未確認。
+- 公開URLは https://exquisite-crumble-f809f2.netlify.app/ （ユーザーによる公開完了報告）。こちらの環境からのHTTP取得は403となり、外部表示の独立確認はできていません。実際の問い合わせ・売上は未確認。
 - 販売者情報と実際の支払方法・キャンセル条件は、運営者が受注前に確定する。
 
 ## 公開する
@@ -20,7 +20,7 @@
 2. Netlifyの手動デプロイなど、静的ホストの自分のアカウントへdistフォルダをアップロードする。アカウントのパスワードをチャットで共有しない。
 3. 発行された公開URLの販売ページ・デモ・サービス条件を開く。
 4. テスト相談文を作り、メールアプリで宛先を確認し、自分からテストメールを送る。受信まで確認する。
-5. 以下の `https://singular-bonbon-831cf9.netlify.app/` を実際のURLに置き換える。存在しないURLのまま投稿しない。
+5. 以下の `https://exquisite-crumble-f809f2.netlify.app/` を実際のURLに置き換える。存在しないURLのまま投稿しない。
 
 ## 集客内製化支援
 
@@ -33,14 +33,14 @@
 
 広告費・AI利用料・招待原価等は別途。税区分・最低契約期間・解約条件は見積書と契約書で明示する。日々の運用は依頼者のスタッフが実施し、支援側は目標・KPI設計、手順書、AI指示文、テンプレート、レクチャーと改善提案を担当。180日を目安に自社で運用できる状態を目指す。
 
-集客内製化支援の案内： https://singular-bonbon-831cf9.netlify.app/growth （最新版を再公開した後に利用）。サイトの相談フォームは送信・注文・日程確定を自動で行わない。
+集客内製化支援の案内： https://exquisite-crumble-f809f2.netlify.app/growth （ユーザーが新しい公開URLを共有。外部表示は未検証）。サイトの相談フォームは送信・注文・日程確定を自動で行わない。
 
 ### 集客支援の募集文
 
 集客を、自社で回せる体制に。UNIQUE TRAVEL JAPANが、飲食店・ホテル・体験施設の集客内製化をご支援します。
 SNS、Googleマップ、予約サイト、紹介経由の来店を見える化し、スタッフとAIで続けられる手順を整えます。
 まずは60分の無料ヒアリングで、現状と予算をお聞かせください。スポット相談は50,000円〜／回、月次顧問は200,000円〜／月。実費は別途、税区分と契約条件はお見積もりで確認します。
-https://singular-bonbon-831cf9.netlify.app/growth
+https://exquisite-crumble-f809f2.netlify.app/growth
 相談：naoto.ando@unique-travel-jp.com
 
 ## 最初に声をかける相手
@@ -56,7 +56,7 @@ https://singular-bonbon-831cf9.netlify.app/growth
 
 料金・アクセス・予約先に加え、SNS・予約サイト・Googleマップだけでは伝えきれないサロンの魅力をまとめるサイトです。
 制作サンプルと、店名を置き換えて試せるデモを用意しました。
-https://singular-bonbon-831cf9.netlify.app/
+https://exquisite-crumble-f809f2.netlify.app/
 
 サンプルをベースに、お店の情報・写真を入れて仕上げる制作費は5,000円です。HTMLファイルの納品と修正1回を含みます。公開先やドメインの費用は別途です。
 もし必要でしたら、今の案内方法で困っている点を教えてください。相談だけで費用はかかりません。
@@ -73,7 +73,7 @@ https://singular-bonbon-831cf9.netlify.app/
 制作費は5,000円（写真最大3枚・修正1回・HTMLファイル納品）。公開作業やサーバー・ドメイン費用は別途です。
 
 デモはここから。自分のお店の名前に変えて試せます。
-https://singular-bonbon-831cf9.netlify.app/
+https://exquisite-crumble-f809f2.netlify.app/
 相談：naoto.ando@unique-travel-jp.com
 
 ## サービス出品サイトに掲載する場合
