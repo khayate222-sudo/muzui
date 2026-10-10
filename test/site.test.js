@@ -6,21 +6,26 @@ import { defaults, salonMarkup, exportSalon, bookingUrl } from '../public/salon.
 
 test('consultation includes price and does not become an automatic order', () => {
   const brief = buildBrief({ salon: 'mio', social: 'https://example.com', message: '住所は非公開にしたい' });
-  assert.match(brief, /5,000円/); assert.match(brief, /サロン名：mio/); assert.match(brief, /住所は非公開/); assert.match(brief, /注文を検討/);
+  assert.match(brief, /5,000円/); assert.match(brief, /会社・店舗・施設名：mio/); assert.match(brief, /住所は非公開/); assert.match(brief, /注文を検討/);
   assert.throws(() => buildBrief({ salon: '  ' }));
-  const link = new URL(contactWithBrief('mailto:info.creatordrop@gmail.com', brief));
-  assert.equal(link.pathname, 'info.creatordrop@gmail.com');
+  const link = new URL(contactWithBrief('mailto:naoto.ando@unique-travel-jp.com', brief));
+  assert.equal(link.pathname, 'naoto.ando@unique-travel-jp.com');
   assert.equal(link.searchParams.get('body'), brief);
   const mixed = buildBrief({ salon: 'mio', service: 'website-growth' });
   assert.match(mixed, /5,000円/); assert.match(mixed, /別途見積もり/);
   const growth = buildBrief({ salon: 'mio', service: 'growth' });
   assert.match(growth, /Googleマップ/); assert.doesNotMatch(growth, /5,000円/);
+  assert.match(growth, /60分の無料ヒアリング/);
+  assert.match(buildBrief({ salon: 'hotel', service: 'spot' }), /50,000円〜／回/);
+  const advisory = buildBrief({ salon: 'hotel', service: 'advisory' });
+  assert.match(advisory, /200,000円〜／月/); assert.match(advisory, /税区分・実費・契約期間/);
+  assert.match(buildBrief({ salon: 'hotel', service: 'project' }), /個別見積もり/);
 });
 test('URLs reject unsafe protocols and credentials', () => {
   for (const url of ['javascript:alert(1)', 'data:text/html,hello', 'http://example.com', 'https://user:pass@example.com']) {
     assert.equal(safeContact(url), null); assert.equal(bookingUrl(url), null);
   }
-  assert.equal(safeContact('mailto:info.creatordrop@gmail.com'), 'mailto:info.creatordrop@gmail.com');
+  assert.equal(safeContact('mailto:naoto.ando@unique-travel-jp.com'), 'mailto:naoto.ando@unique-travel-jp.com');
   assert.equal(bookingUrl('https://lin.ee/example'), 'https://lin.ee/example');
 });
 test('personalized salon preserves input as text and exports a standalone page', () => {
@@ -35,17 +40,17 @@ test('personalized salon preserves input as text and exports a standalone page',
   assert.equal((valid.match(/<img /g) || []).length, 1);
 });
 test('site routes and explicit contact config respond correctly', async t => {
-  const server = createServer({ CONTACT_URL: 'mailto:info.creatordrop@gmail.com' });
+  const server = createServer({ CONTACT_URL: 'mailto:naoto.ando@unique-travel-jp.com' });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  for (const route of ['/', '/demo', '/terms', '/app.js', '/demo.js', '/demo.css', '/style.css', '/salon.js']) {
+  for (const route of ['/', '/demo', '/growth', '/terms', '/app.js', '/demo.js', '/demo.css', '/style.css', '/salon.js']) {
     const response = await fetch(origin + route); assert.equal(response.status, 200, route);
     assert.ok((await response.text()).length > 100, route);
     assert.match(response.headers.get('content-security-policy'), /object-src 'none'/);
   }
   const config = await fetch(origin + '/config.json');
-  assert.deepEqual(await config.json(), { contactUrl: 'mailto:info.creatordrop@gmail.com' });
+  assert.deepEqual(await config.json(), { contactUrl: 'mailto:naoto.ando@unique-travel-jp.com' });
   assert.equal((await fetch(origin + '/missing')).status, 404);
   assert.equal((await fetch(origin + '/site.config.json')).status, 404);
   assert.equal((await fetch(origin + '/', { method: 'POST' })).status, 405);

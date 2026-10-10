@@ -5,7 +5,7 @@ const dist = new URL('dist/', root);
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 await cp(new URL('public/', root), dist, { recursive: true });
-for (const name of ['demo', 'terms']) {
+for (const name of ['demo', 'terms', 'growth']) {
   await mkdir(new URL(`${name}/`, dist), { recursive: true });
   await cp(new URL(`public/${name}.html`, root), new URL(`${name}/index.html`, dist));
 }

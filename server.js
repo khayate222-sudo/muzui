@@ -13,6 +13,7 @@ const files = new Map([
   ['/demo.css', ['demo.css', 'text/css; charset=utf-8']],
   ['/salon.js', ['salon.js', 'text/javascript; charset=utf-8']],
   ['/terms', ['terms.html', 'text/html; charset=utf-8']],
+  ['/growth', ['growth.html', 'text/html; charset=utf-8']],
   ['/favicon.svg', ['favicon.svg', 'image/svg+xml']],
 ]);
 

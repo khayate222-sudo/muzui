@@ -1,17 +1,20 @@
 export function buildBrief(values) {
   const salon = String(values.salon ?? '').trim();
-  if (!salon) throw new Error('サロン名を入力してください。');
+  if (!salon) throw new Error('会社・店舗・施設名を入力してください。');
   const subject = {
-    website: 'muzui studioの1ページ制作プラン（支払総額5,000円）について相談したいです。',
-    'website-growth': 'サイト制作（支払総額5,000円）と、追加の集客サポート（別途見積もり）について相談したいです。',
-    growth: 'SNS・予約サイト・Googleマップの集客サポートについて、対応内容と料金を相談したいです。',
-  }[values.service] || 'muzui studioの1ページ制作プラン（支払総額5,000円）について相談したいです。';
-  return [subject, `サロン名：${salon}`, values.social?.trim() && `お店のURL：${values.social.trim()}`, `ご希望・ご質問：\n${values.message?.trim() || '対応内容と料金について相談したいです。'}`, '対応範囲・料金・納期・支払方法・キャンセル条件を確認してから、注文を検討したいです。'].filter(Boolean).join('\n\n');
+    website: 'UNIQUE TRAVEL JAPANの1ページ制作プラン（支払総額5,000円）について相談したいです。',
+    'website-growth': 'サイト制作（支払総額5,000円）と、集客内製化支援（別途見積もり）について相談したいです。',
+    growth: 'SNS・予約サイト・Googleマップなどの集客内製化支援について、60分の無料ヒアリングを相談したいです。',
+    spot: '集客内製化支援のスポット相談（50,000円〜／回）について相談したいです。税区分と実費を含め、お見積もりをお願いします。',
+    advisory: '集客内製化支援の月次顧問（200,000円〜／月）について相談したいです。税区分・実費・契約期間を含め、お見積もりをお願いします。',
+    project: '開業支援・AI導入のプロジェクト型プラン（個別見積もり）について相談したいです。',
+  }[values.service] || 'UNIQUE TRAVEL JAPANの1ページ制作プラン（支払総額5,000円）について相談したいです。';
+  return [subject, `会社・店舗・施設名：${salon}`, values.social?.trim() && `お店のURL：${values.social.trim()}`, `ご希望・ご質問：\n${values.message?.trim() || '対応内容と料金について相談したいです。'}`, '対応範囲・料金・納期・支払方法・キャンセル条件を確認してから、注文を検討したいです。'].filter(Boolean).join('\n\n');
 }
 export function contactWithBrief(contact, text) {
   const url = new URL(contact);
   if (url.protocol === 'mailto:') {
-    url.search = new URLSearchParams({ subject: 'サロンサイト制作のご相談', body: text }).toString();
+    url.search = new URLSearchParams({ subject: 'UNIQUE TRAVEL JAPANへのご相談', body: text }).toString();
   }
   return url.href;
 }
@@ -22,7 +25,7 @@ if (typeof document !== 'undefined') {
     const response = await fetch('/config.json');
     if (!response.ok) throw new Error('config unavailable');
     ({ contactUrl } = await response.json());
-    state.textContent = contactUrl ? '制作のご相談を受け付けています。下の相談文を、受付先にお送りください。' : '現在、相談窓口の準備中です。デモと相談文の作成はお試しいただけます。';
+    state.textContent = contactUrl ? 'ご相談を受け付けています。下の相談文を、受付先にお送りください。' : '現在、相談窓口の準備中です。デモと相談文の作成はお試しいただけます。';
     if (contactUrl?.startsWith('mailto:')) {
       const address = document.querySelector('#contact-address');
       address.textContent = `相談メール：${new URL(contactUrl).pathname}（メールアプリがない場合は、相談文をコピーしてこの宛先にお送りください）`;
@@ -31,6 +34,9 @@ if (typeof document !== 'undefined') {
   } catch { state.textContent = '受付状況を確認できませんでした。時間をおいて再読み込みしてください。'; }
   const form = document.querySelector('#brief-form');
   const text = document.querySelector('#brief-text');
+  const requested = new URLSearchParams(location.search).get('service');
+  const select = form.elements.namedItem('service');
+  if (requested && Array.from(select.options).some(option => option.value === requested)) select.value = requested;
   const status = document.querySelector('#brief-status');
   form.addEventListener('submit', event => {
     event.preventDefault();
