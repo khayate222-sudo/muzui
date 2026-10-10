@@ -11,6 +11,10 @@ test('consultation includes price and does not become an automatic order', () =>
   const link = new URL(contactWithBrief('mailto:info.creatordrop@gmail.com', brief));
   assert.equal(link.pathname, 'info.creatordrop@gmail.com');
   assert.equal(link.searchParams.get('body'), brief);
+  const mixed = buildBrief({ salon: 'mio', service: 'website-growth' });
+  assert.match(mixed, /5,000円/); assert.match(mixed, /別途見積もり/);
+  const growth = buildBrief({ salon: 'mio', service: 'growth' });
+  assert.match(growth, /Googleマップ/); assert.doesNotMatch(growth, /5,000円/);
 });
 test('URLs reject unsafe protocols and credentials', () => {
   for (const url of ['javascript:alert(1)', 'data:text/html,hello', 'http://example.com', 'https://user:pass@example.com']) {

@@ -1,7 +1,12 @@
 export function buildBrief(values) {
   const salon = String(values.salon ?? '').trim();
   if (!salon) throw new Error('サロン名を入力してください。');
-  return ['muzui studioの1ページ制作プラン（支払総額5,000円）について相談したいです。', `サロン名：${salon}`, values.social?.trim() && `お店のURL：${values.social.trim()}`, `ご希望・ご質問：\n${values.message?.trim() || '制作内容や公開方法について相談したいです。'}`, '制作範囲・納期・支払方法・キャンセル条件を確認してから、注文を検討したいです。'].filter(Boolean).join('\n\n');
+  const subject = {
+    website: 'muzui studioの1ページ制作プラン（支払総額5,000円）について相談したいです。',
+    'website-growth': 'サイト制作（支払総額5,000円）と、追加の集客サポート（別途見積もり）について相談したいです。',
+    growth: 'SNS・予約サイト・Googleマップの集客サポートについて、対応内容と料金を相談したいです。',
+  }[values.service] || 'muzui studioの1ページ制作プラン（支払総額5,000円）について相談したいです。';
+  return [subject, `サロン名：${salon}`, values.social?.trim() && `お店のURL：${values.social.trim()}`, `ご希望・ご質問：\n${values.message?.trim() || '対応内容と料金について相談したいです。'}`, '対応範囲・料金・納期・支払方法・キャンセル条件を確認してから、注文を検討したいです。'].filter(Boolean).join('\n\n');
 }
 export function contactWithBrief(contact, text) {
   const url = new URL(contact);
