@@ -15,7 +15,7 @@ beforeAll(async()=>{instance=await createApp({database:':memory:',adminKey:'test
 afterAll(async()=>{clients.forEach(s=>s.disconnect());await instance.app.close();});
 it('moves to a post and updates presence atomically in another guest and own tab',async()=>{
   const sa=await socket(a),tab=await socket(a),sb=await socket(b);let w:WorldState|undefined,point:{x:number;y:number}|undefined;sb.on('world',r=>w=r);tab.on('position',r=>point=r);
-  const p=a.data.posts.find(p=>p.genre==='music')!;expect((await ack(sa,'visit',{postId:p.id})).ok).toBe(true);
+  await ack(sb,'room:enter',{worldId:'world:music'});const p=a.data.posts.find(p=>p.genre==='music')!;expect((await ack(sa,'visit',{postId:p.id})).ok).toBe(true);
   await until(()=>w?.counts[p.id]===1&&point?.x===p.mapX);
   const peer=w!.peers.find(u=>u.id===a.data.user.id)!;expect(peer.x).toBe(p.mapX);expect(peer.y).toBe(p.mapY+85);expect(point?.y).toBe(peer.y);
   expect((await ack(sa,'visit',{postId:'missing'})).ok).toBe(false);sa.disconnect();tab.disconnect();sb.disconnect();
@@ -95,6 +95,6 @@ it('upgrades the previous database without dropping profiles, saves, or imported
     old.prepare('INSERT INTO favorites VALUES (?,?,?)').run('old-user','old-post',1);old.close();
     let store=openDatabase(file);expect(store.sqlite.prepare('SELECT display_name FROM users').get()).toMatchObject({display_name:'前の旅人'});expect(store.sqlite.prepare('SELECT post_id FROM favorites').get()).toMatchObject({post_id:'old-post'});
     store.sqlite.prepare('INSERT INTO rooms (id,owner_id,title,description,is_public,theme,layout,updated_at) VALUES (?,?,?,?,?,?,?,?)').run('room','old-user','残る部屋','',1,'garden',JSON.stringify({items:[{postId:'old-post',x:400,y:600}],decorations:[]}),1);store.sqlite.close();
-    store=openDatabase(file);expect(JSON.parse((store.sqlite.prepare('SELECT layout FROM rooms').get() as {layout:string}).layout).items).toEqual([{postId:'old-post',x:400,y:600}]);expect(store.sqlite.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get()).toMatchObject({n:4});store.sqlite.close();
+    store=openDatabase(file);expect(JSON.parse((store.sqlite.prepare('SELECT layout FROM rooms').get() as {layout:string}).layout).items).toEqual([{postId:'old-post',x:400,y:600}]);expect(store.sqlite.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get()).toMatchObject({n:5});store.sqlite.close();
   }finally{rmSync(dir,{recursive:true,force:true});}
 });

@@ -20,7 +20,7 @@ test('two guests: movement, deduplicated viewers, persistence, approval, realtim
     await a.close();await expect(b.getByText('2人がこの投稿を開いています',{exact:true})).toBeVisible();await tab.close();await expect(b.getByText('1人がこの投稿を開いています',{exact:true})).toBeVisible();
     await b.getByRole('button',{name:'お気に入りに保存',exact:true}).click();await expect(b.getByRole('button',{name:'保存済み',exact:true})).toBeVisible();await b.reload();await openPost(b);await expect(b.getByRole('button',{name:'保存済み',exact:true})).toBeVisible();
     await b.getByRole('button',{name:'投稿を通報'}).click();await b.getByLabel('通報理由').fill('E2Eテストからの確認用通報');await b.getByRole('button',{name:'通報を送る',exact:true}).click();await expect(b.getByText('通報を受け付けました。管理者が確認します。')).toBeVisible();
-    await closeTop(b);await closeTop(b); // close post and explorer
+    await closeTop(b);await b.locator('.world-path').getByRole('button',{name:'不思議な駅',exact:true}).click(); // close watching and meet at station
     a=await ca.newPage();await a.goto('/');await expect(a.locator('.connection')).toContainText('2人が散歩中');
     await a.locator('.right-sidebar').getByRole('button',{name:/テストB/}).click();await a.getByRole('button',{name:'交流リクエストを送る'}).click();await closeTop(a);
     await b.getByRole('button',{name:'通知',exact:true}).click();await expect(b.locator('.request-row')).toContainText('テストA');await b.getByRole('button',{name:'承認',exact:true}).click();await b.locator('.social-people').getByRole('button',{name:/テストA/}).click();
@@ -35,11 +35,11 @@ test('two guests: movement, deduplicated viewers, persistence, approval, realtim
 test('mobile onboarding, tap movement, area shortcut, search, saving and private profile persist',async({browser})=>{
   const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await context.newPage();const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   try{
-    await page.goto('/');await page.screenshot({path:'artifacts/walk-welcome-mobile.png',fullPage:true});await page.getByLabel('ニックネーム').fill('モバイル旅人');await page.getByRole('button',{name:'WALKをはじめる'}).click();await expect(page.locator('canvas')).toBeVisible();
-    const old=await position(page);const box=await page.locator('canvas').boundingBox();await page.touchscreen.tap(box!.x+box!.width*.65,box!.y+box!.height*.5);await expect.poll(async()=>Math.hypot((await position(page)).x-old.x,(await position(page)).y-old.y)).toBeGreaterThan(15);
-    await page.locator('.area-dock').getByRole('button',{name:'音楽',exact:true}).tap();await expect(page.locator('.map-top')).toContainText('MUSIC STREET');await expect.poll(async()=>(await position(page)).x).toBe(540);
+    await page.goto('/');await page.screenshot({path:'artifacts/walk-welcome-mobile.png',fullPage:true});await page.getByLabel('ニックネーム').fill('モバイル旅人');await page.getByRole('button',{name:'WALKをはじめる'}).click();await expect(page.locator('[role=application][data-ready=true]')).toBeVisible();
+    const old=await position(page);const box=await page.locator('canvas').boundingBox();await page.locator('canvas').tap({position:{x:box!.width*.35,y:box!.height*.7}});await expect.poll(async()=>Math.hypot((await position(page)).x-old.x,(await position(page)).y-old.y)).toBeGreaterThan(15);
+    await page.locator('.area-dock').getByRole('button',{name:'音楽',exact:true}).tap();await expect(page.locator('.map-top')).toContainText('音楽の世界');await expect.poll(async()=>(await position(page)).x).toBe(1100);
     await page.waitForTimeout(650);await page.screenshot({path:'artifacts/walk-mobile.png',fullPage:true});
-    await openPost(page,'雨の日のプレイリスト');await page.getByRole('button',{name:'お気に入りに保存',exact:true}).tap();await expect(page.getByRole('button',{name:'保存済み',exact:true})).toBeVisible();await closeTop(page);await closeTop(page);
+    await openPost(page,'雨の日のプレイリスト');await page.getByRole('button',{name:'お気に入りに保存',exact:true}).tap();await expect(page.getByRole('button',{name:'保存済み',exact:true})).toBeVisible();await closeTop(page);
     await page.locator('.mobile-nav').getByRole('button',{name:'あなた',exact:true}).tap();expect(await page.locator('input[name=share]').isChecked()).toBe(false);await page.getByLabel('ニックネーム').fill('モバイル保存済み');await page.getByRole('button',{name:'変更を保存',exact:true}).tap();await page.reload();
     await page.locator('.mobile-nav').getByRole('button',{name:'あなた',exact:true}).tap();await expect(page.getByLabel('ニックネーム')).toHaveValue('モバイル保存済み');expect(await page.locator('input[name=share]').isChecked()).toBe(false);await closeTop(page);
     for(const width of[390,320]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.locator('.mobile-nav').getByRole('button',{name:'保存',exact:true}).tap();await expect(page.getByRole('button',{name:'雨の日のプレイリスト',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await closeTop(page);}
@@ -48,7 +48,7 @@ test('mobile onboarding, tap movement, area shortcut, search, saving and private
 });
 test('administrator creates, edits and removes posts; reports are restricted; video samples are explicit',async({page})=>{
   await onboard(page,'管理者テスト',false);
-  await openPost(page);await page.getByRole('button',{name:'投稿を通報'}).click();await page.getByLabel('通報理由').fill('E2Eテストからの確認用通報');await page.getByRole('button',{name:'通報を送る',exact:true}).click();await expect(page.getByRole('dialog',{name:'通報を送信'})).toBeHidden();await closeTop(page);await closeTop(page);
+  await openPost(page);await page.getByRole('button',{name:'投稿を通報'}).click();await page.getByLabel('通報理由').fill('E2Eテストからの確認用通報');await page.getByRole('button',{name:'通報を送る',exact:true}).click();await expect(page.getByRole('dialog',{name:'通報を送信'})).toBeHidden();await closeTop(page);
   expect((await page.request.get('/api/admin/reports')).status()).toBe(403);
   await page.getByRole('button',{name:'管理画面',exact:true}).click();await page.getByLabel('管理者キー').fill('e2e-only-admin-key-12345678901234567890');await page.getByRole('button',{name:'認証する',exact:true}).click();await expect(page.getByRole('heading',{name:'世界に、新しい発見を。'})).toBeVisible();
   await page.getByRole('button',{name:'投稿を追加',exact:true}).click();await page.getByLabel('投稿タイトル').fill('管理画面から生まれた投稿');await page.getByLabel('投稿本文').fill('これは管理UIの実動作を確認する投稿です。');await page.getByRole('button',{name:'保存する',exact:true}).click();await expect(page.locator('.admin-posts')).toContainText('管理画面から生まれた投稿');

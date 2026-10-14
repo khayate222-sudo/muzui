@@ -1,0 +1,10 @@
+import { z } from 'zod';
+import type { User } from './model';
+export const activityKinds=['gym','study','social'] as const;
+export const activityLabels={gym:'運動',study:'勉強',social:'交流'};
+export const activityInput=z.object({kind:z.enum(activityKinds),title:z.string().trim().min(1).max(80),endsAt:z.number().int().positive(),shared:z.boolean().default(false),note:z.string().max(2000).default('')});
+export const recordInput=z.object({title:z.string().trim().min(1).max(80),note:z.string().max(2000),shared:z.boolean(),startsAt:z.number().int().positive(),endsAt:z.number().int().positive()});
+export type Activity={id:string;userId:string;kind:typeof activityKinds[number];title:string;startsAt:number;endsAt:number;finishedAt:number|null;shared:boolean;note:string;photo:boolean;revision:number};
+export type ActivityGhost=Pick<User,'id'|'displayName'|'color'|'style'>&{activityId:string;title:string;endsAt:number;worldId:string;x:number;y:number;online:boolean};
+export const activityEnd=(a:Activity)=>a.finishedAt??a.endsAt;
+export const isActive=(a:Activity,now=Date.now())=>a.finishedAt===null&&a.endsAt>now;

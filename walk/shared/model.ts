@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { acceptsPost } from './worlds';
+import type { ActivityGhost } from './activities';
 export const genres = ['discovery', 'music', 'video', 'art', 'meme', 'game', 'anime'] as const;
 export type Genre = typeof genres[number];
 export const areas: { id: Genre; name: string; label: string; color: string; x: number; y: number; icon: string }[] = [
@@ -10,7 +12,7 @@ export const areas: { id: Genre; name: string; label: string; color: string; x: 
   { id: 'game', name: 'GAME STREET', label: 'ゲームストリート', color: '#8aaecb', x: 1000, y: 230, icon: '♟' },
   { id: 'anime', name: 'ANIME GARDEN', label: 'アニメガーデン', color: '#d6a4be', x: 1000, y: 1140, icon: '☆' },
 ];
-export const profileSchema = z.object({ displayName: z.string().trim().min(1).max(24), color: z.string().regex(/^#[0-9a-fA-F]{6}$/), style: z.enum(['cap', 'beanie', 'hair']), shareActivity: z.boolean() });
+export const profileSchema = z.object({ displayName: z.string().trim().min(1).max(24), color: z.string().regex(/^#[0-9a-fA-F]{6}$/), style: z.enum(['cap', 'beanie', 'hair', 'cat', 'fox']), shareActivity: z.boolean() });
 export const safeExternal = (value: string) => {
   try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password; } catch { return false; }
 };
@@ -24,11 +26,12 @@ export function youtubeId(value: string): string | null {
 }
 const url = z.string().max(2048).refine(v => v === '' || safeExternal(v), 'HTTPS URLを入力してください');
 export const postSchema = z.object({
-  type: z.enum(['text', 'image', 'video', 'youtube', 'external']), title: z.string().trim().min(1).max(120), body: z.string().max(4000),
+  worldId: z.string().max(80).nullable().optional(), type: z.enum(['text', 'image', 'video', 'youtube', 'external']), title: z.string().trim().min(1).max(120), body: z.string().max(4000),
   mediaUrl: z.string().max(2048).refine(v => v === '' || (/^\/art\/[\w-]+\.svg$/.test(v)||/^\/media\/[a-f0-9-]{36}\.(png|jpg|webp|gif|mp4|webm)$/.test(v)) || safeExternal(v)),
   externalUrl: url, provider: z.string().max(60), authorName: z.string().trim().min(1).max(60), genre: z.enum(genres),
   mapX: z.number().min(80).max(1920), mapY: z.number().min(100).max(1320), isSample: z.boolean().default(false),
 }).superRefine((p, ctx) => {
+  if(!acceptsPost(p.worldId,p.genre))ctx.addIssue({code:'custom',path:['worldId'],message:'ジャンルに合う世界を選んでください'});
   if (p.type === 'youtube' && !youtubeId(p.externalUrl)) ctx.addIssue({ code: 'custom', path: ['externalUrl'], message: '正しいYouTube動画URLが必要です' });
   if ((p.type === 'image'||p.type === 'video') && !p.mediaUrl) ctx.addIssue({ code: 'custom', path: ['mediaUrl'], message: '画像URLが必要です' });
   if (p.type === 'external' && !p.externalUrl) ctx.addIssue({ code: 'custom', path: ['externalUrl'], message: '出典URLが必要です' });
@@ -37,7 +40,7 @@ export type PostInput = z.infer<typeof postSchema>;
 export type Post = PostInput & { origin?:'walk'|'external'|'sample'|'editorial'; ownerId?:string|null; id: string; createdAt: number; saves: number; reactions: Record<string,number> };
 export type User = z.infer<typeof profileSchema> & { id: string; createdAt: number };
 export type Peer = Pick<User, 'id' | 'displayName' | 'color' | 'style'> & { x: number; y: number; area: Genre; worldId?: string; currentPost: string | null };
-export type WorldState = { peers: Peer[]; counts: Record<string, number>; viewers: Record<string, Pick<Peer, 'id' | 'displayName' | 'color' | 'style'>[]>; online: number };
+export type WorldState = { activities?: ActivityGhost[]; peers: Peer[]; counts: Record<string, number>; viewers: Record<string, (Pick<Peer, 'id' | 'displayName' | 'color' | 'style'>&{reaction?:string|null})[]>; online: number };
 export type Friendship = { id: string; requesterId: string; receiverId: string; status: string; createdAt: number; user: Pick<User, 'id' | 'displayName' | 'color' | 'style'> };
 export type Message = { id: string; senderId: string; receiverId: string; content: string; createdAt: number };
 export type Bootstrap = { user: User; posts: Post[]; favorites: string[]; reactions: Record<string,string>; friendships: Friendship[]; blocks: string[]; isAdmin: boolean };

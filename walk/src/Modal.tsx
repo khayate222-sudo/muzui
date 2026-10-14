@@ -17,7 +17,7 @@ export default function Modal({ title, children, close, wide=false }: {title:str
         const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
       }
     };
-    document.addEventListener('keydown',key);return()=>{clearTimeout(timer);document.removeEventListener('keydown',key);const remaining=[...document.querySelectorAll<HTMLElement>('[role="dialog"]')].filter(d=>d!==element);const top=remaining.at(-1);if(top){top.inert=false;top.removeAttribute('aria-hidden');}else if(shell)shell.inert=false;previous?.focus();};
+    document.addEventListener('keydown',key);return()=>{clearTimeout(timer);document.removeEventListener('keydown',key);const remaining=[...document.querySelectorAll<HTMLElement>('[role="dialog"]')].filter(d=>d!==element);const top=remaining.at(-1);if(top){top.inert=false;top.removeAttribute('aria-hidden');}if(shell)shell.inert=top?.getAttribute('aria-modal')==='true';previous?.focus();};
   },[]);
   return createPortal(<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)close();}}><div className={'modal '+(wide?'modal-wide':'')} ref={ref} role="dialog" aria-modal="true" aria-label={title}><div className="modal-top"><span>{title}</span><button className="icon-button" onClick={close} aria-label="閉じる"><X size={21}/></button></div>{children}</div></div>,document.body);
 }

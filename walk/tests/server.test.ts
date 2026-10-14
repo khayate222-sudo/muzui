@@ -48,7 +48,7 @@ describe('sessions, validation and authorization',()=>{
 describe('server-authoritative real-time presence',()=>{
   it('deduplicates tabs, counts independent guests, cleans up close and disconnect, and hides private viewers',async()=>{
     const sa=await socket(a),satab=await socket(a),sb=await socket(b);let world:WorldState|null=null;sb.on('world',w=>{world=w;});
-    await ack(sa,'view',{postId:'text-0-0'});await ack(satab,'view',{postId:'text-0-0'});await ack(sb,'view',{postId:'text-0-0'});
+    await ack(sa,'visit',{postId:'text-0-0'});await ack(satab,'view',{postId:'text-0-0'});await ack(sb,'visit',{postId:'text-0-0'});
     await until(()=>world?.counts['text-0-0']===2);expect(world!.online).toBe(2);expect(world!.viewers['text-0-0']).toHaveLength(0);
     expect(world!.peers.find(p=>p.id===a.data.user.id)?.currentPost).toBeNull();
     await request(a,'/profile','PATCH',{displayName:'A',color:'#779977',style:'cap',shareActivity:true});

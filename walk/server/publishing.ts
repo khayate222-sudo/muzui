@@ -8,8 +8,9 @@ import { z } from 'zod';
 import type { Store } from './db';
 import * as t from './schema';
 import { postPosition } from './placement';
+import { acceptsPost } from '../shared/worlds';
 import { genres } from '../shared/model';
-export const nativePostSchema=z.object({title:z.string().trim().min(1).max(120),body:z.string().trim().max(4000),genre:z.enum(genres),attachmentId:z.string().uuid().nullable().default(null)});
+export const nativePostSchema=z.object({worldId:z.string().max(80).nullable().optional(),title:z.string().trim().min(1).max(120),body:z.string().trim().max(4000),genre:z.enum(genres),attachmentId:z.string().uuid().nullable().default(null)}).refine(p=>acceptsPost(p.worldId,p.genre),'ジャンルに合う世界を選んでください');
 type Upload={id:string;owner_id:string;filename:string;mime:string;bytes:number;created_at:number};
 export function identifyMedia(b:Buffer):{mime:string;ext:string}|null{
   if(b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))return {mime:'image/png',ext:'png'};
@@ -69,7 +70,7 @@ export async function publishing({app,store,changed,mediaDirectory}:{app:Fastify
     const attachment=p.attachmentId?sqlite.prepare('SELECT * FROM media_uploads WHERE id=? AND owner_id=?').get(p.attachmentId,owner) as Upload|undefined:null;
     if(p.attachmentId&&!attachment)return reply.code(403).send({error:'自分がアップロードしたファイルを選んでください'});
     const author=db.select().from(t.users).where(eq(t.users.id,owner)).get()!,id=randomUUID();
-    db.insert(t.posts).values({id,ownerId:owner,origin:'walk',type:attachment?(attachment.mime.startsWith('video/')?'video':'image'):'text',title:p.title,body:p.body,genre:p.genre,mediaUrl:attachment?'/media/'+attachment.filename:'',externalUrl:'',provider:'WALK',authorName:author.displayName,...postPosition(store,p.genre),isSample:false,createdAt:Date.now()}).run();changed();return {id};
+    db.insert(t.posts).values({id,worldId:p.worldId,ownerId:owner,origin:'walk',type:attachment?(attachment.mime.startsWith('video/')?'video':'image'):'text',title:p.title,body:p.body,genre:p.genre,mediaUrl:attachment?'/media/'+attachment.filename:'',externalUrl:'',provider:'WALK',authorName:author.displayName,...postPosition(store,p.genre),isSample:false,createdAt:Date.now()}).run();changed();return {id};
   });
   app.delete('/api/posts/:id',async(req,reply)=>{
     const id=(req.params as {id:string}).id,row=db.select().from(t.posts).where(eq(t.posts.id,id)).get();

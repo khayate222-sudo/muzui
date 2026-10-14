@@ -3,6 +3,8 @@ import { tmpdir } from 'node:os';
 import { dirname,join } from 'node:path';
 import { publishing } from './publishing.js';
 import { collector,type FeedLoader } from './collector.js';
+import { activities } from './activities.js';
+import { findPlace, postWorld } from '../shared/worlds.js';
 import { community } from './community.js';
 import Fastify, { type FastifyRequest } from 'fastify';
 import cookie from '@fastify/cookie';
@@ -35,7 +37,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com','https://www.tiktok.com'],
     objectSrc: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"], upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
   } }, crossOriginEmbedderPolicy: false });
-  await app.register(rateLimit, { max: 240, timeWindow: '1 minute' });
+  await app.register(rateLimit, { max: 240, timeWindow: '1 minute', hook:'preHandler', allowList:req=>!req.url.startsWith('/api/')||req.url==='/api/health', keyGenerator:req=>req.session?.userId||req.ip });
   app.decorateRequest('session', null);
   const readSession = (token?: string): Session | null => {
     if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
@@ -91,13 +93,13 @@ export async function createApp(options: { database?: string; adminKey: string; 
       const context=positions.get(me.userId)?.worldId||'public';
       const visible = people.filter(u => !blocked(me.userId,u.id) && (positions.get(u.id)?.worldId||'public')===context);
       const viewers: WorldState['viewers'] = {};
-      for (const [id, ids] of viewing) viewers[id] = visible.filter(u => u.shareActivity && ids.has(u.id)).map(pub);
+      for (const [id, ids] of viewing) viewers[id] = people.filter(u => !blocked(me.userId,u.id) && u.shareActivity && ids.has(u.id)).map(u=>({...pub(u),reaction:db.select().from(t.reactions).where(and(eq(t.reactions.userId,u.id),eq(t.reactions.postId,id))).get()?.kind||null}));
       const peers: Peer[] = visible.map(u => {
         const p = positions.get(u.id) || { x: 1100,y: 750,worldId:'public' };
         const current = u.shareActivity ? [...sockets.values()].find(s => s.userId === u.id && s.postId)?.postId || null : null;
         return { ...pub(u), x:p.x,y:p.y,area:areaAt(p.x,p.y),worldId:p.worldId,currentPost:current };
       });
-      socket.emit('world', { peers, counts, viewers, online: online.size } satisfies WorldState);
+      socket.emit('world', { peers, counts, viewers, online: online.size, activities: activityFeatures.ghosts(me.userId,context,online) } satisfies WorldState);
     }
   }
   const notify = (id: string, event = 'social') => { for (const [sid,s] of sockets) if (s.userId === id) io.to(sid).emit(event); };
@@ -106,7 +108,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     for(const [sid,client]of sockets)if(client.userId===userId){client.postId=null;io.to(sid).emit('context',{worldId,reset:true});io.to(sid).emit('position',{x:1100,y:750});}
   }
   const features=community({app,io,store,blocked,connected,notify,broadcast,exitRoom:(id)=>{
-    for(const [userId,p]of positions)if(p.worldId!=='public'&&(id==='*'||p.worldId===id)){
+    for(const [userId,p]of positions)if(!findPlace(p.worldId)&&(id==='*'||p.worldId===id)){
       const r=features.readRoom(p.worldId);if(!features.accessible(r,userId))changeWorld(userId,'public');
     }
   }});
@@ -140,7 +142,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     socket.on('room:enter',(data,ack)=>{
       const p=z.object({worldId:z.string().max(80)}).safeParse(data);
       if(!p.success||!limit('room:enter',200))return respond(ack,{ok:false,error:'少し待ってからルームを選んでください'});
-      if(p.data.worldId!=='public'&&!features.accessible(features.readRoom(p.data.worldId),s.userId))return respond(ack,{ok:false,error:'ルームを表示できません'});
+      if(!findPlace(p.data.worldId)&&!features.accessible(features.readRoom(p.data.worldId),s.userId))return respond(ack,{ok:false,error:'ルームを表示できません'});
       changeWorld(s.userId,p.data.worldId);broadcast();respond(ack,{ok:true});
     });
     socket.on('visit',(data,ack)=>{
@@ -149,10 +151,11 @@ export async function createApp(options: { database?: string; adminKey: string; 
       const post=db.select().from(t.posts).where(eq(t.posts.id,p.data.postId)).get();
       if(!post)return respond(ack,{ok:false,error:'投稿が見つかりません'});
       let worldId=positions.get(s.userId)?.worldId||'public',point={x:post.mapX,y:Math.min(1360,post.mapY+85)};
-      if(worldId!=='public'){
+      if(!findPlace(worldId)){
         const room=features.readRoom(worldId),item=room?.items.find(i=>i.postId===post.id);
-        if(features.accessible(room,s.userId)&&item)point={x:item.x,y:item.y+85};else {worldId='public';changeWorld(s.userId,'public');}
+        if(features.accessible(room,s.userId)&&item)point={x:item.x,y:item.y+85};else {worldId=postWorld(post);changeWorld(s.userId,worldId);}
       }
+      if(findPlace(worldId)&&worldId!==postWorld(post)){worldId=postWorld(post);changeWorld(s.userId,worldId);}
       positions.set(s.userId,{...point,time:Date.now(),worldId});s.postId=post.id;
       for(const [sid,client]of sockets)if(client.userId===s.userId)io.to(sid).emit('position',point);
       broadcast();respond(ack,{ok:true});
@@ -163,6 +166,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
       const parsed=z.object({postId:z.string().max(80).nullable()}).safeParse(data);
       if(!parsed.success)return respond(ack,{ok:false,error:'投稿が正しくありません'});
       if(parsed.data.postId && !db.select().from(t.posts).where(eq(t.posts.id,parsed.data.postId)).get())return respond(ack,{ok:false,error:'投稿が見つかりません'});
+      if(parsed.data.postId){const post=db.select().from(t.posts).where(eq(t.posts.id,parsed.data.postId)).get()!;const context=positions.get(s.userId)?.worldId||'public';if(findPlace(context)?context!==postWorld(post):!features.readRoom(context)?.items.some(i=>i.postId===post.id))return respond(ack,{ok:false,error:'投稿の場所へ移動してください'});}
       s.postId=parsed.data.postId; broadcast(); respond(ack,{ok:true});
     });
     socket.on('chat',(data,ack) => {
@@ -188,6 +192,9 @@ export async function createApp(options: { database?: string; adminKey: string; 
   const changedPosts=()=>{broadcast();io.emit('posts');io.emit('rooms');};
   const temporaryMedia=options.database===':memory:'&&!options.mediaDirectory?mkdtempSync(join(tmpdir(),'walk-media-')):null;
   await publishing({app,store,changed:changedPosts,mediaDirectory:options.mediaDirectory||temporaryMedia||join(dirname(options.database||process.env.DATABASE_PATH||'./data/walk.sqlite'),'uploads')});
+  const activityFeatures=activities({app,store,blocked,changed:(id)=>{notify(id,'activities');broadcast();}});
+  let activitySignature=activityFeatures.signature();
+  const activityTimer=setInterval(()=>{activityFeatures.settle();const next=activityFeatures.signature();if(next!==activitySignature){activitySignature=next;io.emit('activities');broadcast();}},1000);activityTimer.unref();
   const collections=collector({app,store,changed:changedPosts,loadFeed:options.collectionFeed});
   app.get('/api/health',async()=>({ ok:true }));
   app.get('/api/bootstrap',async(req,reply)=>{
@@ -213,7 +220,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const id=(req.params as {id:string}).id;const {reaction}=z.object({reaction:z.enum(['heart','spark','wave']).nullable()}).parse(req.body);
     if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});
     if(reaction)db.insert(t.reactions).values({userId:uid(req),postId:id,kind:reaction,createdAt:Date.now()}).onConflictDoUpdate({target:[t.reactions.userId,t.reactions.postId],set:{kind:reaction}}).run();
-    else db.delete(t.reactions).where(and(eq(t.reactions.userId,uid(req)),eq(t.reactions.postId,id))).run();io.emit('posts');return {ok:true};
+    else db.delete(t.reactions).where(and(eq(t.reactions.userId,uid(req)),eq(t.reactions.postId,id))).run();broadcast();io.emit('posts');return {ok:true};
   });
   app.get('/api/users/:id',async(req,reply)=>{
     const target=db.select().from(t.users).where(eq(t.users.id,(req.params as {id:string}).id)).get();
@@ -261,7 +268,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     if(!exists)return reply.code(404).send({error:'対象が見つかりません'});
     db.insert(t.reports).values({id:randomUUID(),reporterId:uid(req),...p,createdAt:Date.now()}).run();return {ok:true};
   });
-  app.post('/api/admin/login',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(req,reply)=>{
+  app.post('/api/admin/login',{config:{rateLimit:{max:5,timeWindow:'1 minute',keyGenerator:(req:FastifyRequest)=>req.ip}}},async(req,reply)=>{
     const {key}=z.object({key:z.string().min(1).max(256)}).parse(req.body);
     if(!timingSafeEqual(Buffer.from(hash(key)),Buffer.from(hash(options.adminKey))))return reply.code(403).send({error:'管理者キーが正しくありません'});
     db.update(t.sessions).set({isAdmin:true}).where(eq(t.sessions.tokenHash,hash(req.cookies.walk_session!))).run();return {ok:true};
@@ -270,6 +277,6 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.post('/api/admin/posts',async req=>{const p=postSchema.parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,origin:p.isSample?'sample':p.externalUrl?'external':'editorial',createdAt:Date.now()}).run();io.emit('posts');return {id};});
   app.put('/api/admin/posts/:id',async(req,reply)=>{const p=postSchema.parse(req.body); const id=(req.params as {id:string}).id;if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});db.update(t.posts).set(p).where(eq(t.posts.id,id)).run();io.emit('posts');return {ok:true};});
   app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');io.emit('rooms');return {ok:true};});
-  app.addHook('onClose',async()=>{clearInterval(expiryTimer);await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
+  app.addHook('onClose',async()=>{clearInterval(expiryTimer);clearInterval(activityTimer);await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
   return {app,io,store};
 }
