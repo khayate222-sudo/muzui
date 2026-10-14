@@ -35,6 +35,17 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       host.dataset.ready='true';
     }
     drawLandscape(){
+      const room=get().room;
+      if(room){
+        const floor=this.add.graphics(),night=room.theme==='night';
+        this.cameras.main.setBackgroundColor(night?'#303d4d':room.theme==='studio'?'#e9dfcf':'#dbe8d1');
+        floor.fillStyle(night?0x394d58:room.theme==='studio'?0xf2e9da:0xd0dfc2);floor.fillRoundedRect(50,50,1900,1300,70);
+        floor.lineStyle(1,night?0x647c80:0xa8b29d,.25);for(let x=80;x<2000;x+=80)floor.lineBetween(x,80,x,1320);for(let y=80;y<1350;y+=80)floor.lineBetween(80,y,1920,y);
+        this.add.text(1000,105,room.title,{fontFamily:'sans-serif',fontSize:'32px',color:night?'#e2eadc':'#52694e'}).setOrigin(.5);
+        this.add.text(1000,1300,'ENTRANCE · '+room.ownerName,{fontFamily:'sans-serif',fontSize:'18px',color:night?'#c3dacd':'#52694e'}).setOrigin(.5);
+        for(const d of room.decorations){if(d.kind==='tree')this.tree(d.x,d.y,1);else {const g=this.add.graphics();g.setDepth(d.y);if(d.kind==='stone'){g.fillStyle(0x9da8a1);g.fillEllipse(d.x,d.y-12,65,40);}else if(d.kind==='bench'){g.fillStyle(0x9a7053);g.fillRoundedRect(d.x-42,d.y-30,84,24,5);g.fillRect(d.x-32,d.y-6,7,18);g.fillRect(d.x+26,d.y-6,7,18);}else {g.fillStyle(0x74965d);g.fillRect(d.x-3,d.y-30,6,30);g.fillStyle(0xe5b36d);for(let i=0;i<6;i++)g.fillCircle(d.x+Math.cos(i*Math.PI/3)*13,d.y-35+Math.sin(i*Math.PI/3)*13,10);g.fillStyle(0xfff4c4);g.fillCircle(d.x,d.y-35,7);}}}
+        return;
+      }
       const g=this.add.graphics();
       g.fillStyle(0xd3e3c5);g.fillRoundedRect(35,25,1930,1350,130);
       // Quiet garden parcels, connected by broad walkable paths.

@@ -16,7 +16,7 @@ export function youtubeId(value: string): string | null {
   try {
     const u = new URL(value);
     if (!safeExternal(value)) return null;
-    const id = ['www.youtube.com', 'youtube.com', 'm.youtube.com'].includes(u.hostname) ? (u.pathname.startsWith('/shorts/') ? u.pathname.split('/')[2] : u.searchParams.get('v')) : u.hostname === 'youtu.be' ? u.pathname.slice(1) : null;
+    const id = ['www.youtube.com', 'youtube.com', 'm.youtube.com'].includes(u.hostname) ? (/^\/(shorts|live|embed)\//.test(u.pathname) ? u.pathname.split('/')[2] : u.searchParams.get('v')) : u.hostname === 'youtu.be' ? u.pathname.slice(1) : null;
     return id && /^[\w-]{11}$/.test(id) ? id : null;
   } catch { return null; }
 }
@@ -32,9 +32,9 @@ export const postSchema = z.object({
   if (p.type === 'external' && !p.externalUrl) ctx.addIssue({ code: 'custom', path: ['externalUrl'], message: '出典URLが必要です' });
 });
 export type PostInput = z.infer<typeof postSchema>;
-export type Post = PostInput & { id: string; createdAt: number; saves: number; reactions: Record<string,number> };
+export type Post = PostInput & { ownerId?:string|null; id: string; createdAt: number; saves: number; reactions: Record<string,number> };
 export type User = z.infer<typeof profileSchema> & { id: string; createdAt: number };
-export type Peer = Pick<User, 'id' | 'displayName' | 'color' | 'style'> & { x: number; y: number; area: Genre; currentPost: string | null };
+export type Peer = Pick<User, 'id' | 'displayName' | 'color' | 'style'> & { x: number; y: number; area: Genre; worldId?: string; currentPost: string | null };
 export type WorldState = { peers: Peer[]; counts: Record<string, number>; viewers: Record<string, Pick<Peer, 'id' | 'displayName' | 'color' | 'style'>[]>; online: number };
 export type Friendship = { id: string; requesterId: string; receiverId: string; status: string; createdAt: number; user: Pick<User, 'id' | 'displayName' | 'color' | 'style'> };
 export type Message = { id: string; senderId: string; receiverId: string; content: string; createdAt: number };

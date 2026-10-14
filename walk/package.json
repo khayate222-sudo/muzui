@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:relay": "node scripts/test-with-turn.mjs",
     "db:init": "node --env-file-if-exists=.env --import tsx server/migrate.ts",
     "docker:build": "node scripts/build-container.mjs"
   },

@@ -1,3 +1,4 @@
+import { community } from './community.js';
 import Fastify, { type FastifyRequest } from 'fastify';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
@@ -26,7 +27,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
   await app.register(helmet, { contentSecurityPolicy: { directives: {
     defaultSrc: ["'self'"], scriptSrc: process.env.NODE_ENV === 'production' ? ["'self'"] : ["'self'", "'unsafe-inline'"],
     styleSrc: ["'self'", "'unsafe-inline'"], imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-    connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com'],
+    connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com','https://www.tiktok.com'],
     objectSrc: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"], upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
   } }, crossOriginEmbedderPolicy: false });
   await app.register(rateLimit, { max: 240, timeWindow: '1 minute' });
@@ -63,8 +64,8 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const user = db.select().from(t.users).where(eq(t.users.id,target)).get();
     return user && !blocked(id,target) ? [{ ...f, user: pub(user) }] : [];
   });
-  const io = new Server(app.server, { maxHttpBufferSize: 8192, pingTimeout: 15000, pingInterval: 10000, allowRequest: (req, cb) => cb(null, validOrigin(req.headers.origin,req.headers.host)) });
-  const positions = new Map<string, { x: number; y: number; time: number }>();
+  const io = new Server(app.server, { maxHttpBufferSize: 32768, pingTimeout: 15000, pingInterval: 10000, allowRequest: (req, cb) => cb(null, validOrigin(req.headers.origin,req.headers.host)) });
+  const positions = new Map<string, { x: number; y: number; time: number; worldId: string }>();
   const userChatTimes = new Map<string, number>();
   const sessionCreations = new Map<string, {count:number;reset:number}>();
   const sockets = new Map<string, { userId: string; postId: string | null; expiresAt: number; last: Map<string, number> }>();
@@ -73,6 +74,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const online = activeUsers();
     const counts: Record<string,number> = {};
     const viewing = new Map<string,Set<string>>();
+    for(const s of sockets.values())if(s.postId&&!db.select({id:t.posts.id}).from(t.posts).where(eq(t.posts.id,s.postId)).get())s.postId=null;
     for (const s of sockets.values()) if (s.postId) {
       if (!viewing.has(s.postId)) viewing.set(s.postId,new Set());
       viewing.get(s.postId)!.add(s.userId);
@@ -81,18 +83,28 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const people = db.select().from(t.users).all().filter(u => online.has(u.id));
     for (const [sid, socket] of io.sockets.sockets) {
       const me = sockets.get(sid); if (!me) continue;
-      const visible = people.filter(u => !blocked(me.userId,u.id));
+      const context=positions.get(me.userId)?.worldId||'public';
+      const visible = people.filter(u => !blocked(me.userId,u.id) && (positions.get(u.id)?.worldId||'public')===context);
       const viewers: WorldState['viewers'] = {};
       for (const [id, ids] of viewing) viewers[id] = visible.filter(u => u.shareActivity && ids.has(u.id)).map(pub);
       const peers: Peer[] = visible.map(u => {
-        const p = positions.get(u.id) || { x: 1100,y: 750 };
+        const p = positions.get(u.id) || { x: 1100,y: 750,worldId:'public' };
         const current = u.shareActivity ? [...sockets.values()].find(s => s.userId === u.id && s.postId)?.postId || null : null;
-        return { ...pub(u), x:p.x,y:p.y,area:areaAt(p.x,p.y),currentPost:current };
+        return { ...pub(u), x:p.x,y:p.y,area:areaAt(p.x,p.y),worldId:p.worldId,currentPost:current };
       });
       socket.emit('world', { peers, counts, viewers, online: online.size } satisfies WorldState);
     }
   }
   const notify = (id: string, event = 'social') => { for (const [sid,s] of sockets) if (s.userId === id) io.to(sid).emit(event); };
+  function changeWorld(userId:string,worldId:string){
+    positions.set(userId,{x:1100,y:750,time:Date.now(),worldId});
+    for(const [sid,client]of sockets)if(client.userId===userId){client.postId=null;io.to(sid).emit('context',{worldId,reset:true});io.to(sid).emit('position',{x:1100,y:750});}
+  }
+  const features=community({app,io,store,blocked,connected,notify,broadcast,exitRoom:(id)=>{
+    for(const [userId,p]of positions)if(p.worldId!=='public'&&(id==='*'||p.worldId===id)){
+      const r=features.readRoom(p.worldId);if(!features.accessible(r,userId))changeWorld(userId,'public');
+    }
+  }});
   io.use((socket,next) => {
     let token: string | undefined;
     try { token = app.parseCookie(socket.request.headers.cookie || '').walk_session; } catch { /* malformed cookie */ }
@@ -104,7 +116,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const session = socket.data.session as Session;
     const s = { userId:session.userId,postId:null as string|null,expiresAt:session.expiresAt,last:new Map<string,number>() };
     sockets.set(socket.id,s);
-    if (!positions.has(s.userId)) positions.set(s.userId,{ x:1100,y:750,time:Date.now() });
+    if (!positions.has(s.userId)) positions.set(s.userId,{ x:1100,y:750,time:Date.now(),worldId:'public' });
     const respond = (ack: unknown, result: {ok:boolean;error?:string}) => { if (typeof ack === 'function') (ack as Ack)(result); };
     const limit = (key:string,ms:number) => { const now=Date.now(); if(now-(s.last.get(key)||0)<ms)return false; s.last.set(key,now); return true; };
     socket.use((_packet,next) => { if (Date.now() >= s.expiresAt) { socket.disconnect(true); return; } next(); });
@@ -114,12 +126,34 @@ export async function createApp(options: { database?: string; adminKey: string; 
       const distance=Math.hypot(parsed.data.x-old.x,parsed.data.y-old.y);
       // Server speed cap, shared across tabs. Area shortcuts are deliberate teleports.
       if(distance>Math.min(500,(now-old.time)/1000*420+35)){socket.emit('position',{x:old.x,y:old.y});return;}
-      positions.set(s.userId,{...parsed.data,time:now}); broadcast();
+      positions.set(s.userId,{...parsed.data,time:now,worldId:old.worldId}); broadcast();
     });
     socket.on('teleport',(data,ack) => {
       const parsed=moveSchema.safeParse(data); if(!parsed.success || !limit('teleport',500))return respond(ack,{ok:false,error:'少し待ってください'});
-      positions.set(s.userId,{...parsed.data,time:Date.now()}); for (const [sid,client] of sockets) if (client.userId===s.userId) io.to(sid).emit('position',parsed.data); broadcast(); respond(ack,{ok:true});
+      positions.set(s.userId,{...parsed.data,time:Date.now(),worldId:positions.get(s.userId)?.worldId||'public'}); for (const [sid,client] of sockets) if (client.userId===s.userId) io.to(sid).emit('position',parsed.data); broadcast(); respond(ack,{ok:true});
     });
+    socket.on('room:enter',(data,ack)=>{
+      const p=z.object({worldId:z.string().max(80)}).safeParse(data);
+      if(!p.success||!limit('room:enter',200))return respond(ack,{ok:false,error:'少し待ってからルームを選んでください'});
+      if(p.data.worldId!=='public'&&!features.accessible(features.readRoom(p.data.worldId),s.userId))return respond(ack,{ok:false,error:'ルームを表示できません'});
+      changeWorld(s.userId,p.data.worldId);broadcast();respond(ack,{ok:true});
+    });
+    socket.on('visit',(data,ack)=>{
+      const p=z.object({postId:z.string().max(80)}).safeParse(data);
+      if(!p.success||!limit('visit',150))return respond(ack,{ok:false,error:'少し待ってください'});
+      const post=db.select().from(t.posts).where(eq(t.posts.id,p.data.postId)).get();
+      if(!post)return respond(ack,{ok:false,error:'投稿が見つかりません'});
+      let worldId=positions.get(s.userId)?.worldId||'public',point={x:post.mapX,y:Math.min(1360,post.mapY+85)};
+      if(worldId!=='public'){
+        const room=features.readRoom(worldId),item=room?.items.find(i=>i.postId===post.id);
+        if(features.accessible(room,s.userId)&&item)point={x:item.x,y:item.y+85};else {worldId='public';changeWorld(s.userId,'public');}
+      }
+      positions.set(s.userId,{...point,time:Date.now(),worldId});s.postId=post.id;
+      for(const [sid,client]of sockets)if(client.userId===s.userId)io.to(sid).emit('position',point);
+      broadcast();respond(ack,{ok:true});
+    });
+    features.attach(socket,s.userId);
+    socket.emit('context',{worldId:positions.get(s.userId)?.worldId||'public'});
     socket.on('view',(data,ack) => {
       const parsed=z.object({postId:z.string().max(80).nullable()}).safeParse(data);
       if(!parsed.success)return respond(ack,{ok:false,error:'投稿が正しくありません'});
@@ -176,12 +210,13 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const target=db.select().from(t.users).where(eq(t.users.id,(req.params as {id:string}).id)).get();
     if(!target || blocked(uid(req),target.id))return reply.code(404).send({error:'プロフィールを表示できません'});
     const me=db.select().from(t.users).where(eq(t.users.id,uid(req))).get()!;
-    const myFav=db.select().from(t.favorites).where(eq(t.favorites.userId,uid(req))).all().map(f=>f.postId);
-    const canMatch=me.shareActivity && target.shareActivity;
-    const other=canMatch?db.select().from(t.favorites).where(eq(t.favorites.userId,target.id)).all().map(f=>f.postId):[];
-    const common=myFav.filter(id=>other.includes(id));
-    const commonGenres=canMatch?[...new Set(db.select().from(t.posts).all().filter(p=>myFav.includes(p.id)).map(p=>p.genre))].filter(g=>db.select().from(t.posts).all().some(p=>other.includes(p.id)&&p.genre===g)):[];
-    return {...pub(target),shareActivity:target.shareActivity,commonCount:canMatch?common.length:null,commonGenres};
+    const likes=(id:string)=>new Set([...db.select().from(t.favorites).where(eq(t.favorites.userId,id)).all().map(f=>f.postId),...db.select().from(t.reactions).where(and(eq(t.reactions.userId,id),eq(t.reactions.kind,'heart'))).all().map(f=>f.postId)]);
+    const canMatch=me.shareActivity&&target.shareActivity,myFav=canMatch?likes(me.id):new Set<string>(),other=canMatch?likes(target.id):new Set<string>();
+    const common=[...myFav].filter(id=>other.has(id));
+    const posts=db.select().from(t.posts).all(),myGenres=new Set(posts.filter(p=>myFav.has(p.id)).map(p=>p.genre)),theirGenres=new Set(posts.filter(p=>other.has(p.id)).map(p=>p.genre));
+    const commonGenres=[...myGenres].filter(g=>theirGenres.has(g));
+    const matchScore=canMatch&&myFav.size&&other.size?Math.round(100*(.6*common.length/new Set([...myFav,...other]).size+.4*commonGenres.length/new Set([...myGenres,...theirGenres]).size)):null;
+    return {...pub(target),shareActivity:target.shareActivity,commonCount:canMatch?common.length:null,commonGenres,matchScore};
   });
   app.get('/api/social',async req=>({friendships:friendList(uid(req)),blocks:db.select().from(t.blocks).where(eq(t.blocks.userId,uid(req))).all().map(b=>b.targetId)}));
   app.post('/api/friendships',async(req,reply)=>{
@@ -209,7 +244,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     if(id===me || !db.select().from(t.users).where(eq(t.users.id,id)).get())return reply.code(400).send({error:'対象が見つかりません'});
     if(enable){db.insert(t.blocks).values({userId:me,targetId:id,createdAt:Date.now()}).onConflictDoNothing().run();db.delete(t.friendships).where(or(and(eq(t.friendships.requesterId,me),eq(t.friendships.receiverId,id)),and(eq(t.friendships.requesterId,id),eq(t.friendships.receiverId,me)))).run();}
     else db.delete(t.blocks).where(and(eq(t.blocks.userId,me),eq(t.blocks.targetId,id))).run();
-    notify(me);notify(id);broadcast();return {ok:true};
+    if(enable)features.onBlock(me,id);notify(me);notify(id);broadcast();return {ok:true};
   });
   app.post('/api/reports',async(req,reply)=>{
     const p=z.object({targetType:z.enum(['user','post']),targetId:z.string().min(1).max(80),reason:z.string().trim().min(3).max(1000)}).parse(req.body);
@@ -225,7 +260,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.get('/api/admin/reports',async()=>db.select().from(t.reports).orderBy(desc(t.reports.createdAt)).all());
   app.post('/api/admin/posts',async req=>{const p=postSchema.parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,createdAt:Date.now()}).run();io.emit('posts');return {id};});
   app.put('/api/admin/posts/:id',async(req,reply)=>{const p=postSchema.parse(req.body); const id=(req.params as {id:string}).id;if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});db.update(t.posts).set(p).where(eq(t.posts.id,id)).run();io.emit('posts');return {ok:true};});
-  app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');return {ok:true};});
+  app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');io.emit('rooms');return {ok:true};});
   app.addHook('onClose',async()=>{clearInterval(expiryTimer);await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();});
   return {app,io,store};
 }
