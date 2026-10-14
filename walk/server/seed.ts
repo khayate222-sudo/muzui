@@ -23,14 +23,14 @@ export function seed({ db, sqlite }: Store) {
     ['脳内タブが多すぎる', 'やりたいことが多すぎて、何をしようとしたか忘れた。まずは散歩して、タブを少し閉じよう。'],
   ];
   const now = Date.now();
-  const entries: (PostInput & { id: string; createdAt: number })[] = [];
-  areas.forEach((a, ai) => {
+  const entries: (PostInput & { id: string; createdAt: number;origin:'sample' })[] = [];
+  areas.slice(0,5).forEach((a, ai) => {
     for (let j=0; j<3; j++) {
       const item = text[ai*3+j];
-      entries.push({ id: `text-${ai}-${j}`, type: 'text', title: item[0], body: item[1], authorName: ['WALK EDITORIAL', 'よりみちノート', '日々のかけら'][j], genre: a.id, mediaUrl: '', externalUrl: '', provider: 'WALK ORIGINAL', mapX: a.x + [-175, 0, 175][j], mapY: a.y + [-65, 120, -65][j], isSample: true, createdAt: now-(ai*3+j)*3600000 });
+      entries.push({ id: `text-${ai}-${j}`, type: 'text', title: item[0], body: item[1], authorName: ['WALK EDITORIAL', 'よりみちノート', '日々のかけら'][j], genre: a.id, mediaUrl: '', externalUrl: '', provider: 'WALK ORIGINAL', mapX: a.x + [-175, 0, 175][j], mapY: a.y + [-65, 120, -65][j], isSample: true, origin:'sample' as const, createdAt: now-(ai*3+j)*3600000 });
     }
-    entries.push({ id: `image-${ai}`, type: 'image', title: ['The art of slowing down', '音のある風景', 'A little frame of life', 'Somewhere, in green.', 'なんでもない日の、冒険。'][ai], body: 'WALKのために制作したオリジナルイラスト。少し立ち止まって、色と余白を楽しんでください。', mediaUrl: `/art/scene-${ai}.svg`, externalUrl: '', provider: 'WALK STUDIO', authorName: 'WALK STUDIO', genre: a.id, mapX: a.x-100, mapY: a.y-235, isSample: true, createdAt: now-ai*7200000 });
-    entries.push({ id: `youtube-${ai}`, type: 'youtube', title: ['街を歩く、音を探す', 'A soundtrack for your walk', '小さな映像館', 'アトリエを訪ねて', 'ひと休みの動画'][ai], body: 'YouTube設定用サンプルです。動画の権利・公開状態・埋め込み許可を確認し、管理画面から差し替えてください。外部再生は未確認のため、このサンプルでは埋め込みません。', mediaUrl: '', externalUrl: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', provider: 'YouTube · 設定用サンプル', authorName: 'WALK CURATION', genre: a.id, mapX: a.x+130, mapY: a.y+240, isSample: true, createdAt: now-ai*10800000 });
+    entries.push({ id: `image-${ai}`, type: 'image', title: ['The art of slowing down', '音のある風景', 'A little frame of life', 'Somewhere, in green.', 'なんでもない日の、冒険。'][ai], body: 'WALKのために制作したオリジナルイラスト。少し立ち止まって、色と余白を楽しんでください。', mediaUrl: `/art/scene-${ai}.svg`, externalUrl: '', provider: 'WALK STUDIO', authorName: 'WALK STUDIO', genre: a.id, mapX: a.x-100, mapY: a.y-235, isSample: true, origin:'sample' as const, createdAt: now-ai*7200000 });
+    entries.push({ id: `youtube-${ai}`, type: 'youtube', title: ['街を歩く、音を探す', 'A soundtrack for your walk', '小さな映像館', 'アトリエを訪ねて', 'ひと休みの動画'][ai], body: 'YouTube設定用サンプルです。動画の権利・公開状態・埋め込み許可を確認し、管理画面から差し替えてください。外部再生は未確認のため、このサンプルでは埋め込みません。', mediaUrl: '', externalUrl: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', provider: 'YouTube · 設定用サンプル', authorName: 'WALK CURATION', genre: a.id, mapX: a.x+130, mapY: a.y+240, isSample: true, origin:'sample' as const, createdAt: now-ai*10800000 });
   });
   db.transaction(tx=>{tx.insert(posts).values(entries).run();sqlite.prepare('INSERT OR IGNORE INTO seed_state VALUES (1)').run();});
 }

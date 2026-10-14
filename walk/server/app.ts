@@ -1,3 +1,8 @@
+import { mkdtempSync,rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname,join } from 'node:path';
+import { publishing } from './publishing.js';
+import { collector,type FeedLoader } from './collector.js';
 import { community } from './community.js';
 import Fastify, { type FastifyRequest } from 'fastify';
 import cookie from '@fastify/cookie';
@@ -17,7 +22,7 @@ declare module 'fastify' { interface FastifyRequest { session: Session | null } 
 type Ack = (result: { ok: boolean; error?: string }) => void;
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
 const pub = (u: typeof t.users.$inferSelect) => ({ id: u.id, displayName: u.displayName, color: u.color, style: u.style });
-export async function createApp(options: { database?: string; adminKey: string; logger?: boolean; origin?: string; secureCookie?: boolean } ) {
+export async function createApp(options: { database?: string; adminKey: string; logger?: boolean; origin?: string; secureCookie?: boolean;mediaDirectory?:string;collectionFeed?:FeedLoader } ) {
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 32 * 1024, trustProxy: false });
   const store = openDatabase(options.database);
   const { db, sqlite } = store;
@@ -180,6 +185,10 @@ export async function createApp(options: { database?: string; adminKey: string; 
   });
   const expiryTimer=setInterval(() => { for(const [id,s] of sockets)if(s.expiresAt<=Date.now())io.sockets.sockets.get(id)?.disconnect(true);for(const [ip,b]of sessionCreations)if(b.reset<Date.now())sessionCreations.delete(ip); },30000);
   expiryTimer.unref();
+  const changedPosts=()=>{broadcast();io.emit('posts');io.emit('rooms');};
+  const temporaryMedia=options.database===':memory:'&&!options.mediaDirectory?mkdtempSync(join(tmpdir(),'walk-media-')):null;
+  await publishing({app,store,changed:changedPosts,mediaDirectory:options.mediaDirectory||temporaryMedia||join(dirname(options.database||process.env.DATABASE_PATH||'./data/walk.sqlite'),'uploads')});
+  const collections=collector({app,store,changed:changedPosts,loadFeed:options.collectionFeed});
   app.get('/api/health',async()=>({ ok:true }));
   app.get('/api/bootstrap',async(req,reply)=>{
     if(!req.session){
@@ -258,9 +267,9 @@ export async function createApp(options: { database?: string; adminKey: string; 
     db.update(t.sessions).set({isAdmin:true}).where(eq(t.sessions.tokenHash,hash(req.cookies.walk_session!))).run();return {ok:true};
   });
   app.get('/api/admin/reports',async()=>db.select().from(t.reports).orderBy(desc(t.reports.createdAt)).all());
-  app.post('/api/admin/posts',async req=>{const p=postSchema.parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,createdAt:Date.now()}).run();io.emit('posts');return {id};});
+  app.post('/api/admin/posts',async req=>{const p=postSchema.parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,origin:p.isSample?'sample':p.externalUrl?'external':'editorial',createdAt:Date.now()}).run();io.emit('posts');return {id};});
   app.put('/api/admin/posts/:id',async(req,reply)=>{const p=postSchema.parse(req.body); const id=(req.params as {id:string}).id;if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});db.update(t.posts).set(p).where(eq(t.posts.id,id)).run();io.emit('posts');return {ok:true};});
   app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');io.emit('rooms');return {ok:true};});
-  app.addHook('onClose',async()=>{clearInterval(expiryTimer);await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();});
+  app.addHook('onClose',async()=>{clearInterval(expiryTimer);await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
   return {app,io,store};
 }

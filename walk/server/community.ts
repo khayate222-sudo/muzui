@@ -5,7 +5,8 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 import * as t from './schema';
-import { areas, genres } from '../shared/model';
+import { postPosition } from './placement';
+import { genres } from '../shared/model';
 import { roomSchema, sourceInfo, type Room, type Party, type PartyState, type PublicUser } from '../shared/community';
 
 type Context={app:FastifyInstance;io:Server;store:Store;blocked:(a:string,b:string)=>boolean;connected:(a:string,b:string)=>boolean;notify:(id:string,event?:string)=>void;broadcast:()=>void;exitRoom:(id:string)=>void};
@@ -31,7 +32,7 @@ export function community(c:Context){
     sqlite.prepare('INSERT INTO rooms (id,owner_id,title,description,is_public,theme,layout,updated_at) VALUES (?,?,?,?,?,?,?,?)').run(roomId,id,p.title,p.description,Number(p.isPublic),p.theme,JSON.stringify({items:p.items,decorations:p.decorations}),Date.now());
     io.emit('rooms');return readRoom(roomId);
   });
-  function validItems(items:{postId:string}[],id:string){return items.every(i=>!!sqlite.prepare("SELECT id FROM posts WHERE id=? AND (id IN (SELECT post_id FROM favorites WHERE user_id=?) OR id IN (SELECT post_id FROM reactions WHERE user_id=? AND kind='heart'))").get(i.postId,id,id));}
+  function validItems(items:{postId:string}[],id:string){return items.every(i=>!!sqlite.prepare("SELECT id FROM posts WHERE id=? AND ((owner_id=? AND origin='walk') OR id IN (SELECT post_id FROM favorites WHERE user_id=?) OR id IN (SELECT post_id FROM reactions WHERE user_id=? AND kind='heart'))").get(i.postId,id,id,id));}
   app.put('/api/rooms/:id',async(req,reply)=>{
     const id=(req.params as {id:string}).id,r=readRoom(id),me=req.session!.userId,p=roomSchema.parse(req.body);
     if(!r||r.ownerId!==me)return reply.code(403).send({error:'自分のルームだけ編集できます'});
@@ -53,8 +54,8 @@ export function community(c:Context){
     if(existing){db.insert(t.favorites).values({userId:req.session!.userId,postId:existing.id,createdAt:Date.now()}).onConflictDoNothing().run();notify(req.session!.userId);return {id:existing.id,existing:true};}
     const owner=req.session!.userId;
     if((sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE owner_id=?').get(owner) as {n:number}).n>=200)return reply.code(409).send({error:'登録は1人200件までです'});
-    const id=randomUUID(),a=areas.find(a=>a.id===p.genre)!,offset=(sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE genre=?').get(p.genre) as {n:number}).n;
-    db.insert(t.posts).values({id,type:source.provider==='YouTube'?'youtube':'external',title:p.title,body:p.body,mediaUrl:'',externalUrl:source.url,provider:source.provider,authorName:p.authorName,genre:p.genre,mapX:a.x-200+(offset%4)*135,mapY:a.y-170+(Math.floor(offset/4)%4)*115,isSample:false,createdAt:Date.now()}).run();
+    const id=randomUUID(),position=postPosition(c.store,p.genre);
+    db.insert(t.posts).values({id,type:source.provider==='YouTube'?'youtube':'external',title:p.title,body:p.body,mediaUrl:'',externalUrl:source.url,origin:'external',provider:source.provider,authorName:p.authorName,genre:p.genre,mapX:position.mapX,mapY:position.mapY,isSample:false,createdAt:Date.now()}).run();
     sqlite.prepare('UPDATE posts SET owner_id=? WHERE id=?').run(owner,id);
     db.insert(t.favorites).values({userId:owner,postId:id,createdAt:Date.now()}).run();notify(owner);io.emit('posts');return {id,existing:false};
   });

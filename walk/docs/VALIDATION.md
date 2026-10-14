@@ -6,9 +6,9 @@
 | --- | --- |
 | TypeScript `npm run typecheck` | 成功 |
 | ESLint `npm run lint` | 成功 |
-| Vitest `npm test` | 23件成功、失敗・スキップなし（ローカル起動の事前確認3件を含む） |
+| Vitest `npm test` | 29件成功、失敗・スキップなし（ローカル起動の事前確認3件を含む） |
 | 本番ビルド `npm run build` | 成功 |
-| Playwright `npm run test:e2e:relay` | 5件成功、失敗・スキップなし。実WebRTC音声はローカルTCP TURN経由 |
+| Playwright `npm run test:e2e:relay` | 6件成功、失敗・スキップなし。実WebRTC音声はローカルTCP TURN経由 |
 | `npm audit --audit-level=moderate` | 前回の基盤検証では脆弱性0件。今回、依存バージョンの変更なし |
 | `npm run docker:build -- --cloud` | 前回の基盤検証で成功、TLS・integrity検証有効。今回の追加機能を含むDocker再検証は未実施 |
 | Dockerコンテナ（前回の基盤検証） | HTTP・SQLite native binding・初期25投稿・再起動後のプロフィールと保存保持、最終イメージの実ブラウザ上のマップ移動・投稿閲覧・リアクションを確認 |
@@ -22,8 +22,16 @@ E2Eは独立した一時DBで**本番ビルド**を起動し、2つのブラウ�
 
 追加検証では、ワンタップの次投稿と他ブラウザのアバター移動、実際のカードドラッグと座標保存、ルーム公開・他ユーザーの訪問・非公開化による退出、編集権限・競合、URL正規化・重複除外・登録者以外の削除拒否、パーティ招待と承認、関係のない相手への音声シグナル拒否、ブロック後の音声権限剥奪、旧DBからのマイグレーションと再起動後のデータ保持を確認しました。
 
-音声E2Eはブラウザの本物のRTCPeerConnectionとテスト用マイクを使用し、両ブラウザのinbound audio RTPの受信バイトが増えること、マイクのmute/unmute、音声退出・パーティ退出後のtrack endedを検証しました。システムChromiumには `WebRtcIPHandling=disable_non_proxied_udp` の管理ポリシーがあるため、直接接続テストはICE候補が作れず失敗しました。ポリシーは変更せず、署名検証したDebian coturn 4.6.1をローカルに展開し、TCP TURN中継で全5件を成功させました。テスト用TURNと一時資格情報は `scripts/test-with-turn.mjs` が起動・終了・削除します。実際の人間のマイク音声や別ネットワーク間のNAT越えは未検証です。
+音声E2Eはブラウザの本物のRTCPeerConnectionとテスト用マイクを使用し、両ブラウザのinbound audio RTPの受信バイトが増えること、マイクのmute/unmute、音声退出・パーティ退出後のtrack endedを検証しました。システムChromiumには `WebRtcIPHandling=disable_non_proxied_udp` の管理ポリシーがあるため、直接接続テストはICE候補が作れず失敗しました。ポリシーは変更せず、署名検証したDebian coturn 4.6.1をローカルに展開し、TCP TURN中継で全6件を成功させました。テスト用TURNと一時資格情報は `scripts/test-with-turn.mjs` が起動・終了・削除します。実際の人間のマイク音声や別ネットワーク間のNAT越えは未検証です。
 
 画像は `artifacts/walk-next-and-import.png`、`walk-party.png`、`walk-desktop.png`、`walk-mobile.png`、`walk-welcome-mobile.png`、`walk-chat.png`。ローカル生成物のためGit管理対象外です。
 
 **未検証：** 実YouTube動画の再生・実在外部SNSの公式プレーヤーの再生成功・本番公開・新規クラウドタスクへのスナップショット復元・大人数負荷試験。初期YouTubeは設定用サンプルのため、再生成功を示すものではありません。DockerのベースOSの脆弱性スキャンはnpm auditとは別途必要です。
+
+## 直接投稿と収集の追加検証
+
+ゲーム・アニメの2ジャンル、サーバーの本人情報による直接投稿、他人の投稿・添付の操作拒否、ファイル署名検証、未公開添付の非公開、動画Rangeリクエスト、チャンネルID検証、XMLの外部エンティティ拒否、取得先チャンネル一致、候補の確認後公開・新着自動公開、繰り返し収集の重複除外と削除後の復活防止、取得失敗の記録を検証しました。
+
+ブラウザでは390pxの画面でオリジナルのWebM動画をアップロード・公開し、videoのreadyStateと再生時間の進行を確認。WALK発の一覧、本人の投稿管理と削除、390px・320pxの横はみ出しなしを確認しました。テスト動画は自作の単色クリップです。`npm audit --audit-level=moderate` は依存追加後も脆弱性0件でした。
+
+YouTubeの実フィードはこのクラウドのプロキシで403となり、通信許可を下書きへ追加しました。実データの取得・実プレーヤーの再生成功は未確認です。収集テストは独立したAtomフィードを用いています。現在の直接投稿・収集版についてDocker再ビルド・Windows実機確認は行っていません。

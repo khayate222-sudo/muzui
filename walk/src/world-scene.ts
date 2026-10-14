@@ -94,7 +94,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
         g.fillStyle(col,.35);g.fillRoundedRect(-64,-96,128,55,8);
         c.add(g);
         if(p.type==='image' && /^\/art\/scene-\d\.svg$/.test(p.mediaUrl)){const i=Number(p.mediaUrl.match(/\d/)![0]);c.add(this.add.image(0,-69,'art-'+i).setDisplaySize(125,53));}
-        else {c.add(this.add.text(0,-71,p.type==='youtube'?'▶︎':p.type==='external'?'↗':['✦','♫','▶','✿','☺'][areas.findIndex(a=>a.id===p.genre)],{fontFamily:'sans-serif',fontSize:'30px',color:'#4d6652'}).setOrigin(.5));}
+        else {c.add(this.add.text(0,-71,(p.type==='youtube'||p.type==='video')?'▶︎':p.type==='external'?'↗':a.icon,{fontFamily:'sans-serif',fontSize:'30px',color:'#4d6652'}).setOrigin(.5));}
         const title=p.title.length>12?p.title.slice(0,12)+'…':p.title;
         c.add(this.add.text(0,-28,title,{fontFamily:'sans-serif',fontSize:'11px',fontStyle:'bold',color:'#3b5043'}).setOrigin(.5));
         const countLabel=this.add.text(0,-10,'',{fontFamily:'sans-serif',fontSize:'10px',color:'#7a8c73'}).setOrigin(.5);c.add(countLabel);c.setData('count',countLabel);
