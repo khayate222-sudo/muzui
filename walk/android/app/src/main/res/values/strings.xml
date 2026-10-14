@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">WALK</string>
+    <string name="title_activity_main">WALK</string>
+    <string name="package_name">com.khayate222.walk</string>
+    <string name="custom_url_scheme">com.khayate222.walk</string>
+</resources>

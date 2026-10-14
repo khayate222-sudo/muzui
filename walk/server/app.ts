@@ -4,6 +4,7 @@ import { dirname,join } from 'node:path';
 import { publishing } from './publishing.js';
 import { collector,type FeedLoader } from './collector.js';
 import { activities } from './activities.js';
+import { nativeOrigins } from '../shared/native.js';
 import { findPlace, postWorld } from '../shared/worlds.js';
 import { community } from './community.js';
 import Fastify, { type FastifyRequest } from 'fastify';
@@ -49,11 +50,14 @@ export async function createApp(options: { database?: string; adminKey: string; 
     try { return options.origin ? origin === options.origin : new URL(origin).host === host; } catch { return false; }
   };
   app.addHook('onRequest', async (req, reply) => {
+    const bearer=/^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization||'')?.[1];
+    req.session=readSession(bearer||req.cookies.walk_session);
+    if(req.headers.authorization&&!req.session)return reply.code(401).send({error:'アプリのセッションが使えません。既存の記録を保護するため、新しいゲストには切り替えていません。'});
     if (!req.url.startsWith('/api/')) return;
     reply.header('Cache-Control', 'no-store');
-    if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && (req.headers['x-walk-client'] !== '1' || !validOrigin(req.headers.origin, req.headers.host))) return reply.code(403).send({ error: 'リクエスト元を確認できません。ページを再読み込みしてください。' });
-    req.session = readSession(req.cookies.walk_session);
-    if (req.url.split('?')[0] !== '/api/bootstrap' && req.url !== '/api/health' && !req.session) return reply.code(401).send({ error: 'セッションの有効期限が切れました。再読み込みしてください。' });
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && (req.headers['x-walk-client'] !== '1' || !(validOrigin(req.headers.origin,req.headers.host)||!!bearer&&!!req.session&&nativeOrigins.includes(req.headers.origin||'')))) return reply.code(403).send({ error: 'リクエスト元を確認できません。ページを再読み込みしてください。' });
+    // Native sessions use a capability token stored in the device's secure storage.
+    if (!['/api/bootstrap','/api/native/session'].includes(req.url.split('?')[0]) && req.url !== '/api/health' && !req.session) return reply.code(401).send({ error: 'セッションの有効期限が切れました。再読み込みしてください。' });
     if (req.url.startsWith('/api/admin/') && req.url !== '/api/admin/login' && !req.session?.isAdmin) return reply.code(403).send({ error: '管理者の認証が必要です' });
   });
   app.setErrorHandler((error, req, reply) => {
@@ -71,7 +75,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const user = db.select().from(t.users).where(eq(t.users.id,target)).get();
     return user && !blocked(id,target) ? [{ ...f, user: pub(user) }] : [];
   });
-  const io = new Server(app.server, { maxHttpBufferSize: 32768, pingTimeout: 15000, pingInterval: 10000, allowRequest: (req, cb) => cb(null, validOrigin(req.headers.origin,req.headers.host)) });
+  const io = new Server(app.server, { maxHttpBufferSize: 32768, pingTimeout: 15000, pingInterval: 10000, allowRequest: (req, cb) => cb(null, validOrigin(req.headers.origin,req.headers.host)||nativeOrigins.includes(req.headers.origin||'')) });
   const positions = new Map<string, { x: number; y: number; time: number; worldId: string }>();
   const userChatTimes = new Map<string, number>();
   const sessionCreations = new Map<string, {count:number;reset:number}>();
@@ -115,7 +119,9 @@ export async function createApp(options: { database?: string; adminKey: string; 
   io.use((socket,next) => {
     let token: string | undefined;
     try { token = app.parseCookie(socket.request.headers.cookie || '').walk_session; } catch { /* malformed cookie */ }
-    const session = readSession(token);
+    const nativeToken=socket.handshake.auth?.token;
+    const session = readSession(typeof nativeToken==='string'?nativeToken:token);
+    if(nativeOrigins.includes(socket.request.headers.origin||'')&&typeof nativeToken!=='string')return next(new Error('ネイティブ認証が必要です'));
     if (!session) return next(new Error('セッションが必要です'));
     socket.data.session = session; next();
   });
@@ -197,6 +203,13 @@ export async function createApp(options: { database?: string; adminKey: string; 
   const activityTimer=setInterval(()=>{activityFeatures.settle();const next=activityFeatures.signature();if(next!==activitySignature){activitySignature=next;io.emit('activities');broadcast();}},1000);activityTimer.unref();
   const collections=collector({app,store,changed:changedPosts,loadFeed:options.collectionFeed});
   app.get('/api/health',async()=>({ ok:true }));
+  app.post('/api/native/session',{config:{rateLimit:{max:12,timeWindow:'1 minute',keyGenerator:(req:FastifyRequest)=>req.ip}}},async(req,reply)=>{
+    // Sessions never come from caller-selected identities; native and web share the same expiration policy.
+    const id=randomUUID(),token=randomBytes(32).toString('hex');
+    db.insert(t.users).values({id,displayName:'旅人',color:'#6d9c80',style:'cap',shareActivity:false,createdAt:Date.now()}).run();
+    db.insert(t.sessions).values({tokenHash:hash(token),userId:id,expiresAt:Date.now()+30*86400000,isAdmin:false}).run();
+    reply.header('Cache-Control','no-store');return {token};
+  });
   app.get('/api/bootstrap',async(req,reply)=>{
     if(!req.session){
       const now=Date.now();let bucket=sessionCreations.get(req.ip);if(!bucket||bucket.reset<now){bucket={count:0,reset:now+60000};sessionCreations.set(req.ip,bucket);}if(++bucket.count>12)return reply.code(429).send({error:'ゲスト作成が多すぎます。1分ほど待ってください。'});
@@ -271,7 +284,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.post('/api/admin/login',{config:{rateLimit:{max:5,timeWindow:'1 minute',keyGenerator:(req:FastifyRequest)=>req.ip}}},async(req,reply)=>{
     const {key}=z.object({key:z.string().min(1).max(256)}).parse(req.body);
     if(!timingSafeEqual(Buffer.from(hash(key)),Buffer.from(hash(options.adminKey))))return reply.code(403).send({error:'管理者キーが正しくありません'});
-    db.update(t.sessions).set({isAdmin:true}).where(eq(t.sessions.tokenHash,hash(req.cookies.walk_session!))).run();return {ok:true};
+    db.update(t.sessions).set({isAdmin:true}).where(eq(t.sessions.tokenHash,hash(/^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization||'')?.[1]||req.cookies.walk_session!))).run();return {ok:true};
   });
   app.get('/api/admin/reports',async()=>db.select().from(t.reports).orderBy(desc(t.reports.createdAt)).all());
   app.post('/api/admin/posts',async req=>{const p=postSchema.parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,origin:p.isSample?'sample':p.externalUrl?'external':'editorial',createdAt:Date.now()}).run();io.emit('posts');return {id};});

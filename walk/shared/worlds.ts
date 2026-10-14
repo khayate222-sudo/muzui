@@ -18,4 +18,4 @@ export const childrenOf=(id:string)=>places.filter(p=>p.parentId===id);
 export function pathTo(id:string):Place[]{const p=findPlace(id);return p?[...(p.parentId?pathTo(p.parentId):[]),p]:[];}
 export function postWorld(post:{genre:Genre;worldId?:string|null}):string{return findPlace(post.worldId||'')?.genre===post.genre?post.worldId!:'world:'+post.genre;}
 export function acceptsPost(worldId:string|null|undefined,genre:Genre){return !worldId||findPlace(worldId)?.genre===genre;}
-export function gatePoints(id:string){const destinations=[...childrenOf(id),...(findPlace(id)?.parentId?[findPlace(findPlace(id)!.parentId!)!]:[])];return destinations.map((place,i)=>({place,x:350+(i%4)*430,y:280+Math.floor(i/4)*250}));}
+export function gatePoints(id:string){const destinations=[...childrenOf(id),...(findPlace(id)?.parentId?[findPlace(findPlace(id)!.parentId!)!]:[])];return destinations.map((place,i)=>({place,x:id==='public'?([390,760,1310,1660,380,760,1290,1660,410,1600][i]||1000):350+(i%4)*430,y:id==='public'?([440,370,365,430,820,1020,1020,805,1115,1110][i]||900):360+Math.floor(i/4)*360}));}

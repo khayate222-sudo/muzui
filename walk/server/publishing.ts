@@ -46,12 +46,7 @@ export async function publishing({app,store,changed,mediaDirectory}:{app:Fastify
     if(!row)return reply.code(404).send({error:'ファイルが見つかりません'});
     // Public media belongs to public posts. Unpublished uploads are owner-only.
     const published=sqlite.prepare('SELECT id FROM posts WHERE media_url=?').get('/media/'+name);
-    const token=app.parseCookie(req.headers.cookie||'').walk_session;
-    if(!published){
-      const {createHash}=await import('node:crypto');
-      const session=token?sqlite.prepare('SELECT user_id FROM sessions WHERE token_hash=? AND expires_at>?').get(createHash('sha256').update(token).digest('hex'),Date.now()) as {user_id:string}|undefined:undefined;
-      if(session?.user_id!==row.owner_id)return reply.code(404).send({error:'ファイルが見つかりません'});
-    }
+    if(!published&&req.session?.userId!==row.owner_id)return reply.code(404).send({error:'ファイルが見つかりません'});
     let bytes:Buffer;try{bytes=await readFile(join(root,row.filename));}catch{return reply.code(404).send({error:'ファイルが見つかりません'});}
     reply.type(row.mime).header('X-Content-Type-Options','nosniff').header('Cache-Control','no-store').header('Accept-Ranges','bytes');
     const range=req.headers.range;
