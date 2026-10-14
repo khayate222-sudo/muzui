@@ -1,0 +1,231 @@
+import Fastify, { type FastifyRequest } from 'fastify';
+import cookie from '@fastify/cookie';
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
+import { Server } from 'socket.io';
+import { randomBytes, randomUUID, createHash, timingSafeEqual } from 'node:crypto';
+import { and, eq, or, count, lt, desc } from 'drizzle-orm';
+import { z } from 'zod';
+import { openDatabase } from './db.js';
+import { seed } from './seed.js';
+import * as t from './schema.js';
+import { areaAt, moveSchema, postSchema, profileSchema, type Peer, type WorldState } from '../shared/model.js';
+
+type Session = { userId: string; isAdmin: boolean; expiresAt: number };
+declare module 'fastify' { interface FastifyRequest { session: Session | null } }
+type Ack = (result: { ok: boolean; error?: string }) => void;
+const hash = (s: string) => createHash('sha256').update(s).digest('hex');
+const pub = (u: typeof t.users.$inferSelect) => ({ id: u.id, displayName: u.displayName, color: u.color, style: u.style });
+export async function createApp(options: { database?: string; adminKey: string; logger?: boolean; origin?: string; secureCookie?: boolean } ) {
+  const app = Fastify({ logger: options.logger ?? false, bodyLimit: 32 * 1024, trustProxy: false });
+  const store = openDatabase(options.database);
+  const { db, sqlite } = store;
+  seed(store);
+  db.delete(t.sessions).where(lt(t.sessions.expiresAt, Date.now())).run();
+  await app.register(cookie);
+  await app.register(helmet, { contentSecurityPolicy: { directives: {
+    defaultSrc: ["'self'"], scriptSrc: process.env.NODE_ENV === 'production' ? ["'self'"] : ["'self'", "'unsafe-inline'"],
+    styleSrc: ["'self'", "'unsafe-inline'"], imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+    connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com'],
+    objectSrc: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"], upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+  } }, crossOriginEmbedderPolicy: false });
+  await app.register(rateLimit, { max: 240, timeWindow: '1 minute' });
+  app.decorateRequest('session', null);
+  const readSession = (token?: string): Session | null => {
+    if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
+    const row = db.select().from(t.sessions).where(eq(t.sessions.tokenHash, hash(token))).get();
+    return row && row.expiresAt > Date.now() ? row : null;
+  };
+  const validOrigin = (origin: string | undefined, host: string | undefined) => {
+    if (!origin) return true; // non-browser clients still need the session and CSRF header
+    try { return options.origin ? origin === options.origin : new URL(origin).host === host; } catch { return false; }
+  };
+  app.addHook('onRequest', async (req, reply) => {
+    if (!req.url.startsWith('/api/')) return;
+    reply.header('Cache-Control', 'no-store');
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && (req.headers['x-walk-client'] !== '1' || !validOrigin(req.headers.origin, req.headers.host))) return reply.code(403).send({ error: 'リクエスト元を確認できません。ページを再読み込みしてください。' });
+    req.session = readSession(req.cookies.walk_session);
+    if (req.url.split('?')[0] !== '/api/bootstrap' && req.url !== '/api/health' && !req.session) return reply.code(401).send({ error: 'セッションの有効期限が切れました。再読み込みしてください。' });
+    if (req.url.startsWith('/api/admin/') && req.url !== '/api/admin/login' && !req.session?.isAdmin) return reply.code(403).send({ error: '管理者の認証が必要です' });
+  });
+  app.setErrorHandler((error, req, reply) => {
+    if (error instanceof z.ZodError) return reply.code(400).send({ error: error.issues[0]?.message || '入力が正しくありません' });
+    const status = error instanceof Error && 'statusCode' in error && typeof error.statusCode === 'number' ? error.statusCode : 500;
+    if (status >= 500) req.log.error(error);
+    reply.code(status).send({ error: status === 429 ? '操作が多すぎます。少し待ってください。' : status >= 500 ? 'サーバーでエラーが発生しました' : error instanceof Error ? error.message : 'リクエストが正しくありません' });
+  });
+  const uid = (r: FastifyRequest) => r.session!.userId;
+  const blocked = (a: string,b: string) => !!db.select().from(t.blocks).where(or(and(eq(t.blocks.userId,a),eq(t.blocks.targetId,b)),and(eq(t.blocks.userId,b),eq(t.blocks.targetId,a)))).get();
+  const connected = (a: string,b: string) => !blocked(a,b) && !!db.select().from(t.friendships).where(and(eq(t.friendships.status,'accepted'),or(and(eq(t.friendships.requesterId,a),eq(t.friendships.receiverId,b)),and(eq(t.friendships.requesterId,b),eq(t.friendships.receiverId,a))))).get();
+  const postList = () => db.select().from(t.posts).all().map(p => ({ ...p, saves: db.select({ n: count() }).from(t.favorites).where(eq(t.favorites.postId,p.id)).get()!.n, reactions: Object.fromEntries(db.select({kind:t.reactions.kind,n:count()}).from(t.reactions).where(eq(t.reactions.postId,p.id)).groupBy(t.reactions.kind).all().map(r=>[r.kind,r.n])) }));
+  const friendList = (id: string) => db.select().from(t.friendships).where(or(eq(t.friendships.requesterId,id),eq(t.friendships.receiverId,id))).all().flatMap(f => {
+    const target = f.requesterId === id ? f.receiverId : f.requesterId;
+    const user = db.select().from(t.users).where(eq(t.users.id,target)).get();
+    return user && !blocked(id,target) ? [{ ...f, user: pub(user) }] : [];
+  });
+  const io = new Server(app.server, { maxHttpBufferSize: 8192, pingTimeout: 15000, pingInterval: 10000, allowRequest: (req, cb) => cb(null, validOrigin(req.headers.origin,req.headers.host)) });
+  const positions = new Map<string, { x: number; y: number; time: number }>();
+  const userChatTimes = new Map<string, number>();
+  const sessionCreations = new Map<string, {count:number;reset:number}>();
+  const sockets = new Map<string, { userId: string; postId: string | null; expiresAt: number; last: Map<string, number> }>();
+  const activeUsers = () => new Set([...sockets.values()].map(s => s.userId));
+  function broadcast() {
+    const online = activeUsers();
+    const counts: Record<string,number> = {};
+    const viewing = new Map<string,Set<string>>();
+    for (const s of sockets.values()) if (s.postId) {
+      if (!viewing.has(s.postId)) viewing.set(s.postId,new Set());
+      viewing.get(s.postId)!.add(s.userId);
+    }
+    for (const [id,people] of viewing) counts[id] = people.size;
+    const people = db.select().from(t.users).all().filter(u => online.has(u.id));
+    for (const [sid, socket] of io.sockets.sockets) {
+      const me = sockets.get(sid); if (!me) continue;
+      const visible = people.filter(u => !blocked(me.userId,u.id));
+      const viewers: WorldState['viewers'] = {};
+      for (const [id, ids] of viewing) viewers[id] = visible.filter(u => u.shareActivity && ids.has(u.id)).map(pub);
+      const peers: Peer[] = visible.map(u => {
+        const p = positions.get(u.id) || { x: 1100,y: 750 };
+        const current = u.shareActivity ? [...sockets.values()].find(s => s.userId === u.id && s.postId)?.postId || null : null;
+        return { ...pub(u), x:p.x,y:p.y,area:areaAt(p.x,p.y),currentPost:current };
+      });
+      socket.emit('world', { peers, counts, viewers, online: online.size } satisfies WorldState);
+    }
+  }
+  const notify = (id: string, event = 'social') => { for (const [sid,s] of sockets) if (s.userId === id) io.to(sid).emit(event); };
+  io.use((socket,next) => {
+    let token: string | undefined;
+    try { token = app.parseCookie(socket.request.headers.cookie || '').walk_session; } catch { /* malformed cookie */ }
+    const session = readSession(token);
+    if (!session) return next(new Error('セッションが必要です'));
+    socket.data.session = session; next();
+  });
+  io.on('connection', socket => {
+    const session = socket.data.session as Session;
+    const s = { userId:session.userId,postId:null as string|null,expiresAt:session.expiresAt,last:new Map<string,number>() };
+    sockets.set(socket.id,s);
+    if (!positions.has(s.userId)) positions.set(s.userId,{ x:1100,y:750,time:Date.now() });
+    const respond = (ack: unknown, result: {ok:boolean;error?:string}) => { if (typeof ack === 'function') (ack as Ack)(result); };
+    const limit = (key:string,ms:number) => { const now=Date.now(); if(now-(s.last.get(key)||0)<ms)return false; s.last.set(key,now); return true; };
+    socket.use((_packet,next) => { if (Date.now() >= s.expiresAt) { socket.disconnect(true); return; } next(); });
+    socket.on('move', data => {
+      const parsed=moveSchema.safeParse(data); if(!parsed.success)return;
+      const old=positions.get(s.userId)!; const now=Date.now(); if(now-old.time<75)return;
+      const distance=Math.hypot(parsed.data.x-old.x,parsed.data.y-old.y);
+      // Server speed cap, shared across tabs. Area shortcuts are deliberate teleports.
+      if(distance>Math.min(500,(now-old.time)/1000*420+35)){socket.emit('position',{x:old.x,y:old.y});return;}
+      positions.set(s.userId,{...parsed.data,time:now}); broadcast();
+    });
+    socket.on('teleport',(data,ack) => {
+      const parsed=moveSchema.safeParse(data); if(!parsed.success || !limit('teleport',500))return respond(ack,{ok:false,error:'少し待ってください'});
+      positions.set(s.userId,{...parsed.data,time:Date.now()}); for (const [sid,client] of sockets) if (client.userId===s.userId) io.to(sid).emit('position',parsed.data); broadcast(); respond(ack,{ok:true});
+    });
+    socket.on('view',(data,ack) => {
+      const parsed=z.object({postId:z.string().max(80).nullable()}).safeParse(data);
+      if(!parsed.success)return respond(ack,{ok:false,error:'投稿が正しくありません'});
+      if(parsed.data.postId && !db.select().from(t.posts).where(eq(t.posts.id,parsed.data.postId)).get())return respond(ack,{ok:false,error:'投稿が見つかりません'});
+      s.postId=parsed.data.postId; broadcast(); respond(ack,{ok:true});
+    });
+    socket.on('chat',(data,ack) => {
+      const parsed=z.object({to:z.string().max(80),content:z.string().trim().min(1).max(1000),clientId:z.string().uuid()}).safeParse(data);
+      if(!parsed.success)return respond(ack,{ok:false,error:'メッセージは1〜1000文字で入力してください'});
+      const p=parsed.data;
+      if(!connected(s.userId,p.to))return respond(ack,{ok:false,error:'承認済みの相手にだけ送信できます'});
+      const existing=db.select().from(t.messages).where(eq(t.messages.id,p.clientId)).get();
+      if(existing)return respond(ack,{ok:existing.senderId===s.userId});
+      if(Date.now()-(userChatTimes.get(s.userId)||0)<700)return respond(ack,{ok:false,error:'送信間隔を少し空けてください'});
+      userChatTimes.set(s.userId,Date.now());
+      const message={id:p.clientId,senderId:s.userId,receiverId:p.to,content:p.content,createdAt:Date.now()};
+      db.insert(t.messages).values(message).run();
+      for(const [sid,client] of sockets)if([s.userId,p.to].includes(client.userId))io.to(sid).emit('message',message);
+      respond(ack,{ok:true});
+    });
+    socket.emit('position',positions.get(s.userId));
+    socket.on('disconnect',() => { sockets.delete(socket.id); if(!activeUsers().has(s.userId)){positions.delete(s.userId);userChatTimes.delete(s.userId);} broadcast(); });
+    broadcast();
+  });
+  const expiryTimer=setInterval(() => { for(const [id,s] of sockets)if(s.expiresAt<=Date.now())io.sockets.sockets.get(id)?.disconnect(true);for(const [ip,b]of sessionCreations)if(b.reset<Date.now())sessionCreations.delete(ip); },30000);
+  expiryTimer.unref();
+  app.get('/api/health',async()=>({ ok:true }));
+  app.get('/api/bootstrap',async(req,reply)=>{
+    if(!req.session){
+      const now=Date.now();let bucket=sessionCreations.get(req.ip);if(!bucket||bucket.reset<now){bucket={count:0,reset:now+60000};sessionCreations.set(req.ip,bucket);}if(++bucket.count>12)return reply.code(429).send({error:'ゲスト作成が多すぎます。1分ほど待ってください。'});
+      const id=randomUUID(), token=randomBytes(32).toString('hex');
+      db.insert(t.users).values({id,displayName:'旅人',color:'#6d9c80',style:'cap',shareActivity:false,createdAt:Date.now()}).run();
+      const session={userId:id,expiresAt:Date.now()+30*86400000,isAdmin:false};
+      db.insert(t.sessions).values({tokenHash:hash(token),...session}).run(); req.session=session;
+      reply.setCookie('walk_session',token,{httpOnly:true,sameSite:'strict',secure:options.secureCookie??false,path:'/',maxAge:30*86400});
+    }
+    return {user:db.select().from(t.users).where(eq(t.users.id,uid(req))).get(),posts:postList(),favorites:db.select().from(t.favorites).where(eq(t.favorites.userId,uid(req))).all().map(f=>f.postId),reactions:Object.fromEntries(db.select().from(t.reactions).where(eq(t.reactions.userId,uid(req))).all().map(r=>[r.postId,r.kind])),friendships:friendList(uid(req)),blocks:db.select().from(t.blocks).where(eq(t.blocks.userId,uid(req))).all().map(b=>b.targetId),isAdmin:req.session.isAdmin};
+  });
+  app.patch('/api/profile',async req=>{ const p=profileSchema.parse(req.body);db.update(t.users).set(p).where(eq(t.users.id,uid(req))).run();broadcast();return {ok:true}; });
+  app.put('/api/favorites/:id',async(req,reply)=>{
+    const id=(req.params as {id:string}).id;const p=z.object({saved:z.boolean()}).parse(req.body);
+    if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});
+    if(p.saved)db.insert(t.favorites).values({userId:uid(req),postId:id,createdAt:Date.now()}).onConflictDoNothing().run();
+    else db.delete(t.favorites).where(and(eq(t.favorites.userId,uid(req)),eq(t.favorites.postId,id))).run();
+    notify(uid(req)); io.emit('posts');return {ok:true};
+  });
+  app.put('/api/reactions/:id',async(req,reply)=>{
+    const id=(req.params as {id:string}).id;const {reaction}=z.object({reaction:z.enum(['heart','spark','wave']).nullable()}).parse(req.body);
+    if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});
+    if(reaction)db.insert(t.reactions).values({userId:uid(req),postId:id,kind:reaction,createdAt:Date.now()}).onConflictDoUpdate({target:[t.reactions.userId,t.reactions.postId],set:{kind:reaction}}).run();
+    else db.delete(t.reactions).where(and(eq(t.reactions.userId,uid(req)),eq(t.reactions.postId,id))).run();io.emit('posts');return {ok:true};
+  });
+  app.get('/api/users/:id',async(req,reply)=>{
+    const target=db.select().from(t.users).where(eq(t.users.id,(req.params as {id:string}).id)).get();
+    if(!target || blocked(uid(req),target.id))return reply.code(404).send({error:'プロフィールを表示できません'});
+    const me=db.select().from(t.users).where(eq(t.users.id,uid(req))).get()!;
+    const myFav=db.select().from(t.favorites).where(eq(t.favorites.userId,uid(req))).all().map(f=>f.postId);
+    const canMatch=me.shareActivity && target.shareActivity;
+    const other=canMatch?db.select().from(t.favorites).where(eq(t.favorites.userId,target.id)).all().map(f=>f.postId):[];
+    const common=myFav.filter(id=>other.includes(id));
+    const commonGenres=canMatch?[...new Set(db.select().from(t.posts).all().filter(p=>myFav.includes(p.id)).map(p=>p.genre))].filter(g=>db.select().from(t.posts).all().some(p=>other.includes(p.id)&&p.genre===g)):[];
+    return {...pub(target),shareActivity:target.shareActivity,commonCount:canMatch?common.length:null,commonGenres};
+  });
+  app.get('/api/social',async req=>({friendships:friendList(uid(req)),blocks:db.select().from(t.blocks).where(eq(t.blocks.userId,uid(req))).all().map(b=>b.targetId)}));
+  app.post('/api/friendships',async(req,reply)=>{
+    const {targetId}=z.object({targetId:z.string().uuid()}).parse(req.body);const me=uid(req);
+    if(targetId===me || blocked(me,targetId)||!db.select().from(t.users).where(eq(t.users.id,targetId)).get())return reply.code(400).send({error:'この相手にはリクエストできません'});
+    const existing=db.select().from(t.friendships).where(or(and(eq(t.friendships.requesterId,me),eq(t.friendships.receiverId,targetId)),and(eq(t.friendships.requesterId,targetId),eq(t.friendships.receiverId,me)))).get();
+    if(existing)return reply.code(409).send({error:'リクエストは送信済みです'});
+    db.insert(t.friendships).values({id:randomUUID(),requesterId:me,receiverId:targetId,status:'pending',createdAt:Date.now()}).run();notify(me);notify(targetId);return {ok:true};
+  });
+  app.patch('/api/friendships/:id',async(req,reply)=>{
+    const {action}=z.object({action:z.enum(['accept','decline'])}).parse(req.body);
+    const f=db.select().from(t.friendships).where(eq(t.friendships.id,(req.params as {id:string}).id)).get();
+    if(!f || f.receiverId!==uid(req)||f.status!=='pending'||blocked(f.requesterId,f.receiverId))return reply.code(403).send({error:'このリクエストを承認できません'});
+    if(action==='decline')db.delete(t.friendships).where(eq(t.friendships.id,f.id)).run();
+    else db.update(t.friendships).set({status:'accepted'}).where(eq(t.friendships.id,f.id)).run();
+    notify(f.requesterId);notify(f.receiverId);return {ok:true};
+  });
+  app.get('/api/messages/:id',async(req,reply)=>{
+    const target=(req.params as {id:string}).id;const me=uid(req);
+    if(!connected(me,target))return reply.code(403).send({error:'承認済みの相手にだけアクセスできます'});
+    return db.select().from(t.messages).where(or(and(eq(t.messages.senderId,me),eq(t.messages.receiverId,target)),and(eq(t.messages.senderId,target),eq(t.messages.receiverId,me)))).orderBy(desc(t.messages.createdAt)).limit(100).all().reverse();
+  });
+  app.put('/api/blocks/:id',async(req,reply)=>{
+    const id=(req.params as {id:string}).id;const {blocked:enable}=z.object({blocked:z.boolean()}).parse(req.body);const me=uid(req);
+    if(id===me || !db.select().from(t.users).where(eq(t.users.id,id)).get())return reply.code(400).send({error:'対象が見つかりません'});
+    if(enable){db.insert(t.blocks).values({userId:me,targetId:id,createdAt:Date.now()}).onConflictDoNothing().run();db.delete(t.friendships).where(or(and(eq(t.friendships.requesterId,me),eq(t.friendships.receiverId,id)),and(eq(t.friendships.requesterId,id),eq(t.friendships.receiverId,me)))).run();}
+    else db.delete(t.blocks).where(and(eq(t.blocks.userId,me),eq(t.blocks.targetId,id))).run();
+    notify(me);notify(id);broadcast();return {ok:true};
+  });
+  app.post('/api/reports',async(req,reply)=>{
+    const p=z.object({targetType:z.enum(['user','post']),targetId:z.string().min(1).max(80),reason:z.string().trim().min(3).max(1000)}).parse(req.body);
+    const exists=p.targetType==='user'?db.select().from(t.users).where(eq(t.users.id,p.targetId)).get():db.select().from(t.posts).where(eq(t.posts.id,p.targetId)).get();
+    if(!exists)return reply.code(404).send({error:'対象が見つかりません'});
+    db.insert(t.reports).values({id:randomUUID(),reporterId:uid(req),...p,createdAt:Date.now()}).run();return {ok:true};
+  });
+  app.post('/api/admin/login',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(req,reply)=>{
+    const {key}=z.object({key:z.string().min(1).max(256)}).parse(req.body);
+    if(!timingSafeEqual(Buffer.from(hash(key)),Buffer.from(hash(options.adminKey))))return reply.code(403).send({error:'管理者キーが正しくありません'});
+    db.update(t.sessions).set({isAdmin:true}).where(eq(t.sessions.tokenHash,hash(req.cookies.walk_session!))).run();return {ok:true};
+  });
+  app.get('/api/admin/reports',async()=>db.select().from(t.reports).orderBy(desc(t.reports.createdAt)).all());
+  app.post('/api/admin/posts',async req=>{const p=postSchema.parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,createdAt:Date.now()}).run();io.emit('posts');return {id};});
+  app.put('/api/admin/posts/:id',async(req,reply)=>{const p=postSchema.parse(req.body); const id=(req.params as {id:string}).id;if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});db.update(t.posts).set(p).where(eq(t.posts.id,id)).run();io.emit('posts');return {ok:true};});
+  app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');return {ok:true};});
+  app.addHook('onClose',async()=>{clearInterval(expiryTimer);await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();});
+  return {app,io,store};
+}

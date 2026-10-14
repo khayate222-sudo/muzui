@@ -1,5 +1,7 @@
 # UNIQUE TRAVEL JAPAN
 
+新規SNSアプリ **WALK** のソース・起動・テスト・Docker手順は [walk/README.md](walk/README.md) にあります。既存サイトとは別に、`walk/` から起動します。
+
 UNIQUE TRAVEL JAPAN（担当：安藤 直杜）の、個人ネイルサロン向け1ページサイト制作と集客内製化支援の案内サイト。販売ページ、編集できる架空サロンのデモ、相談文作成とメール導線、確認用HTMLの保存機能を備えています。
 
 ## 開発
