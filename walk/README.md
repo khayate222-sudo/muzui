@@ -10,6 +10,8 @@ App Store・Google Play向けのiOS / Androidプロジェクトを追加して�
 
 ## 起動
 
+自分のルームでは **「窓辺で見る」** を選ぶと、夕暮れの駅を窓から眺める室内で、配置した投稿を実際に視聴できます。部屋・大画面・箱庭を切り替えても同じプレーヤーを使います。窓は静止した背景です。[使い方と今回の範囲](docs/ROOM_WATCHING.md)を参照してください。
+
 **自分のPCのブラウザから確認する場合は [LOCAL_START.md](LOCAL_START.md) を参照してください。** 以下の `/workspace` と `localhost` は実行環境内のものです。クラウドのURLを自分のPCで直接開けることを意味せず、このオンボーディング環境には外部向けWebプレビュー機能はありません。
 
 Node.js **24以上**、npmを使用します（Linuxで検証済み）。任意で `.env.example` を `.env` にコピーし、公開URL等を設定してください。外部API・有料サービス・メール登録は不要です。
@@ -44,7 +46,7 @@ npm run dev
 
 「足あと・活動」で終了時刻を自分で設定すると、WALKを閉じてもジムルーム・学校・居酒屋に活動中の分身が残ります。分身はオンライン人数や投稿閲覧人数に含めません。活動記録は既定で非公開。終了・延長、記録修正、メモ・写真、選んだ活動の共有ができます。
 
-操作と制限、実装済み／将来構想の区別は [docs/WORLDS_AND_FOOTPRINTS.md](docs/WORLDS_AND_FOOTPRINTS.md)、引き継ぎ方針は [docs/PRODUCT_DIRECTION.md](docs/PRODUCT_DIRECTION.md) を参照してください。同期再生、住人による世界作成、自由建築、通貨・経済は未実装です。
+操作と制限、実装済み／将来構想の区別は [docs/WORLDS_AND_FOOTPRINTS.md](docs/WORLDS_AND_FOOTPRINTS.md)、引き継ぎ方針は [docs/PRODUCT_DIRECTION.md](docs/PRODUCT_DIRECTION.md) を参照してください。直接投稿動画の同期再生は[招待・同意付きで実装済み](docs/SYNCHRONIZED_WATCHING.md)です。住人による世界作成、自由建築、通貨・経済は未実装です。
 
 ## 追加した楽しみ方
 

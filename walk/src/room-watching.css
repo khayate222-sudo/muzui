@@ -1,0 +1,90 @@
+.room-scenery, .room-scene-heading, .room-window-note { display: none; }
+.room-screen:not(.in-room) .room-text-preview { display: none; }
+.room-player-content { min-width: 0; }
+.room-mode-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.watch-layer.is-room { position: fixed; inset: 0; z-index: 30; padding: 18px; background: #171322a8; backdrop-filter: blur(6px); pointer-events: auto; display: flex; align-items: center; justify-content: center; }
+.watch-panel.watch-room { width: min(100%, 1160px); max-height: calc(100dvh - 36px); background: #faf6ef; border: 1px solid #eadfcd; border-radius: 22px; color: #493b36; box-shadow: 0 24px 100px #100c2660; padding: 0; }
+.watch-room .watch-controls { background: #faf6ef; border-color: #e5dacc; flex-wrap: wrap; }
+.watch-room .watch-controls > span { color: #8b6b57; letter-spacing: .06em; }
+.watch-room .watch-controls button { min-height: 44px; }
+.watch-room .watch-content { background: #faf6ef; }
+.watch-room .watch-audience { position: sticky; top: 0; z-index: 5; background: #faf6eff5; padding: 10px 20px; backdrop-filter: blur(8px); }
+.watch-room .watch-audience:empty { display: none; }
+.watch-room .watch-audience > .viewing-box { padding: 8px 12px; background: #f0ece6; border-color: #e4d9cc; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: center; gap: 6px 12px; }
+.watch-room .viewing-box > div:first-child { font-size: 11px; }
+.watch-room .viewing-box .viewer-avatars { grid-column: 2; grid-row: 1; max-width: 180px; }
+.watch-room .viewing-box > small { grid-column: 1 / -1; }
+.watch-room .viewing-box .viewer-avatars { margin: 5px 0; max-height: 60px; }
+.watch-room .viewing-box > small { font-size: 10px; }
+.watch-room .post-detail { display: flex; flex-direction: column; padding: 0 24px 24px; }
+.watch-room .post-detail > .room-screen { order: -1; margin: 0 -24px 24px; width: calc(100% + 48px); max-width: none; }
+.watch-room .post-detail h2 { font-size: 24px; margin-top: 12px; }
+.watch-room .post-detail .next-discovery { position: static; }
+.in-room { position: relative; isolation: isolate; aspect-ratio: 3 / 2; background: #3e343e; overflow: hidden; }
+.in-room .room-scenery { display: block; position: absolute; inset: 0; z-index: -1; background: #514348 url('/art/room-evening.webp') center / cover no-repeat; pointer-events: none; }
+.in-room .room-scene-heading { display: block; position: absolute; top: 4%; left: 5%; max-width: 76%; color: #fff8e9; text-shadow: 0 1px 8px #201b1b; }
+.room-scene-heading > span { font-size: 10px; letter-spacing: .2em; }
+.in-room .room-scene-heading h3 { color: inherit; font-weight: 500; font-size: clamp(19px, 2.6vw, 30px); line-height: 1.4; margin: 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.in-room .room-scene-heading p { color: inherit; font-size: 11px; display: flex; gap: 5px; align-items: center; margin: 0; }
+.room-scene-heading p > span { opacity: .8; }
+.in-room .room-player { position: absolute; left: 5%; top: 22%; width: 45%; }
+.in-room .room-player-content { border: 8px solid #211e22; border-radius: 9px; background: #14151c; box-shadow: 0 5px 0 #5d3a26, 0 16px 25px #17132680; aspect-ratio: 16 / 9; overflow: hidden; color: #f8f1e7; }
+.in-room .room-player-content > video, .in-room .room-player-content > iframe, .in-room .room-player-content > img { display: block; width: 100%; height: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; object-fit: contain; background: #12131a; }
+.in-room:has(.tiktok-player) .room-player-content { aspect-ratio: 9 / 14; }
+.in-room:has(.youtube-player) .room-player-content { min-height: 200px; }
+.in-room:has(.tiktok-player) .room-player { top: 19%; width: 27%; left: 14%; }
+.room-enlarge { background: #29222be6; color: #fff7e8; border: 1px solid #e8d5b759; display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; margin: 12px auto 0; padding: 8px 16px; border-radius: 24px; font-size: 12px; box-shadow: 0 2px 12px #21183240; }
+.room-enlarge:hover { background: #4d3b42; }
+.in-room .room-window-note { display: block; position: absolute; bottom: 5%; right: 5%; font-size: 11px; color: #fff5e4; text-shadow: 0 1px 8px #000; pointer-events: none; }
+.room-screen-empty, .room-text-preview { padding: 16px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; overflow: auto; }
+.room-player-content .room-screen-empty h3 { color: inherit; font-size: 15px; }
+.room-screen-empty p, .room-text-preview { font-size: 12px; line-height: 1.8; }
+.room-text-preview p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.in-room .embed-placeholder { border: 0; border-radius: 0; margin: 0; height: 100%; padding: 12px; overflow: auto; background: #20202c; color: #f6eadb; }
+.in-room .embed-placeholder h3 { font-size: 15px; }
+.in-room .embed-placeholder p { font-size: 11px; }
+.room-shelf { padding: 24px; border-top: 1px solid #e4d9cd; }
+.room-shelf > div:first-child { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; }
+.room-shelf h3 { font-size: 19px; font-weight: 550; }
+.room-shelf > p { color: #8a7768; font-size: 12px; line-height: 1.8; margin: 8px 0 16px; }
+.room-shelf .text-button { color: #745e87; font-size: 12px; min-height: 44px; }
+.room-shelf-items { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px; }
+.room-shelf-items > button { flex: 0 0 190px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 18px; border: 1px solid #e0d5ca; border-radius: 12px; text-align: left; background: #fffaf2; }
+.room-shelf-items > button[aria-current='true'] { background: #ede5db; border-color: #ad8c71; box-shadow: 0 0 0 1px #ad8c71; }
+.room-shelf-items > button:disabled { opacity: .5; }
+.room-shelf-items b { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.room-shelf-items small { font-size: 10px; color: #907b6c; }
+.room-shelf-items > button > span { color: #a08062; font-size: 9px; letter-spacing: .18em; }
+.room-empty-hint { border: 1px dashed #d8cabc; border-radius: 12px; padding: 20px; }
+@media (max-width: 760px) {
+  .watch-layer.is-room { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); align-items: stretch; }
+  .watch-panel.watch-room { width: 100%; height: 100%; max-height: 100%; border-radius: 0; border: 0; }
+  .watch-room .watch-controls { gap: 6px; padding: 8px 12px; }
+  .watch-room .watch-controls > span { display: none; }
+  .watch-room .watch-controls .outline { font-size: 11px; padding: 8px; }
+  .watch-room .watch-controls .watch-next { margin-right: auto; }
+  .watch-room .watch-audience { padding: 8px 12px; }
+  .watch-room .viewing-box { padding: 8px 10px; }
+  .watch-room .viewing-box .viewer-avatars { max-height: 48px; }
+  .watch-room .post-detail { padding: 0 18px 20px; }
+  .watch-room .post-detail > .room-screen { margin: 0 -18px 22px; width: calc(100% + 36px); }
+  .in-room { aspect-ratio: 4 / 5; }
+  .in-room .room-scenery { background-position: 71% top; }
+  .in-room .room-scenery::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #241d301f, transparent 38%, #1f182249); }
+  .in-room .room-scene-heading { top: 5%; left: 6%; }
+  .in-room .room-scene-heading h3 { font-size: 22px; }
+  .in-room .room-player { top: 44%; left: 6%; width: 88%; }
+  .in-room .room-player-content { border-width: 5px; }
+  .room-enlarge { min-height: 44px; margin-top: 10px; }
+  .in-room .room-window-note { display: none; }
+  .in-room:has(.tiktok-player) { aspect-ratio: 3 / 5; }
+  .in-room:has(.tiktok-player) .room-player { top: 24%; width: 57%; left: 21.5%; }
+  .in-room:has(.tiktok-player) .room-player-content { max-height: none; }
+  .room-shelf { padding: 20px 18px; }
+  .room-shelf-items > button { flex-basis: 170px; }
+}
+@media (max-width: 360px) {
+  .watch-room .watch-controls { gap: 4px; padding-inline: 8px; }
+  .watch-room .watch-controls .outline { font-size: 10px; padding: 6px; }
+  .watch-room .room-mode-button svg { display: none; }
+}
