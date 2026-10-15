@@ -1,0 +1,6 @@
+ALTER TABLE reports ADD COLUMN status TEXT NOT NULL DEFAULT 'open';
+ALTER TABLE reports ADD COLUMN moderation_note TEXT NOT NULL DEFAULT '';
+ALTER TABLE reports ADD COLUMN resolved_at INTEGER;
+CREATE TABLE user_moderation (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, reason TEXT NOT NULL, suspended_at INTEGER NOT NULL);
+CREATE TABLE moderation_actions (id TEXT PRIMARY KEY, actor_id TEXT REFERENCES users(id) ON DELETE SET NULL, target_type TEXT NOT NULL, target_id TEXT NOT NULL, action TEXT NOT NULL, note TEXT NOT NULL, created_at INTEGER NOT NULL);
+ALTER TABLE sessions ADD COLUMN admin_expires_at INTEGER NOT NULL DEFAULT 0;

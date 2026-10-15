@@ -6,6 +6,7 @@ import { join,resolve } from 'node:path';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Store } from './db';
+import {usedMediaBytes,mediaQuota} from './storage-quota';
 import * as t from './schema';
 import { postPosition } from './placement';
 import { acceptsPost } from '../shared/worlds';
@@ -27,16 +28,16 @@ export async function publishing({app,store,changed,mediaDirectory}:{app:Fastify
   await app.register(multipart,{limits:{fileSize:25*1024*1024,files:1,fields:0,parts:1}});
   app.post('/api/uploads',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(req,reply)=>{
     const owner=req.session!.userId;
-    const total=(sqlite.prepare('SELECT COALESCE(SUM(bytes),0) AS n FROM media_uploads WHERE owner_id=?').get(owner) as {n:number}).n;
-    if(total>=200*1024*1024)return reply.code(409).send({error:'アップロードは1人200MBまでです'});
+    const total=usedMediaBytes(store,owner);
+    if(total>=mediaQuota)return reply.code(409).send({error:'投稿の添付と足あとの写真は、合計で1人200MBまでです'});
     const part=await req.file();if(!part)return reply.code(400).send({error:'ファイルを選んでください'});
     const bytes=await part.toBuffer(),kind=identifyMedia(bytes);
     if(!kind)return reply.code(400).send({error:'PNG・JPEG・GIF・WebP画像、MP4・WebM動画に対応しています'});
-    if(total+bytes.length>200*1024*1024)return reply.code(409).send({error:'アップロードは1人200MBまでです'});
+    if(total+bytes.length>mediaQuota)return reply.code(409).send({error:'投稿の添付と足あとの写真は、合計で1人200MBまでです'});
     const id=randomUUID(),filename=id+'.'+kind.ext;
     await writeFile(join(root,filename),bytes,{flag:'wx',mode:0o600});
-    const usedNow=(sqlite.prepare('SELECT COALESCE(SUM(bytes),0) AS n FROM media_uploads WHERE owner_id=?').get(owner) as {n:number}).n;
-    if(usedNow+bytes.length>200*1024*1024){await unlink(join(root,filename));return reply.code(409).send({error:'アップロードは1人200MBまでです'});}
+    const usedNow=usedMediaBytes(store,owner);
+    if(usedNow+bytes.length>mediaQuota){await unlink(join(root,filename));return reply.code(409).send({error:'投稿の添付と足あとの写真は、合計で1人200MBまでです'});}
     try{sqlite.prepare('INSERT INTO media_uploads VALUES (?,?,?,?,?,?)').run(id,owner,filename,kind.mime,bytes.length,Date.now());}catch(e){await unlink(join(root,filename));throw e;}
     return {id,url:'/media/'+filename,mime:kind.mime};
   });
@@ -45,7 +46,7 @@ export async function publishing({app,store,changed,mediaDirectory}:{app:Fastify
     const row=sqlite.prepare('SELECT * FROM media_uploads WHERE filename=?').get(name) as Upload|undefined;
     if(!row)return reply.code(404).send({error:'ファイルが見つかりません'});
     // Public media belongs to public posts. Unpublished uploads are owner-only.
-    const published=sqlite.prepare('SELECT id FROM posts WHERE media_url=?').get('/media/'+name);
+    const published=sqlite.prepare('SELECT id FROM posts WHERE media_url=? AND NOT EXISTS (SELECT 1 FROM user_moderation WHERE user_id=posts.owner_id) AND NOT EXISTS (SELECT 1 FROM user_moderation WHERE user_id=?)').get('/media/'+name,row.owner_id);
     if(!published&&req.session?.userId!==row.owner_id)return reply.code(404).send({error:'ファイルが見つかりません'});
     let bytes:Buffer;try{bytes=await readFile(join(root,row.filename));}catch{return reply.code(404).send({error:'ファイルが見つかりません'});}
     reply.type(row.mime).header('X-Content-Type-Options','nosniff').header('Cache-Control','no-store').header('Accept-Ranges','bytes');

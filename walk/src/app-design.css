@@ -2184,3 +2184,313 @@ a:focus-visible {
   transition: none;
   animation: none;
 }
+/* Accounts belong to the everyday app, with plain language and explicit data choices. */
+.account-panel,
+.legal-panel {
+  padding: 28px;
+}
+.account-symbol {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 17px;
+  background: #efefff;
+  color: #6668c6;
+  margin-bottom: 20px;
+}
+.account-panel h2,
+.legal-panel h2 {
+  font-size: 25px;
+  line-height: 1.6;
+  letter-spacing: -0.6px;
+  margin-bottom: 14px;
+}
+.account-panel > p,
+.account-panel form > p,
+.legal-panel p {
+  font-size: 13px;
+  line-height: 1.95;
+  color: #788195;
+  margin: 12px 0 20px;
+}
+.account-panel form {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+.account-panel label {
+  font-size: 12px;
+  line-height: 1.7;
+  display: grid;
+  gap: 7px;
+}
+.account-panel input {
+  min-height: 46px;
+  font-size: 15px;
+}
+.account-panel small {
+  color: #929aab;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.account-panel .privacy-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  text-align: left;
+  margin: 0;
+}
+.account-panel .privacy-check input {
+  min-height: 20px;
+  width: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.account-back {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  margin: 0 0 12px;
+  padding-left: 0;
+}
+.account-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #f8f8fc;
+  border: 1px solid #e9e9f2;
+  border-radius: 12px;
+  padding: 12px;
+  color: #838bab;
+  font-size: 11px;
+}
+.account-benefits span {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.account-switch {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid #ececf3;
+  margin-top: 24px;
+  padding-top: 15px;
+}
+.account-switch button {
+  text-align: left;
+  min-height: 44px;
+  color: #6265b2;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.account-identity {
+  background: #f7f7fc;
+  border: 1px solid #e5e5f0;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 24px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+.account-identity strong {
+  font-size: 17px;
+}
+.account-identity span {
+  font-size: 11px;
+  color: #9098a9;
+}
+.account-menu {
+  display: grid;
+  gap: 2px;
+}
+.account-menu button {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 12px;
+  padding: 15px 0;
+  min-height: 54px;
+  border-bottom: 1px solid #ececf3;
+  font-size: 12px;
+  color: #737d92;
+}
+.account-menu span {
+  flex: 1;
+}
+.account-menu .danger,
+.account-switch .danger {
+  color: #bd6073;
+}
+.account-panel .account-error {
+  border: 1px solid #edccd4;
+  background: #fff5f7;
+  color: #ad526b;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-top: 18px;
+}
+.account-message {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  color: #6265b2 !important;
+}
+.recovery-code {
+  font-family: ui-monospace, monospace;
+  font-size: 13px !important;
+  letter-spacing: 0.6px;
+  min-width: 0;
+  width: 100%;
+}
+.danger-button {
+  background: #a54f68;
+  border-color: #a54f68;
+}
+.danger-button:hover {
+  background: #874056;
+}
+.account-panel .deletion-warning {
+  border-left: 3px solid #c7798e;
+  padding: 12px;
+  background: #fff5f7;
+  color: #b06a7c;
+  border-radius: 5px;
+}
+.development-notice {
+  border: 1px solid #e6dfc8;
+  border-radius: 10px;
+  background: #fffdf4;
+  padding: 12px;
+  color: #9e9165 !important;
+}
+.legal-panel section {
+  padding: 20px 0;
+  border-bottom: 1px solid #e8eaf1;
+}
+.legal-panel h3 {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+.legal-panel section p {
+  font-size: 12px;
+  line-height: 2;
+  margin-bottom: 12px;
+}
+.legal-panel small {
+  font-size: 10px;
+  color: #a0a5b1;
+  display: block;
+  margin-top: 18px;
+}
+.auth-gate {
+  max-width: 480px;
+  padding: 50px 24px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+}
+.auth-gate .brand {
+  margin-bottom: 25px;
+}
+.auth-gate h1 {
+  font-size: 25px;
+  line-height: 1.6;
+}
+.auth-gate p {
+  font-size: 13px;
+  line-height: 1.9;
+  color: #8b93a4;
+}
+.auth-gate .account-symbol {
+  margin: 12px 0;
+}
+.auth-gate .text-button {
+  min-height: 44px;
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .account-panel,
+  .legal-panel {
+    padding: 24px 20px 32px;
+  }
+  .account-panel h2,
+  .legal-panel h2 {
+    font-size: 23px;
+  }
+  .account-panel input {
+    font-size: 16px;
+  }
+  .account-panel form {
+    gap: 16px;
+  }
+  .account-panel .primary {
+    min-height: 48px;
+  }
+  .account-panel .recovery-code {
+    font-size: 12px !important;
+  }
+  .account-symbol {
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+  }
+  .auth-gate {
+    padding: 24px;
+    min-height: 100dvh;
+    padding-top: calc(24px + env(safe-area-inset-top));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+}
+.moderation-status {
+  font-size: 10px;
+  color: #8a8ba9;
+}
+.moderation-queue h4 {
+  font-size: 13px;
+  margin: 10px 0;
+}
+.moderation-note {
+  border-left: 2px solid #d9d9ed;
+  padding-left: 10px;
+  color: #939aad !important;
+}
+.moderation-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.moderation-actions .outline {
+  font-size: 11px;
+}
+.moderation-edit {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  background: #f8f8fc;
+  border: 1px solid #dedfeb;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+.moderation-edit p {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #9199a8;
+}
+.moderation-edit label {
+  display: grid;
+  gap: 9px;
+  font-size: 12px;
+}
+.moderation-edit textarea {
+  min-height: 90px;
+}

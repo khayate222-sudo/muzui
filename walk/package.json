@@ -21,13 +21,18 @@
     "native:sync": "npm run build && cap sync",
     "native:android": "cap open android",
     "native:ios": "cap open ios",
-    "native:release:sync": "node --env-file-if-exists=.env scripts/check-native-release.mjs"
+    "native:release:sync": "node --env-file-if-exists=.env scripts/check-native-release.mjs",
+    "release:check": "node --env-file-if-exists=.env --import tsx scripts/check-release.ts",
+    "backup:create": "node --env-file-if-exists=.env --import tsx scripts/backup.ts create",
+    "backup:verify": "node --env-file-if-exists=.env --import tsx scripts/backup.ts verify",
+    "backup:restore": "node --env-file-if-exists=.env --import tsx scripts/backup.ts restore"
   },
   "dependencies": {
     "@aparajita/capacitor-secure-storage": "8.0.1",
     "@capacitor/android": "8.5.3",
     "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.5.3",
+    "@capacitor/filesystem": "8.1.4",
     "@capacitor/ios": "8.5.3",
     "@capacitor/keyboard": "8.0.6",
     "@capacitor/share": "8.0.3",
@@ -53,6 +58,11 @@
     "tsx": "^4.20.6",
     "undici": "^8.11.2",
     "zod": "^4.1.12"
+  },
+  "overrides": {
+    "xcode": {
+      "uuid": "11.1.1"
+    }
   },
   "devDependencies": {
     "@capacitor/cli": "8.5.3",

@@ -43,6 +43,6 @@ export type Peer = Pick<User, 'id' | 'displayName' | 'color' | 'style'> & { x: n
 export type WorldState = { activities?: ActivityGhost[]; peers: Peer[]; counts: Record<string, number>; viewers: Record<string, (Pick<Peer, 'id' | 'displayName' | 'color' | 'style'>&{reaction?:string|null})[]>; online: number };
 export type Friendship = { id: string; requesterId: string; receiverId: string; status: string; createdAt: number; user: Pick<User, 'id' | 'displayName' | 'color' | 'style'> };
 export type Message = { id: string; senderId: string; receiverId: string; content: string; createdAt: number };
-export type Bootstrap = { user: User; posts: Post[]; favorites: string[]; reactions: Record<string,string>; friendships: Friendship[]; blocks: string[]; isAdmin: boolean };
+export type Bootstrap = { requireAccountForPublishing?:boolean; account?:import('./accounts').AccountSummary; user: User; posts: Post[]; favorites: string[]; reactions: Record<string,string>; friendships: Friendship[]; blocks: string[]; isAdmin: boolean };
 export const moveSchema = z.object({ x: z.number().finite().min(40).max(1960), y: z.number().finite().min(70).max(1360) });
 export function areaAt(x: number, y: number): Genre { return [...areas].sort((a, b) => Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0].id; }

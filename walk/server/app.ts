@@ -4,6 +4,10 @@ import { dirname,join } from 'node:path';
 import { publishing } from './publishing.js';
 import { collector,type FeedLoader } from './collector.js';
 import { activities } from './activities.js';
+import {moderation} from './moderation.js';
+import {accounts,anonymousAccountRoutes,type Session} from './accounts.js';
+import {dataManagement} from './data-management.js';
+import {legalConfiguration,releaseProblems} from '../shared/release.js';
 import { nativeOrigins } from '../shared/native.js';
 import { findPlace, postWorld } from '../shared/worlds.js';
 import { community } from './community.js';
@@ -20,12 +24,12 @@ import { seed } from './seed.js';
 import * as t from './schema.js';
 import { areaAt, moveSchema, postSchema, profileSchema, type Peer, type WorldState } from '../shared/model.js';
 
-type Session = { userId: string; isAdmin: boolean; expiresAt: number };
 declare module 'fastify' { interface FastifyRequest { session: Session | null } }
 type Ack = (result: { ok: boolean; error?: string }) => void;
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
 const pub = (u: typeof t.users.$inferSelect) => ({ id: u.id, displayName: u.displayName, color: u.color, style: u.style });
 export async function createApp(options: { database?: string; adminKey: string; logger?: boolean; origin?: string; secureCookie?: boolean;mediaDirectory?:string;collectionFeed?:FeedLoader } ) {
+  if(process.env.WALK_PUBLIC_RELEASE==='true'){const problems=releaseProblems(process.env);if(problems.length)throw new Error(problems.join(' / '));}
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 32 * 1024, trustProxy: false });
   const store = openDatabase(options.database);
   const { db, sqlite } = store;
@@ -42,7 +46,9 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.decorateRequest('session', null);
   const readSession = (token?: string): Session | null => {
     if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
-    const row = db.select().from(t.sessions).where(eq(t.sessions.tokenHash, hash(token))).get();
+    let row = db.select().from(t.sessions).where(eq(t.sessions.tokenHash, hash(token))).get();
+    if(row?.isAdmin&&row.adminExpiresAt<=Date.now()){db.update(t.sessions).set({isAdmin:false,adminExpiresAt:0}).where(eq(t.sessions.tokenHash,row.tokenHash)).run();row={...row,isAdmin:false,adminExpiresAt:0};}
+    if(row&&row.expiresAt>Date.now()&&row.expiresAt<Date.now()+7*86400000&&sqlite.prepare('SELECT user_id FROM accounts WHERE user_id=?').get(row.userId)){const expiresAt=Date.now()+30*86400000;db.update(t.sessions).set({expiresAt}).where(eq(t.sessions.tokenHash,row.tokenHash)).run();row={...row,expiresAt};}
     return row && row.expiresAt > Date.now() ? row : null;
   };
   const validOrigin = (origin: string | undefined, host: string | undefined) => {
@@ -52,12 +58,18 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.addHook('onRequest', async (req, reply) => {
     const bearer=/^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization||'')?.[1];
     req.session=readSession(bearer||req.cookies.walk_session);
-    if(req.headers.authorization&&!req.session)return reply.code(401).send({error:'アプリのセッションが使えません。既存の記録を保護するため、新しいゲストには切り替えていません。'});
-    if (!req.url.startsWith('/api/')) return;
+    const path=req.url.split('?')[0],publicAccount=anonymousAccountRoutes.has(path);
+    // The app shell must remain reachable after session expiry so that it can
+    // show login/recovery. Authentication is enforced on the API, not assets.
+    if (!path.startsWith('/api/')) return;
     reply.header('Cache-Control', 'no-store');
-    if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && (req.headers['x-walk-client'] !== '1' || !(validOrigin(req.headers.origin,req.headers.host)||!!bearer&&!!req.session&&nativeOrigins.includes(req.headers.origin||'')))) return reply.code(403).send({ error: 'リクエスト元を確認できません。ページを再読み込みしてください。' });
+    if((req.headers.authorization||req.cookies.walk_session)&&!req.session&&!publicAccount)return reply.code(401).send({error:'セッションが使えません。ログインして記録に戻れます。新しいゲストには切り替えていません。'});
+    if(req.session&&req.cookies.walk_session&&sqlite.prepare('SELECT user_id FROM accounts WHERE user_id=?').get(req.session.userId))reply.setCookie('walk_session',req.cookies.walk_session,{httpOnly:true,sameSite:'strict',secure:options.secureCookie??false,path:'/',maxAge:30*86400});
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && (req.headers['x-walk-client'] !== '1' || !(validOrigin(req.headers.origin,req.headers.host)||(!!bearer&&!!req.session||publicAccount)&&nativeOrigins.includes(req.headers.origin||'')))) return reply.code(403).send({ error: 'リクエスト元を確認できません。ページを再読み込みしてください。' });
+    if(req.session&&!publicAccount&&path!=='/api/bootstrap'&&path!=='/api/health'&&!path.startsWith('/api/account')&&sqlite.prepare('SELECT user_id FROM user_moderation WHERE user_id=?').get(req.session.userId))return reply.code(403).send({error:'このアカウントは利用停止中です。アカウント設定からデータの取得・削除や問い合わせ先を確認できます。'});
+    if(process.env.WALK_PUBLIC_RELEASE==='true'&&req.session&&req.method==='POST'&&['/api/uploads','/api/posts','/api/imports'].includes(path)&&!sqlite.prepare('SELECT user_id FROM accounts WHERE user_id=?').get(req.session.userId))return reply.code(403).send({error:'投稿するには、今のゲストを無料でアカウント登録してください'});
     // Native sessions use a capability token stored in the device's secure storage.
-    if (!['/api/bootstrap','/api/native/session'].includes(req.url.split('?')[0]) && req.url !== '/api/health' && !req.session) return reply.code(401).send({ error: 'セッションの有効期限が切れました。再読み込みしてください。' });
+    if (!['/api/bootstrap','/api/native/session'].includes(req.url.split('?')[0]) && req.url !== '/api/health' && !publicAccount && !req.session) return reply.code(401).send({ error: 'セッションの有効期限が切れました。再読み込みしてください。' });
     if (req.url.startsWith('/api/admin/') && req.url !== '/api/admin/login' && !req.session?.isAdmin) return reply.code(403).send({ error: '管理者の認証が必要です' });
   });
   app.setErrorHandler((error, req, reply) => {
@@ -67,9 +79,11 @@ export async function createApp(options: { database?: string; adminKey: string; 
     reply.code(status).send({ error: status === 429 ? '操作が多すぎます。少し待ってください。' : status >= 500 ? 'サーバーでエラーが発生しました' : error instanceof Error ? error.message : 'リクエストが正しくありません' });
   });
   const uid = (r: FastifyRequest) => r.session!.userId;
-  const blocked = (a: string,b: string) => !!db.select().from(t.blocks).where(or(and(eq(t.blocks.userId,a),eq(t.blocks.targetId,b)),and(eq(t.blocks.userId,b),eq(t.blocks.targetId,a)))).get();
+  const isSuspended=(id:string)=>!!sqlite.prepare('SELECT user_id FROM user_moderation WHERE user_id=?').get(id);
+  const blocked = (a: string,b: string) => isSuspended(a)||isSuspended(b)||!!db.select().from(t.blocks).where(or(and(eq(t.blocks.userId,a),eq(t.blocks.targetId,b)),and(eq(t.blocks.userId,b),eq(t.blocks.targetId,a)))).get();
   const connected = (a: string,b: string) => !blocked(a,b) && !!db.select().from(t.friendships).where(and(eq(t.friendships.status,'accepted'),or(and(eq(t.friendships.requesterId,a),eq(t.friendships.receiverId,b)),and(eq(t.friendships.requesterId,b),eq(t.friendships.receiverId,a))))).get();
-  const postList = () => db.select().from(t.posts).all().map(p => ({ ...p, saves: db.select({ n: count() }).from(t.favorites).where(eq(t.favorites.postId,p.id)).get()!.n, reactions: Object.fromEntries(db.select({kind:t.reactions.kind,n:count()}).from(t.reactions).where(eq(t.reactions.postId,p.id)).groupBy(t.reactions.kind).all().map(r=>[r.kind,r.n])) }));
+  const readablePost=(id:string)=>{const p=db.select().from(t.posts).where(eq(t.posts.id,id)).get();return p&&(!p.ownerId||!isSuspended(p.ownerId))?p:undefined;};
+  const postList = () => db.select().from(t.posts).all().filter(p=>!p.ownerId||!isSuspended(p.ownerId)).map(p => ({ ...p, saves: db.select({ n: count() }).from(t.favorites).where(eq(t.favorites.postId,p.id)).get()!.n, reactions: Object.fromEntries(db.select({kind:t.reactions.kind,n:count()}).from(t.reactions).where(eq(t.reactions.postId,p.id)).groupBy(t.reactions.kind).all().map(r=>[r.kind,r.n])) }));
   const friendList = (id: string) => db.select().from(t.friendships).where(or(eq(t.friendships.requesterId,id),eq(t.friendships.receiverId,id))).all().flatMap(f => {
     const target = f.requesterId === id ? f.receiverId : f.requesterId;
     const user = db.select().from(t.users).where(eq(t.users.id,target)).get();
@@ -79,23 +93,26 @@ export async function createApp(options: { database?: string; adminKey: string; 
   const positions = new Map<string, { x: number; y: number; time: number; worldId: string }>();
   const userChatTimes = new Map<string, number>();
   const sessionCreations = new Map<string, {count:number;reset:number}>();
-  const sockets = new Map<string, { userId: string; postId: string | null; expiresAt: number; last: Map<string, number> }>();
+  const sockets = new Map<string, { tokenHash:string;userId: string; postId: string | null; expiresAt: number; last: Map<string, number> }>();
   const activeUsers = () => new Set([...sockets.values()].map(s => s.userId));
   function broadcast() {
     const online = activeUsers();
     const counts: Record<string,number> = {};
     const viewing = new Map<string,Set<string>>();
-    for(const s of sockets.values())if(s.postId&&!db.select({id:t.posts.id}).from(t.posts).where(eq(t.posts.id,s.postId)).get())s.postId=null;
+    for(const s of sockets.values())if(s.postId&&!readablePost(s.postId))s.postId=null;
     for (const s of sockets.values()) if (s.postId) {
       if (!viewing.has(s.postId)) viewing.set(s.postId,new Set());
       viewing.get(s.postId)!.add(s.userId);
     }
     for (const [id,people] of viewing) counts[id] = people.size;
+    // Visiting moves an avatar to the post. Hiding only currentPost still
+    // exposes private viewing through the avatar's exact location.
+    const viewingUsers = new Set([...viewing.values()].flatMap(ids => [...ids]));
     const people = db.select().from(t.users).all().filter(u => online.has(u.id));
     for (const [sid, socket] of io.sockets.sockets) {
       const me = sockets.get(sid); if (!me) continue;
       const context=positions.get(me.userId)?.worldId||'public';
-      const visible = people.filter(u => !blocked(me.userId,u.id) && (positions.get(u.id)?.worldId||'public')===context);
+      const visible = people.filter(u => !blocked(me.userId,u.id) && (positions.get(u.id)?.worldId||'public')===context && (u.id===me.userId || u.shareActivity || !viewingUsers.has(u.id)));
       const viewers: WorldState['viewers'] = {};
       for (const [id, ids] of viewing) viewers[id] = people.filter(u => !blocked(me.userId,u.id) && u.shareActivity && ids.has(u.id)).map(u=>({...pub(u),reaction:db.select().from(t.reactions).where(and(eq(t.reactions.userId,u.id),eq(t.reactions.postId,id))).get()?.kind||null}));
       const peers: Peer[] = visible.map(u => {
@@ -123,16 +140,17 @@ export async function createApp(options: { database?: string; adminKey: string; 
     const session = readSession(typeof nativeToken==='string'?nativeToken:token);
     if(nativeOrigins.includes(socket.request.headers.origin||'')&&typeof nativeToken!=='string')return next(new Error('ネイティブ認証が必要です'));
     if (!session) return next(new Error('セッションが必要です'));
+    if(isSuspended(session.userId))return next(new Error('利用停止中のアカウントです'));
     socket.data.session = session; next();
   });
   io.on('connection', socket => {
     const session = socket.data.session as Session;
-    const s = { userId:session.userId,postId:null as string|null,expiresAt:session.expiresAt,last:new Map<string,number>() };
+    const s = { tokenHash:session.tokenHash,userId:session.userId,postId:null as string|null,expiresAt:session.expiresAt,last:new Map<string,number>() };
     sockets.set(socket.id,s);
     if (!positions.has(s.userId)) positions.set(s.userId,{ x:1100,y:750,time:Date.now(),worldId:'public' });
     const respond = (ack: unknown, result: {ok:boolean;error?:string}) => { if (typeof ack === 'function') (ack as Ack)(result); };
     const limit = (key:string,ms:number) => { const now=Date.now(); if(now-(s.last.get(key)||0)<ms)return false; s.last.set(key,now); return true; };
-    socket.use((_packet,next) => { if (Date.now() >= s.expiresAt) { socket.disconnect(true); return; } next(); });
+    socket.use((_packet,next) => { const active=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();if (!active||Date.now() >= active.expiresAt||active.userId!==s.userId) { socket.disconnect(true); return; }s.expiresAt=active.expiresAt;next(); });
     socket.on('move', data => {
       const parsed=moveSchema.safeParse(data); if(!parsed.success)return;
       const old=positions.get(s.userId)!; const now=Date.now(); if(now-old.time<75)return;
@@ -154,7 +172,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     socket.on('visit',(data,ack)=>{
       const p=z.object({postId:z.string().max(80)}).safeParse(data);
       if(!p.success||!limit('visit',150))return respond(ack,{ok:false,error:'少し待ってください'});
-      const post=db.select().from(t.posts).where(eq(t.posts.id,p.data.postId)).get();
+      const post=readablePost(p.data.postId);
       if(!post)return respond(ack,{ok:false,error:'投稿が見つかりません'});
       let worldId=positions.get(s.userId)?.worldId||'public',point={x:post.mapX,y:Math.min(1360,post.mapY+85)};
       if(!findPlace(worldId)){
@@ -171,7 +189,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     socket.on('view',(data,ack) => {
       const parsed=z.object({postId:z.string().max(80).nullable()}).safeParse(data);
       if(!parsed.success)return respond(ack,{ok:false,error:'投稿が正しくありません'});
-      if(parsed.data.postId && !db.select().from(t.posts).where(eq(t.posts.id,parsed.data.postId)).get())return respond(ack,{ok:false,error:'投稿が見つかりません'});
+      if(parsed.data.postId && !readablePost(parsed.data.postId))return respond(ack,{ok:false,error:'投稿が見つかりません'});
       if(parsed.data.postId){const post=db.select().from(t.posts).where(eq(t.posts.id,parsed.data.postId)).get()!;const context=positions.get(s.userId)?.worldId||'public';if(findPlace(context)?context!==postWorld(post):!features.readRoom(context)?.items.some(i=>i.postId===post.id))return respond(ack,{ok:false,error:'投稿の場所へ移動してください'});}
       s.postId=parsed.data.postId; broadcast(); respond(ack,{ok:true});
     });
@@ -193,33 +211,36 @@ export async function createApp(options: { database?: string; adminKey: string; 
     socket.on('disconnect',() => { sockets.delete(socket.id); if(!activeUsers().has(s.userId)){positions.delete(s.userId);userChatTimes.delete(s.userId);} broadcast(); });
     broadcast();
   });
-  const expiryTimer=setInterval(() => { for(const [id,s] of sockets)if(s.expiresAt<=Date.now())io.sockets.sockets.get(id)?.disconnect(true);for(const [ip,b]of sessionCreations)if(b.reset<Date.now())sessionCreations.delete(ip); },30000);
+  const expiryTimer=setInterval(() => {for(const [id,s]of sockets){const current=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();if(!current||current.expiresAt<=Date.now())io.sockets.sockets.get(id)?.disconnect(true);else s.expiresAt=current.expiresAt;}for(const [ip,b]of sessionCreations)if(b.reset<Date.now())sessionCreations.delete(ip);},30000);
   expiryTimer.unref();
   const changedPosts=()=>{broadcast();io.emit('posts');io.emit('rooms');};
   const temporaryMedia=options.database===':memory:'&&!options.mediaDirectory?mkdtempSync(join(tmpdir(),'walk-media-')):null;
-  await publishing({app,store,changed:changedPosts,mediaDirectory:options.mediaDirectory||temporaryMedia||join(dirname(options.database||process.env.DATABASE_PATH||'./data/walk.sqlite'),'uploads')});
+  const mediaDirectory=options.mediaDirectory||temporaryMedia||join(dirname(options.database||process.env.DATABASE_PATH||'./data/walk.sqlite'),'uploads');
+  await publishing({app,store,changed:changedPosts,mediaDirectory});
+  const disconnect=(userId:string,tokenHash?:string)=>{for(const [sid,s] of sockets)if(s.userId===userId&&(!tokenHash||s.tokenHash===tokenHash))io.sockets.sockets.get(sid)?.disconnect(true);};
+  const management=dataManagement({store,mediaDirectory,leaveCommunity:features.removeUser,evictRooms:features.evictRooms,disconnect,changed:()=>{changedPosts();io.emit('party');io.emit('social');}});
+  void management.clean();
+  const cleanupTimer=setInterval(()=>{void management.clean();},60000);cleanupTimer.unref();
+  moderation({app,store,changed:(id,suspended)=>{if(suspended)features.removeUser(id);disconnect(id);features.evictRooms();io.emit('social');changedPosts();}});
+  const accountFeatures=accounts({app,store,secureCookie:options.secureCookie??false,legal:legalConfiguration(process.env),disconnect,removeUser:management.removeUser,guest:(req,reply)=>createGuest(req,reply)});
   const activityFeatures=activities({app,store,blocked,changed:(id)=>{notify(id,'activities');broadcast();}});
   let activitySignature=activityFeatures.signature();
   const activityTimer=setInterval(()=>{activityFeatures.settle();const next=activityFeatures.signature();if(next!==activitySignature){activitySignature=next;io.emit('activities');broadcast();}},1000);activityTimer.unref();
   const collections=collector({app,store,changed:changedPosts,loadFeed:options.collectionFeed});
-  app.get('/api/health',async()=>({ ok:true }));
-  app.post('/api/native/session',{config:{rateLimit:{max:12,timeWindow:'1 minute',keyGenerator:(req:FastifyRequest)=>req.ip}}},async(req,reply)=>{
-    // Sessions never come from caller-selected identities; native and web share the same expiration policy.
-    const id=randomUUID(),token=randomBytes(32).toString('hex');
-    db.insert(t.users).values({id,displayName:'旅人',color:'#6d9c80',style:'cap',shareActivity:false,createdAt:Date.now()}).run();
-    db.insert(t.sessions).values({tokenHash:hash(token),userId:id,expiresAt:Date.now()+30*86400000,isAdmin:false}).run();
-    reply.header('Cache-Control','no-store');return {token};
-  });
+  app.get('/api/health',async()=>{sqlite.prepare('SELECT 1').get();return {ok:true};});
+  function createGuest(req:FastifyRequest,reply:import('fastify').FastifyReply){
+    const id=randomUUID(),token=randomBytes(32).toString('hex'),createdAt=Date.now(),session={tokenHash:hash(token),userId:id,expiresAt:createdAt+30*86400000,isAdmin:false,createdAt};
+    db.transaction(()=>{db.insert(t.users).values({id,displayName:'旅人',color:'#6d9c80',style:'cap',shareActivity:false,createdAt}).run();db.insert(t.sessions).values(session).run();});req.session=session;
+    if(req.headers['x-walk-native']==='1'||req.url.split('?')[0]==='/api/native/session')return {token,ok:true,expiresAt:session.expiresAt};
+    reply.setCookie('walk_session',token,{httpOnly:true,sameSite:'strict',secure:options.secureCookie??false,path:'/',maxAge:30*86400});return {ok:true,expiresAt:session.expiresAt};
+  }
+  app.post('/api/native/session',{config:{rateLimit:{max:12,timeWindow:'1 minute',keyGenerator:(req:FastifyRequest)=>req.ip}}},async(req,reply)=>createGuest(req,reply));
   app.get('/api/bootstrap',async(req,reply)=>{
     if(!req.session){
       const now=Date.now();let bucket=sessionCreations.get(req.ip);if(!bucket||bucket.reset<now){bucket={count:0,reset:now+60000};sessionCreations.set(req.ip,bucket);}if(++bucket.count>12)return reply.code(429).send({error:'ゲスト作成が多すぎます。1分ほど待ってください。'});
-      const id=randomUUID(), token=randomBytes(32).toString('hex');
-      db.insert(t.users).values({id,displayName:'旅人',color:'#6d9c80',style:'cap',shareActivity:false,createdAt:Date.now()}).run();
-      const session={userId:id,expiresAt:Date.now()+30*86400000,isAdmin:false};
-      db.insert(t.sessions).values({tokenHash:hash(token),...session}).run(); req.session=session;
-      reply.setCookie('walk_session',token,{httpOnly:true,sameSite:'strict',secure:options.secureCookie??false,path:'/',maxAge:30*86400});
+      createGuest(req,reply);
     }
-    return {user:db.select().from(t.users).where(eq(t.users.id,uid(req))).get(),posts:postList(),favorites:db.select().from(t.favorites).where(eq(t.favorites.userId,uid(req))).all().map(f=>f.postId),reactions:Object.fromEntries(db.select().from(t.reactions).where(eq(t.reactions.userId,uid(req))).all().map(r=>[r.postId,r.kind])),friendships:friendList(uid(req)),blocks:db.select().from(t.blocks).where(eq(t.blocks.userId,uid(req))).all().map(b=>b.targetId),isAdmin:req.session.isAdmin};
+    return {user:db.select().from(t.users).where(eq(t.users.id,uid(req))).get(),posts:postList(),favorites:db.select().from(t.favorites).where(eq(t.favorites.userId,uid(req))).all().map(f=>f.postId),reactions:Object.fromEntries(db.select().from(t.reactions).where(eq(t.reactions.userId,uid(req))).all().map(r=>[r.postId,r.kind])),friendships:friendList(uid(req)),blocks:db.select().from(t.blocks).where(eq(t.blocks.userId,uid(req))).all().map(b=>b.targetId),isAdmin:req.session!.isAdmin,account:accountFeatures.summary(uid(req)),requireAccountForPublishing:process.env.WALK_PUBLIC_RELEASE==='true'};
   });
   app.patch('/api/profile',async req=>{ const p=profileSchema.parse(req.body);db.update(t.users).set(p).where(eq(t.users.id,uid(req))).run();broadcast();return {ok:true}; });
   app.put('/api/favorites/:id',async(req,reply)=>{
@@ -284,12 +305,11 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.post('/api/admin/login',{config:{rateLimit:{max:5,timeWindow:'1 minute',keyGenerator:(req:FastifyRequest)=>req.ip}}},async(req,reply)=>{
     const {key}=z.object({key:z.string().min(1).max(256)}).parse(req.body);
     if(!timingSafeEqual(Buffer.from(hash(key)),Buffer.from(hash(options.adminKey))))return reply.code(403).send({error:'管理者キーが正しくありません'});
-    db.update(t.sessions).set({isAdmin:true}).where(eq(t.sessions.tokenHash,hash(/^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization||'')?.[1]||req.cookies.walk_session!))).run();return {ok:true};
+    db.update(t.sessions).set({isAdmin:true,adminExpiresAt:Date.now()+3600000}).where(eq(t.sessions.tokenHash,hash(/^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization||'')?.[1]||req.cookies.walk_session!))).run();return {ok:true};
   });
-  app.get('/api/admin/reports',async()=>db.select().from(t.reports).orderBy(desc(t.reports.createdAt)).all());
   app.post('/api/admin/posts',async req=>{const p=postSchema.parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,origin:p.isSample?'sample':p.externalUrl?'external':'editorial',createdAt:Date.now()}).run();io.emit('posts');return {id};});
   app.put('/api/admin/posts/:id',async(req,reply)=>{const p=postSchema.parse(req.body); const id=(req.params as {id:string}).id;if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});db.update(t.posts).set(p).where(eq(t.posts.id,id)).run();io.emit('posts');return {ok:true};});
   app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');io.emit('rooms');return {ok:true};});
-  app.addHook('onClose',async()=>{clearInterval(expiryTimer);clearInterval(activityTimer);await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
+  app.addHook('onClose',async()=>{clearInterval(expiryTimer);clearInterval(activityTimer);clearInterval(cleanupTimer);await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
   return {app,io,store};
 }

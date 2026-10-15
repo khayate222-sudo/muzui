@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { Store } from './db';
 import { activityInput, recordInput, type Activity, type ActivityGhost } from '../shared/activities';
+import {usedMediaBytes,mediaQuota} from './storage-quota';
 import { identifyMedia } from './publishing';
 type Row={id:string;user_id:string;kind:Activity['kind'];title:string;starts_at:number;ends_at:number;finished_at:number|null;shared:number;note:string;has_photo:number;revision:number};
 const select='SELECT id,user_id,kind,title,starts_at,ends_at,finished_at,shared,note,photo IS NOT NULL AS has_photo,revision FROM activities';
@@ -58,6 +59,7 @@ export function activities({app,store,blocked,changed}:{app:FastifyInstance;stor
   const file=await req.file();if(!file)return reply.code(400).send({error:'写真を選んでください'});
   const data=await file.toBuffer(),kind=identifyMedia(data);
   if(!kind?.mime.startsWith('image/')||data.length>5*1024*1024)return reply.code(400).send({error:'5MB以内のPNG・JPEG・GIF・WebP画像を選んでください'});
+  if(usedMediaBytes(store,user,id)+data.length>mediaQuota)return reply.code(409).send({error:'投稿の添付と足あとの写真は、合計で1人200MBまでです'});
   sqlite.prepare('UPDATE activities SET photo=?,photo_mime=?,revision=revision+1 WHERE id=? AND user_id=?').run(data,kind.mime,id,user);changed(user);return view(read(id)!);
  });
  app.get('/api/activities/:id/photo',async(req,reply)=>{

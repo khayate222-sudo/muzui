@@ -5,7 +5,7 @@ let server='',token='';
 export const serviceUrl=(path:string)=>isNative()?server+path:path;
 export const nativeSocketOptions=()=>isNative()?{server,options:{transports:['websocket'],auth:{token}}}:null;
 export function walkFetch(path:string,options:RequestInit={}){
- const headers=new Headers(options.headers);if(isNative()&&token)headers.set('Authorization','Bearer '+token);
+ const headers=new Headers(options.headers);if(isNative()){headers.set('X-Walk-Native','1');if(token)headers.set('Authorization','Bearer '+token);}
  return fetch(serviceUrl(path),{...options,headers,credentials:isNative()?'omit':'same-origin'});
 }
 export async function prepareNative(){
@@ -35,4 +35,25 @@ export async function privatePhoto(path:string):Promise<string>{
  const mime=response.headers['content-type']||response.headers['Content-Type'];
  if(!/^image\/(png|jpeg|gif|webp)(;|$)/.test(mime||''))throw new Error('写真の形式を確認できません');
  return `data:${mime};base64,${response.data}`;
+}
+
+export async function replaceNativeSession(next?:string){
+ if(!isNative())return;
+ const {SecureStorage}=await import('@aparajita/capacitor-secure-storage');const key='walk.session:'+server;
+ if(next){await SecureStorage.setItem(key,next);token=next;}else {await SecureStorage.removeItem(key);token='';}
+}
+export function announceSessionChange(welcomed=true){
+ window.dispatchEvent(new CustomEvent('walk:background'));
+ if(welcomed)localStorage.setItem('walk-welcomed','1');else {localStorage.removeItem('walk-welcomed');history.replaceState(null,'',location.pathname+location.search);}
+ localStorage.setItem('walk-session-revision',crypto.randomUUID());location.reload();
+}
+export async function saveDataExport(value:unknown){
+ const data=JSON.stringify(value,null,2);
+ if(isNative()){
+  const {Filesystem,Directory,Encoding}=await import('@capacitor/filesystem'),{Share}=await import('@capacitor/share');const path='walk-export-'+crypto.randomUUID()+'.json';
+  const file=await Filesystem.writeFile({path,directory:Directory.Cache,data,encoding:Encoding.UTF8});
+  try{await Share.share({title:'WALKのデータ',files:[file.uri],dialogTitle:'自分のデータを保存'});}finally{await Filesystem.deleteFile({path,directory:Directory.Cache}).catch(()=>{});}
+ }else{
+  const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='walk-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+ }
 }

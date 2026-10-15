@@ -128,5 +128,5 @@ export function community(c:Context){
     });
     socket.on('voice:leave',()=>stopVoice(socket.id));socket.on('disconnect',()=>stopVoice(socket.id));
   }
-  return {readRoom,accessible,attach,onBlock:(a:string,b:string)=>{if(membership(a)&&membership(a)===membership(b))leave(a);c.exitRoom('*');}};
+  return {readRoom,accessible,attach,removeUser:(id:string)=>{leave(id);sqlite.prepare('DELETE FROM party_invites WHERE sender_id=? OR target_id=?').run(id,id);},evictRooms:()=>c.exitRoom('*'),onBlock:(a:string,b:string)=>{if(membership(a)&&membership(a)===membership(b))leave(a);c.exitRoom('*');}};
 }
