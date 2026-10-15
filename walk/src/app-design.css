@@ -2494,3 +2494,26 @@ a:focus-visible {
 .moderation-edit textarea {
   min-height: 90px;
 }
+.together-controls {margin-top:12px; padding-top:12px; border-top:1px solid #e8e8eb; font-size:12px;}
+.together-start {display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; border:1px solid #dfe3ee; border-radius:13px; background:#f6f7fc; color:#303d67; text-align:left;}
+.together-start span {flex:1;}
+.together-start b {font-size:11px; white-space:nowrap;}
+.together-heading {display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+.together-symbol {display:grid; place-items:center; width:26px; height:26px; border-radius:8px; background:#eef0ff; color:#4d56a2;}
+.together-status {margin-left:auto; font-size:10px; color:#63697c;}
+.together-members {max-height:92px; overflow:auto; display:flex; flex-wrap:wrap; gap:6px; margin-top:9px;}
+.together-members>span {display:flex; align-items:center; gap:4px; min-width:0; max-width:100%; overflow-wrap:anywhere; padding:3px 6px 3px 3px; border-radius:15px; background:#f3f4f8;}
+.together-members small {font-size:9px; color:#616b97;}
+.together-controls p {font-size:11px; line-height:1.6; color:#707582; margin:7px 0;}
+.together-actions {display:flex; flex-wrap:wrap; gap:7px; align-items:center;}
+.together-actions button {min-height:40px; font-size:11px;}
+.together-setup {display:flex; flex-direction:column; gap:16px; padding:14px 6px 8px;}
+.together-setup h2 {font-size:24px; line-height:1.45; margin:0; letter-spacing:-.5px; overflow-wrap:anywhere;}
+.together-setup p {font-size:13px; line-height:1.8; margin:0; color:#646978; overflow-wrap:anywhere;}
+.together-setup small {font-size:11px; line-height:1.8; color:#767b88;}
+.together-setup .room-row {gap:12px;}
+.together-setup .room-row>span {min-width:0; overflow-wrap:anywhere;}
+.together-consent {display:flex; flex-direction:row; align-items:flex-start; gap:10px; padding:14px; border:1px solid #dfe3ee; border-radius:13px; font-size:13px; line-height:1.8; cursor:pointer;}
+.together-consent input {width:18px; height:18px; margin-top:3px; flex-shrink:0; accent-color:#171a22;}
+.together-inbox {white-space:nowrap;position:fixed; bottom:26px; left:50%; transform:translateX(-50%); z-index:29; display:flex; gap:8px; align-items:center; min-height:46px; max-width:calc(100vw - 28px); padding:11px 18px; background:#242838; color:white; border:1px solid #4c5370; border-radius:30px; box-shadow:0 6px 25px #15182625; font-size:12px;}
+@media(max-width:760px) {.together-inbox {bottom:calc(78px + env(safe-area-inset-bottom,0px));}.together-setup h2 {font-size:22px;}.together-controls {margin-top:9px;padding-top:9px;}}

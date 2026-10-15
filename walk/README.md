@@ -119,6 +119,8 @@ Dockerは非rootユーザーで実行し、`walk-data` ボリュームにSQLite�
 ゲストの記録を保ったアカウント登録、別端末ログイン、復旧コード、データ取得・削除、通報対応・利用停止を追加しました。方針は基本無料＋任意の課金です。決済はまだ実装していません。
 
 - [製品化の基盤と未実装の範囲](docs/COMMERCIAL_FOUNDATION.md)
+- [直接投稿動画の同期視聴・招待と同意](docs/SYNCHRONIZED_WATCHING.md)
+- [同期視聴と既存機能の最新の検証結果](docs/VALIDATION_WATCHING_2026-10-15.md)
 - [今回の検証結果と確認できていない範囲](docs/VALIDATION_COMMERCIAL_2026-10-15.md)
 - [バックアップと新しい場所への復元](docs/BACKUP_AND_OPERATIONS.md)
 - [iOS / Androidと実機検証の残り](docs/NATIVE_APP.md)
