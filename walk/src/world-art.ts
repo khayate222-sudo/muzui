@@ -26,7 +26,7 @@ export function drawBuilding(scene:Phaser.Scene,c:Phaser.GameObjects.Container,p
  if(castle){for(const x of[-100,77]){g.fillStyle(0xaaa7c8);g.fillRoundedRect(x,-156,35,150,5);g.fillStyle(0x8075ae);g.fillTriangle(x-9,-155,x+44,-155,x+17,-204);g.fillStyle(0xffe6b9);g.fillRoundedRect(x+10,-130,12,24,6);}g.fillStyle(0xb898d9);g.fillRect(18,-158,20,40);g.fillStyle(0xf9e6b6);g.fillTriangle(18,-158,38,-158,28,-143);}
  if(cave){g.clear();g.fillStyle(0x14233f,.18);g.fillEllipse(8,25,270,75);shape(g,0x899f8c,[-128,4,-108,-87,-44,-172,38,-163,117,-75,132,10,35,39]);shape(g,0xa9b7a1,[-128,4,-108,-87,-44,-172,-21,-77,-60,11]);shape(g,0x667d83,[38,-163,117,-75,132,10,70,4,44,-89]);g.fillStyle(0x344451);g.fillRoundedRect(-48,-85,97,112,45);g.fillStyle(0x7cbdb9,.35);g.fillRoundedRect(-37,-74,75,95,35);g.lineStyle(3,0xc0ebe0,.8);g.strokeRoundedRect(-28,-63,57,81,28);for(const [x,y]of[[-74,-21],[84,-21],[-28,-146]]){g.fillStyle(0x91be9b);g.fillCircle(x,y,17);g.fillStyle(0xc3d8a4);g.fillCircle(x-6,y-7,10);}}
  if(!future&&!cave){for(const x of[-115,65]){g.fillStyle(0xa4775e);g.fillRoundedRect(x,3,26,18,5);g.fillStyle(0x78987b);g.fillCircle(x+8,-3,13);g.fillStyle(0xa2b68f);g.fillCircle(x+19,-10,11);g.fillStyle(0xe1b5ae);g.fillCircle(x+13,-10,4);}}
- const badge=scene.add.text(0,-107,back?'←':'✦',{...textStyle,fontSize:'19px',color:'#fff4d5'}).setOrigin(.5);c.add(badge);
+ const badge=scene.add.text(0,-107,back?'←':place.genre==='music'?'♫':place.genre==='game'?'⊞':place.genre==='art'?'✳':place.genre==='anime'?'☆':'✦',{...textStyle,fontSize:'19px',color:'#fff4d5'}).setOrigin(.5);c.add(badge);
  const label=scene.add.text(0,73,(back?'← ':'')+place.title,{...textStyle,fontSize:'18px',fontStyle:'bold',color:'#344e55',backgroundColor:'#fffdf3',padding:{x:13,y:9},align:'center',wordWrap:{width:210}}).setOrigin(.5);c.add(label);
  const halo=scene.add.graphics();halo.lineStyle(3,0xfff1c6,.8);halo.strokeEllipse(0,20,256,78);halo.setVisible(false);c.addAt(halo,0);c.setData('halo',halo);
  const body=castle?polygon([-132,-95,-109,-155,-83,-204,-57,-155,-20,-196,70,-155,94,-204,121,-155,130,-126,130,10,45,50,-120,17]):cave?polygon([-128,4,-108,-87,-44,-172,38,-163,117,-75,132,10,35,39]):buildingSilhouette;
@@ -37,6 +37,9 @@ export function drawPlaceArt(scene:Phaser.Scene,place:Place,tree:(x:number,y:num
  scene.cameras.main.setBackgroundColor(station?'#24374c':future?'#23344d':fantasy?'#4b4866':japan?'#d7c5cd':'#c5d5c5');
  let guideHall:Phaser.GameObjects.Container|undefined;
  const g=scene.add.graphics();g.setDepth(-20);
+ // Stars belong to the station's sky, below the island and every interactive object.
+ if(station){for(let i=0;i<65;i++){const x=(i*467)%2000,y=(i*313)%1400;g.fillStyle(0xc8dcfa,.2+(i%3)*.15);g.fillCircle(x,y,i%5===0?2:1);}g.lineStyle(1,0x8eadd6,.2);g.lineBetween(16,72,104,121);g.lineBetween(104,121,228,62);g.lineBetween(1754,1297,1860,1344);g.lineBetween(1860,1344,1966,1268);}
+
  // Floating island, beveled edge, diamond paving and paths.
  shape(g,station?0x51616d:future?0x425a74:0x8d9c85,[65,220,1000,20,1935,220,1935,1210,1000,1400,65,1210]);
  shape(g,station?0xe2d7ba:future?0xa5c8d3:japan?0xecdccd:0xd5dfbb,[65,190,1000,-10,1935,190,1935,1168,1000,1358,65,1168]);
@@ -67,6 +70,21 @@ export function drawPlaceArt(scene:Phaser.Scene,place:Place,tree:(x:number,y:num
   if(fantasy){for(const [x,y]of[[1580,460],[550,1150]]){const a=scene.add.graphics().setDepth(y-70);shape(a,0xab99c4,[x-30,y,x-50,y-80,x,y-135,x+44,y-78,x+20,y]);shape(a,0xd1c3e4,[x-50,y-80,x,y-135,x,y-15]);a.lineStyle(2,0xf1e3fc,.65);a.lineBetween(x,y-135,x,y-15);}}
   if(japan){for(const [x,y]of[[1500,390],[350,1140]]){const a=scene.add.graphics().setDepth(y-25);a.fillStyle(0x95746c);a.fillRect(x-5,y-100,10,108);a.fillStyle(0xdfb1ba);a.fillCircle(x,y-135,49);a.fillStyle(0xedc6c5);a.fillCircle(x-30,y-137,31);a.fillCircle(x+24,y-153,30);a.fillStyle(0xf3d8d0);a.fillCircle(x-8,y-168,27);}}
   const f=scene.add.graphics().setDepth(600);f.fillStyle(0xb5c1af);f.fillEllipse(1010,575,200,90);f.fillStyle(0xf5f1da);f.fillEllipse(1000,562,200,90);f.fillStyle(future?0x7ed3d9:0x8dbfae);f.fillEllipse(1000,555,167,64);f.lineStyle(3,0xe4f3da,.7);f.strokeEllipse(1000,555,112,41);f.fillStyle(0xcac9af);f.fillRoundedRect(987,503,26,57,6);f.fillEllipse(1000,503,70,28);
+ }
+ // Small landmarks establish each world's character without adding obstacles or fake residents.
+ if(!station){
+  const art=scene.add.graphics().setDepth(1140),x=1450,y=1120;
+  art.fillStyle(0x26364f,.12);art.fillEllipse(x,y+10,170,50);
+  if(place.genre==='music'){
+   art.fillStyle(0x9d775d);art.fillRoundedRect(x-68,y-32,136,41,7);art.fillStyle(0x384552);art.fillEllipse(x-8,y-38,93,47);art.lineStyle(2,0x75868c);for(const w of[32,55,77])art.strokeEllipse(x-8,y-38,w,w/2);art.fillStyle(0xe0bca1);art.fillEllipse(x-8,y-38,19,10);art.lineStyle(6,0xc8bda2);art.lineBetween(x+49,y-53,x+17,y-24);
+   scene.add.text(x-7,y-95,'♫',{...textStyle,fontSize:'38px',color:'#b895ad'}).setOrigin(.5).setDepth(y);
+  }else if(place.genre==='art'){
+   art.lineStyle(7,0xa08064);art.lineBetween(x-45,y+5,x,y-115);art.lineBetween(x+45,y+5,x,y-115);art.fillStyle(0xfff8e8);art.fillRoundedRect(x-55,y-115,110,90,4);art.fillStyle(0x9bc4ad);art.fillTriangle(x-52,y-30,x-9,y-78,x+47,y-30);art.fillStyle(0xd6b2c7);art.fillCircle(x+24,y-87,14);art.lineStyle(4,0x739e9e);art.lineBetween(x-55,y-22,x+55,y-22);
+  }else if(place.genre==='game'&&!fantasy){
+   art.fillStyle(0x415f84);art.fillRoundedRect(x-61,y-119,123,121,14);art.fillStyle(0x283c5b);art.fillRoundedRect(x-47,y-105,94,66,8);art.lineStyle(3,0x88e3dd);art.strokeRoundedRect(x-47,y-105,94,66,8);art.fillStyle(0x9ce4dd);art.fillRect(x-19,y-87,38,8);art.fillRect(x-4,y-99,8,33);art.fillStyle(0xde9dbe);art.fillCircle(x+30,y-13,7);art.fillStyle(0xe2c68c);art.fillCircle(x+11,y-8,6);art.fillStyle(0xb7d7ed);art.fillCircle(x-28,y-15,7);
+  }else if(place.genre==='anime'){
+   art.fillStyle(0x9b7a79);art.fillRoundedRect(x-62,y-101,124,93,8);art.fillStyle(0xf6e7d3);art.fillRoundedRect(x-54,y-93,108,76,4);art.lineStyle(3,0xb594a6);art.strokeRect(x-43,y-82,38,52);art.strokeRect(x+6,y-82,38,25);art.strokeRect(x+6,y-48,38,18);art.fillStyle(0xd2b5c6);art.fillCircle(x-25,y-64,10);art.lineStyle(6,0x9b7a79);art.lineBetween(x-42,y-8,x-42,y+8);art.lineBetween(x+42,y-8,x+42,y+8);
+  }
  }
  // Low-cost deterministic sparks/petals: no fake people, counts or dense particle emitters.
  for(let i=0;i<44;i++){const x=90+(i*379)%1810,y=300+(i*257)%980;g.fillStyle(station?0xffdfab:japan?0xdea6b6:0xe6edca,.35);g.fillCircle(x,y,2+(i%2));}

@@ -18,7 +18,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       this.drawLandscape();
       const own=get().state.peers.find(p=>p.id===get().user.id);if(own)this.player={x:own.x,y:own.y};
       this.me=this.makeAvatar({...get().user,...this.player,area:'discovery',currentPost:null},true);
-      this.cameras.main.setZoom(this.scale.width<600?.72:get().place?.id==='public'?.64:.82);this.cameras.main.startFollow(this.me,true,.07,.07);
+      this.cameras.main.setZoom(this.scale.width<600?(get().place?.id==='public'?.52:.66):get().place?.id==='public'?.64:.82);this.cameras.main.startFollow(this.me,true,.07,.07);
       this.marker=this.add.container(0,0);const mg=this.add.graphics();mg.lineStyle(2,0x2c7158,.8);mg.strokeEllipse(0,0,36,18);this.marker.add(mg);this.marker.setVisible(false).setDepth(2);
       this.tweens.add({targets:this.marker,alpha:.3,scaleX:.7,scaleY:.7,yoyo:true,repeat:-1,duration:650});
       this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E') as typeof this.keys;
@@ -52,7 +52,6 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       };
       this.scale.on('resize',()=>this.cameras.main.setSize(this.scale.width,this.scale.height));
       this.rebuildPosts();
-      host.dataset.ready='true';
     }
     drawLandscape(){
       const room=get().room;
@@ -143,7 +142,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
     }
     update(time:number,delta:number){
       if(!this.me)return;const props=get();
-      if(time-this.diagnosticAt>100){this.diagnosticAt=time;const cam=this.cameras.main;host.dataset.viewport=JSON.stringify({scrollX:cam.scrollX,scrollY:cam.scrollY,zoom:cam.zoom,width:cam.width,height:cam.height});}this.input.enabled=!document.querySelector('[aria-modal="true"]');
+      if(time-this.diagnosticAt>100){this.diagnosticAt=time;const cam=this.cameras.main;host.dataset.viewport=JSON.stringify({scrollX:cam.scrollX,scrollY:cam.scrollY,zoom:cam.zoom,width:cam.width,height:cam.height});host.dataset.ready='true';}this.input.enabled=!document.querySelector('[aria-modal="true"]');
       const version=props.posts.map(p=>p.id+p.title+p.mapX+p.mapY+p.type+p.mediaUrl+p.genre).join('|');if(version!==this.postsVersion){this.postsVersion=version;this.rebuildPosts();}
       const av=props.user.color+props.user.style;if(av!==this.avatarVersion){this.avatarVersion=av;this.me.destroy();this.me=this.makeAvatar({...props.user,...this.player,area:'discovery',currentPost:null},true);this.cameras.main.startFollow(this.me,true,.07,.07);}
       const typing=['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement?.tagName||'') || !!document.querySelector('[aria-modal="true"]');

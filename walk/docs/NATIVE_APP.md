@@ -64,3 +64,7 @@ npm run native:ios
 - 未設定の接続先を `native:release:sync` が拒否することを確認。iOSのコンパイル／署名／実機、ネイティブ実機でのHTTP・WebSocket・写真・マイク動作、ストア提出は未実施です。
 
 ブラウザのタッチ検証やAPKのビルド成功を、Android / iPhone実機のすべての動作が確認できた結果とは扱いません。
+
+## 共有機能の追加
+
+Capacitor Share 8.0.3をiOS・Androidに同期しました。世界・投稿へのHTTPS招待リンクを標準共有シートへ渡します。リンクの受信と確認画面はブラウザで利用できます。Universal Links / Android App Linksによるアプリ直接起動は未実装です。公開ドメインと署名・関連付けファイルの設定が必要です。今回のクラウド検証では実機上の共有シートは確認していません。
