@@ -120,6 +120,8 @@ Dockerは非rootユーザーで実行し、`walk-data` ボリュームにSQLite�
 
 - [製品化の基盤と未実装の範囲](docs/COMMERCIAL_FOUNDATION.md)
 - [直接投稿動画の同期視聴・招待と同意](docs/SYNCHRONIZED_WATCHING.md)
+- [公開ルームのリンクと友達との待ち合わせ](docs/MEETUPS_AND_ROOM_SHARING.md)
+- [場所への招待と既存機能の最新の検証結果](docs/VALIDATION_MEETUPS_2026-10-15.md)
 - [同期視聴と既存機能の最新の検証結果](docs/VALIDATION_WATCHING_2026-10-15.md)
 - [今回の検証結果と確認できていない範囲](docs/VALIDATION_COMMERCIAL_2026-10-15.md)
 - [バックアップと新しい場所への復元](docs/BACKUP_AND_OPERATIONS.md)

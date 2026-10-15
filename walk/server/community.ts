@@ -21,7 +21,7 @@ export function community(c:Context){
   const accessible=(r:Room|null,id:string):r is Room=>!!r&&(r.ownerId===id||r.isPublic)&&!blocked(r.ownerId,id);
   app.get('/api/rooms',async req=>{
     const id=req.session!.userId;
-    return (sqlite.prepare('SELECT id FROM rooms WHERE is_public=1 OR owner_id=? ORDER BY updated_at DESC LIMIT 100').all(id) as {id:string}[]).map(r=>readRoom(r.id)).filter(r=>accessible(r,id));
+    return (sqlite.prepare('SELECT id FROM rooms WHERE is_public=1 OR owner_id=? ORDER BY (owner_id=?) DESC,updated_at DESC LIMIT 100').all(id,id) as {id:string}[]).map(r=>readRoom(r.id)).filter(r=>accessible(r,id));
   });
   app.get('/api/rooms/:id',async(req,reply)=>{const r=readRoom((req.params as {id:string}).id);return accessible(r,req.session!.userId)?r:reply.code(404).send({error:'ルームを表示できません'});});
   app.post('/api/rooms',async(req,reply)=>{

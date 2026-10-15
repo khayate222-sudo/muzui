@@ -2517,3 +2517,27 @@ a:focus-visible {
 .together-consent input {width:18px; height:18px; margin-top:3px; flex-shrink:0; accent-color:#171a22;}
 .together-inbox {white-space:nowrap;position:fixed; bottom:26px; left:50%; transform:translateX(-50%); z-index:29; display:flex; gap:8px; align-items:center; min-height:46px; max-width:calc(100vw - 28px); padding:11px 18px; background:#242838; color:white; border:1px solid #4c5370; border-radius:30px; box-shadow:0 6px 25px #15182625; font-size:12px;}
 @media(max-width:760px) {.together-inbox {bottom:calc(78px + env(safe-area-inset-bottom,0px));}.together-setup h2 {font-size:22px;}.together-controls {margin-top:9px;padding-top:9px;}}
+.friend-destination-send {border-top:1px solid #e8e9ed;margin-top:22px;padding-top:18px;text-align:left;}
+.friend-destination-send h3,.place-invitation-inbox h3 {display:flex;align-items:center;gap:7px;font-size:14px;margin:0 0 10px;}
+.friend-destination-send>p {font-size:12px;line-height:1.7;color:#747987;margin:0 0 12px;}
+.destination-friend {display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #f0f0f3;}
+.destination-friend>span {flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;}
+.destination-friend button {min-height:42px;font-size:11px;flex-shrink:0;}
+.place-invitation-inbox {padding:22px 28px 0;}
+.place-invitation-list {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-bottom:12px;}
+.place-invitation-list article {display:flex;align-items:center;gap:9px;padding:14px;border:1px solid #dfe4ee;background:#f8f9fc;border-radius:15px;min-width:0;flex-wrap:wrap;}
+.place-invitation-list article>div {flex:1;min-width:100px;overflow-wrap:anywhere;}
+.place-invitation-list strong {font-size:11px;color:#676e80;}
+.place-invitation-list p {font-size:14px;font-weight:650;color:#202633;margin:5px 0;}
+.place-invitation-list small {font-size:10px;color:#7b8190;}
+.place-invitation-list button {min-height:42px;font-size:11px;margin-left:auto;}
+.destination-invitation {display:flex;flex-direction:column;gap:16px;padding:28px;}
+.destination-invitation h2 {font-size:27px;line-height:1.4;margin:0;letter-spacing:-.6px;overflow-wrap:anywhere;}
+.destination-invitation p {font-size:13px;line-height:1.8;color:#687080;margin:0;overflow-wrap:anywhere;}
+.destination-invitation .destination-path {font-size:11px;color:#8a90a0;}
+.destination-invitation small {font-size:11px;line-height:1.8;color:#8a90a0;}
+.destination-symbol {display:grid;place-items:center;width:82px;height:74px;border-radius:20px;background:#eef1f7;color:#7486a3;font-size:40px;}
+.destination-sender {display:flex;align-items:center;gap:8px;font-size:12px;}
+.destination-room-owner {font-size:12px!important;color:#879081!important;}
+.room-invitation-art {height:170px!important;width:100%!important;}
+@media(max-width:760px){.place-invitation-inbox {padding:18px 16px 0;}.place-invitation-list {grid-template-columns:minmax(0,1fr);}.destination-invitation {padding:20px;}.destination-invitation h2 {font-size:24px;}}

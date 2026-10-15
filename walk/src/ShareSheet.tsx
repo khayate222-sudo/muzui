@@ -1,16 +1,22 @@
 import { useRef, useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
 import type { Invitation } from "../shared/invitations";
+import type { Friendship } from "../shared/model";
+import { FriendDestinationSend } from "./Meetups";
 import { shareInvitation, shareUrl } from "./sharing";
 import Modal from "./Modal";
 export default function ShareSheet({
   target,
   title,
   close,
+  friends,
+  notify,
 }: {
   target: Invitation;
   title: string;
   close: () => void;
+  friends: Friendship[];
+  notify: (s: string) => void;
 }) {
   const [status, setStatus] = useState(""),
     input = useRef<HTMLInputElement>(null),
@@ -80,6 +86,11 @@ export default function ShareSheet({
             {status}
           </p>
         )}
+        <FriendDestinationSend
+          target={target}
+          friends={friends}
+          notify={notify}
+        />
       </div>
     </Modal>
   );
