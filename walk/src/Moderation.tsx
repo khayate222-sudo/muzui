@@ -1,3 +1,4 @@
+import {WalkLogo} from "./StationIdentity";
 import { useEffect, useState, type FormEvent } from "react";
 import { ShieldAlert, Check, Undo2 } from "lucide-react";
 import type { ModerationReport } from "../shared/moderation";
@@ -11,9 +12,7 @@ export function SuspendedGate({ account }: { account: AccountSummary }) {
   return (
     <>
       <main className="auth-gate">
-        <span className="brand">
-          <span className="brand-mark">w</span>walk
-        </span>
+        <WalkLogo/>
         <ShieldAlert size={36} />
         <h1>アカウントの利用を停止しています。</h1>
         <p>{account.suspension?.reason}</p>

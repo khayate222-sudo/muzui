@@ -1,3 +1,4 @@
+import {WalkLogo} from "./StationIdentity";
 import { useState } from "react";
 import { ArrowRight, KeyRound } from "lucide-react";
 import Account from "./Account";
@@ -34,9 +35,7 @@ export default function AuthGate({
   return (
     <>
       <main className="auth-gate">
-        <span className="brand">
-          <span className="brand-mark">w</span>walk
-        </span>
+        <WalkLogo/>
         <span className="account-symbol">
           <KeyRound size={28} />
         </span>
