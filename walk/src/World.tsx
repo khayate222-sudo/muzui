@@ -3,8 +3,9 @@ import type { Place } from '../shared/worlds';
 import type { Room } from '../shared/community';
 import type Phaser from 'phaser';
 import type { Peer, Post, User, WorldState } from '../shared/model';
+import type { WorldLight } from './world-light';
 export type WorldActions = { goTo: (x:number,y:number,teleport?:boolean)=>void; zoom: (delta:number)=>void; home:()=>void; sync:(x:number,y:number)=>void };
-export type WorldProps = { place?:Place; onEnter:(id:string)=>void; onGuide:()=>void; room?: Room; user: User; posts: Post[]; state: WorldState; onMove:(x:number,y:number)=>void; onTeleport:(x:number,y:number)=>void; onOpen:(id:string)=>void; onNear:(id:string|null)=>void; onProfile:(id:string)=>void; onArea:(id:string)=>void; actions: React.RefObject<WorldActions|null> };
+export type WorldProps = { light:WorldLight; place?:Place; onEnter:(id:string)=>void; onGuide:()=>void; room?: Room; user: User; posts: Post[]; state: WorldState; onMove:(x:number,y:number)=>void; onTeleport:(x:number,y:number)=>void; onOpen:(id:string)=>void; onNear:(id:string|null)=>void; onProfile:(id:string)=>void; onArea:(id:string)=>void; actions: React.RefObject<WorldActions|null> };
 export default function World(props: WorldProps) {
   const host=useRef<HTMLDivElement>(null); const current=useRef(props); current.current=props;
   useEffect(()=>{

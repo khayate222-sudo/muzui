@@ -11,3 +11,13 @@ it('matches roofs and side walls while excluding the empty sky around a building
 it('does not turn a drag, pinch or long press into a click',()=>{
  const start={x:40,y:50,time:100};expect(isTap(start,{x:44,y:54,time:250})).toBe(true);expect(isTap(start,{x:55,y:50,time:250})).toBe(false);expect(isTap(start,{x:40,y:50,time:900})).toBe(false);expect(isTap(start,{x:40,y:50,time:250},true)).toBe(false);
 });
+it('uses the painted alpha silhouette at its displayed size, without claiming transparent sky or faint shadows',()=>{
+ const mask={kind:'mask' as const,x:-100,y:-180,width:200,height:240,pixelWidth:2,pixelHeight:3,alpha:new Uint8Array([0,255,255,140,30,0])};
+ expect(containsLocal([mask],-50,-150)).toBe(false);
+ expect(containsLocal([mask],50,-150)).toBe(true);
+ expect(containsLocal([mask],-50,-60)).toBe(true);
+ expect(containsLocal([mask],50,-60)).toBe(true);
+ expect(containsLocal([mask],-50,30)).toBe(false);
+ expect(containsLocal([mask],100,-60)).toBe(false);
+ expect(containsContainer([mask],50+135,-150+150,135,150)).toBe(true);
+});

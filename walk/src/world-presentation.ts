@@ -13,7 +13,7 @@ const stories: Record<
     edition: "THE LITTLE SCREEN",
     subtitle: "立ち止まりたくなる、一場面。",
     detail:
-      "青い光の小さな映像街。短い動画も、じっくり見る一本も。同じ投稿を開いている人と、気になる場面を見つけよう。",
+      "青い屋根の小さな映像館。短い動画も、じっくり見る一本も。同じ投稿を開いている人と、気になる場面を見つけよう。",
   },
   "world:meme": {
     edition: "A SMALL DETOUR",
@@ -52,10 +52,10 @@ const stories: Record<
       "夕暮れの木造街と小さな灯り。お気に入りの一曲を持ち寄って、その先の演奏の家へ。",
   },
   "world:game": {
-    edition: "NEON PLAYGROUND",
-    subtitle: "冒険の入口は、ネオンの向こう。",
+    edition: "THE PLAY COURTYARD",
+    subtitle: "冒険の入口は、青い屋根の向こう。",
     detail:
-      "未来のアーケードから、RPGの洞窟へ。その先には、住人の物語を語れる静かな工房があります。",
+      "青い塔のゲームの城から、RPGの洞窟へ。その先には、住人の物語を語れる静かな工房があります。",
   },
   "world:art": {
     edition: "OPEN AIR ATELIER",

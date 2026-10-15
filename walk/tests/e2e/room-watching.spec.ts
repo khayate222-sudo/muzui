@@ -6,6 +6,7 @@ async function onboard(p: Page, name: string, share = false) {
   await p.getByLabel('ニックネーム').fill(name);
   if (share) await p.locator('input[name=share]').check();
   await p.getByRole('button', { name: 'WALKをはじめる' }).click();
+  await expect(p.getByRole('button', { name: 'WALKをはじめる', exact: true })).toHaveCount(0);
   await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();
   await expect(p.locator('.connection')).toContainText('人が散歩中');
 }

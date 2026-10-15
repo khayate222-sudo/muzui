@@ -2,10 +2,12 @@ import Phaser from 'phaser';
 import type { Place } from '../shared/worlds';
 import {worldEmblem} from './world-emblem';
 import { polygon, rectangle, type HitRegion } from './world-input';
+import { drawIllustratedBuilding, drawIllustratedPlace } from './world-illustration';
 const textStyle={fontFamily:'"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif'};
 const shape=(g:Phaser.GameObjects.Graphics,color:number,points:number[],alpha=1)=>{g.fillStyle(color,alpha);g.fillPoints(Array.from({length:points.length/2},(_,i)=>({x:points[i*2],y:points[i*2+1]})),true);};
 export const buildingSilhouette=polygon([-132,-95,-20,-196,130,-126,130,0,45,38,-110,10,-110,-89]);
 export function drawBuilding(scene:Phaser.Scene,c:Phaser.GameObjects.Container,place:Place,back=false):HitRegion[]{
+ const illustrated=drawIllustratedBuilding(scene,c,place,back);if(illustrated)return illustrated;
  const g=scene.add.graphics(),col=Phaser.Display.Color.HexStringToColor(place.color).color;c.add(g);
  const future=place.theme==='future',japan=place.theme==='japan',castle=place.gate==='castle',cave=place.gate==='cave';
  g.fillStyle(0x162944,.18);g.fillEllipse(10,25,285,82);
@@ -38,6 +40,7 @@ export function drawBuilding(scene:Phaser.Scene,c:Phaser.GameObjects.Container,p
  return [body,...(cave?[]:[polygon([-120,0,45,30,130,-5,130,10,45,50,-120,17])]),...(future?[rectangle(68,-166,44,35),rectangle(82,-148,14,44)]:!cave?[rectangle(-128,-25,48,48),rectangle(58,-25,48,48)]:[]),rectangle(-label.width/2,73-label.height/2,label.width,label.height)];
 }
 export function drawPlaceArt(scene:Phaser.Scene,place:Place,tree:(x:number,y:number,s:number)=>void){
+ if(scene.textures.exists('world-ground')&&scene.textures.exists('world-buildings'))return drawIllustratedPlace(scene,place);
  const station=place.theme==='station',future=place.theme==='future',japan=place.theme==='japan',fantasy=place.theme==='fantasy';
  scene.cameras.main.setBackgroundColor(station?'#24374c':future?'#23344d':fantasy?'#4b4866':japan?'#d7c5cd':'#c5d5c5');
  let guideHall:Phaser.GameObjects.Container|undefined;

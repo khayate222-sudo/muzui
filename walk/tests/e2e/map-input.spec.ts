@@ -81,7 +81,7 @@ for (const mobile of [false, true])
       for (const [dx, dy] of [
         [-20, -165],
         [90, -35],
-        [-15, 32],
+        [-15, 10],
         [0, 73],
       ]) {
         await center(p, gate.x, gate.y - 80);

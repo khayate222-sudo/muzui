@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { drawBuilding, drawPlaceArt } from './world-art';
+import {prepareIllustrations,drawIllustratedGround,applyWorldLight} from './world-illustration';
+import type {WorldLight} from './world-light';
 import { containsContainer, isTap, polygon, rectangle, type HitRegion } from './world-input';
 import { gatePoints } from '../shared/worlds';
 import { areas, areaAt, type Peer, type Post } from '../shared/model';
@@ -10,15 +12,17 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
     me!: Phaser.GameObjects.Container; player={x:1100,y:750}; target: {x:number;y:number}|null=null;
     keys!: Record<string,Phaser.Input.Keyboard.Key>; panels=new Map<string,Phaser.GameObjects.Container>(); people=new Map<string,Phaser.GameObjects.Container>(); ghosts=new Map<string,Phaser.GameObjects.Container>();
     gesture?:{x:number;y:number;time:number}; gestureCancelled=false; lastDrag?:{x:number;y:number}; pinchDistance=0; diagnosticAt=0;
-    last=0; near:string|null=null; area=''; postsVersion=''; avatarVersion=''; marker!:Phaser.GameObjects.Container;
+    light?:WorldLight; last=0; near:string|null=null; area=''; postsVersion=''; avatarVersion=''; marker!:Phaser.GameObjects.Container;
     constructor(){super('walk');}
-    preload(){for(let i=0;i<5;i++)this.load.image('art-'+i,'/art/scene-'+i+'.svg');}
+    preload(){for(let i=0;i<5;i++)this.load.image('art-'+i,'/art/scene-'+i+'.svg');this.load.image('world-buildings','/art/world-buildings.webp');this.load.image('world-ground',get().place?.theme==='station'?'/art/world-coast.webp':'/art/world-garden.webp');this.load.image('world-station','/art/world-station.webp');}
     create(){
       this.cameras.main.setBackgroundColor('#dbe8d1');this.cameras.main.setBounds(0,0,2000,1400);
-      this.drawLandscape();
+      prepareIllustrations(this);this.drawLandscape();host.dataset.art=this.textures.exists('world-buildings')&&this.textures.exists('world-ground')?'illustrated':'fallback';
       const own=get().state.peers.find(p=>p.id===get().user.id);if(own)this.player={x:own.x,y:own.y};
       this.me=this.makeAvatar({...get().user,...this.player,area:'discovery',currentPost:null},true);
-      this.cameras.main.setZoom(this.scale.width<600?(get().place?.id==='public'?.52:.66):get().place?.id==='public'?.64:.82);this.cameras.main.startFollow(this.me,true,.07,.07);
+      this.avatarVersion=get().user.color+get().user.style;
+      const station=get().place?.id==='public',place=!!get().place;
+      this.cameras.main.setZoom(this.scale.width<600?(station?.45:place?.56:.66):station?.64:place?.72:.82);this.cameras.main.startFollow(this.me,true,.07,.07,station?100:0,place?180:0);
       this.marker=this.add.container(0,0);const mg=this.add.graphics();mg.lineStyle(2,0x2c7158,.8);mg.strokeEllipse(0,0,36,18);this.marker.add(mg);this.marker.setVisible(false).setDepth(2);
       this.tweens.add({targets:this.marker,alpha:.3,scaleX:.7,scaleY:.7,yoyo:true,repeat:-1,duration:650});
       this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E') as typeof this.keys;
@@ -56,12 +60,14 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
     drawLandscape(){
       const room=get().room;
       if(room){
+        const illustrated=drawIllustratedGround(this);
         const floor=this.add.graphics(),night=room.theme==='night';
         this.cameras.main.setBackgroundColor(night?'#303d4d':room.theme==='studio'?'#e9dfcf':'#dbe8d1');
-        floor.fillStyle(night?0x394d58:room.theme==='studio'?0xf2e9da:0xd0dfc2);floor.fillRoundedRect(50,50,1900,1300,70);
-        floor.lineStyle(1,night?0x647c80:0xa8b29d,.25);for(let x=80;x<2000;x+=80)floor.lineBetween(x,80,x,1320);for(let y=80;y<1350;y+=80)floor.lineBetween(80,y,1920,y);
-        this.add.text(1000,105,room.title,{fontFamily:'sans-serif',fontSize:'32px',color:night?'#e2eadc':'#52694e'}).setOrigin(.5);
-        this.add.text(1000,1300,'ENTRANCE · '+room.ownerName,{fontFamily:'sans-serif',fontSize:'18px',color:night?'#c3dacd':'#52694e'}).setOrigin(.5);
+        if(!illustrated){floor.fillStyle(night?0x394d58:room.theme==='studio'?0xf2e9da:0xd0dfc2);floor.fillRoundedRect(50,50,1900,1300,70);
+        floor.lineStyle(1,night?0x647c80:0xa8b29d,.25);for(let x=80;x<2000;x+=80)floor.lineBetween(x,80,x,1320);for(let y=80;y<1350;y+=80)floor.lineBetween(80,y,1920,y);}
+        if(illustrated&&room.theme!=='garden'){floor.setDepth(-90);floor.fillStyle(night?0x46546c:0xc7a480,night?.24:.1).fillRect(0,0,2000,1400);}
+        this.add.text(1000,105,room.title,{fontFamily:'sans-serif',fontSize:'32px',color:'#5d5145',backgroundColor:'#fff5e6',padding:{x:20,y:12}}).setOrigin(.5);
+        this.add.text(1000,1300,'ENTRANCE · '+room.ownerName,{fontFamily:'sans-serif',fontSize:'18px',color:'#5d5145',backgroundColor:'#fff5e6',padding:{x:14,y:8}}).setOrigin(.5);
         for(const d of room.decorations){if(d.kind==='tree')this.tree(d.x,d.y,1);else {const g=this.add.graphics();g.setDepth(d.y);if(d.kind==='stone'){g.fillStyle(0x9da8a1);g.fillEllipse(d.x,d.y-12,65,40);}else if(d.kind==='bench'){g.fillStyle(0x9a7053);g.fillRoundedRect(d.x-42,d.y-30,84,24,5);g.fillRect(d.x-32,d.y-6,7,18);g.fillRect(d.x+26,d.y-6,7,18);}else {g.fillStyle(0x74965d);g.fillRect(d.x-3,d.y-30,6,30);g.fillStyle(0xe5b36d);for(let i=0;i<6;i++)g.fillCircle(d.x+Math.cos(i*Math.PI/3)*13,d.y-35+Math.sin(i*Math.PI/3)*13,10);g.fillStyle(0xfff4c4);g.fillCircle(d.x,d.y-35,7);}}}
         return;
       }
@@ -99,7 +105,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       c.on('pointerout',()=>{(c.getData('halo') as Phaser.GameObjects.Graphics|undefined)?.setVisible(false);});
     }
     drawPlace(){
-      const place=get().place!;const hall=drawPlaceArt(this,place,(x,y,s)=>this.tree(x,y,s));if(hall)this.bindAction(hall,[polygon([-208,-131,-55,-252,209,-165,209,-155,180,-34,78,34,-190,15]),rectangle(-170,40,330,43)],()=>get().onGuide());
+      const place=get().place!;const hall=drawPlaceArt(this,place,(x,y,s)=>this.tree(x,y,s));if(hall)this.bindAction(hall,(hall.getData('hitRegions') as HitRegion[]|undefined)||[polygon([-208,-131,-55,-252,209,-165,209,-155,180,-34,78,34,-190,15]),rectangle(-170,40,330,43)],()=>get().onGuide());
       for(const gate of gatePoints(place.id)){
         const c=this.add.container(gate.x,gate.y).setDepth(gate.y).setSize(270,300);
         const regions=drawBuilding(this,c,gate.place,gate.place.id===place.parentId);
@@ -141,7 +147,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       }
     }
     update(time:number,delta:number){
-      if(!this.me)return;const props=get();
+      if(!this.me)return;const props=get();if(this.light!==props.light){this.light=props.light;applyWorldLight(this,props.light);host.dataset.light=props.light;}
       if(time-this.diagnosticAt>100){this.diagnosticAt=time;const cam=this.cameras.main;host.dataset.viewport=JSON.stringify({scrollX:cam.scrollX,scrollY:cam.scrollY,zoom:cam.zoom,width:cam.width,height:cam.height});host.dataset.ready='true';}this.input.enabled=!document.querySelector('[aria-modal="true"]');
       const version=props.posts.map(p=>p.id+p.title+p.mapX+p.mapY+p.type+p.mediaUrl+p.genre).join('|');if(version!==this.postsVersion){this.postsVersion=version;this.rebuildPosts();}
       const av=props.user.color+props.user.style;if(av!==this.avatarVersion){this.avatarVersion=av;this.me.destroy();this.me=this.makeAvatar({...props.user,...this.player,area:'discovery',currentPost:null},true);this.cameras.main.startFollow(this.me,true,.07,.07);}
