@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import type { Place } from '../shared/worlds';
+import {worldEmblem} from './world-emblem';
 import { polygon, rectangle, type HitRegion } from './world-input';
 const textStyle={fontFamily:'"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif'};
 const shape=(g:Phaser.GameObjects.Graphics,color:number,points:number[],alpha=1)=>{g.fillStyle(color,alpha);g.fillPoints(Array.from({length:points.length/2},(_,i)=>({x:points[i*2],y:points[i*2+1]})),true);};
 export const buildingSilhouette=polygon([-132,-95,-20,-196,130,-126,130,0,45,38,-110,10,-110,-89]);
 export function drawBuilding(scene:Phaser.Scene,c:Phaser.GameObjects.Container,place:Place,back=false):HitRegion[]{
  const g=scene.add.graphics(),col=Phaser.Display.Color.HexStringToColor(place.color).color;c.add(g);
- const future=place.theme==='future',japan=place.theme==='japan',castle=place.gate==='castle'&&!future,cave=place.gate==='cave';
+ const future=place.theme==='future',japan=place.theme==='japan',castle=place.gate==='castle',cave=place.gate==='cave';
  g.fillStyle(0x162944,.18);g.fillEllipse(10,25,285,82);
  shape(g,future?0x516c91:0x8d7a70,[-120,0,45,30,130,-5,130,10,45,50,-120,17]);
  shape(g,future?0xd0e8ef:japan?0xf0ddbe:0xf4e6ce,[-110,-100,45,-74,45,32,-110,7]);
@@ -23,10 +24,14 @@ export function drawBuilding(scene:Phaser.Scene,c:Phaser.GameObjects.Container,p
  shape(g,future?0xc3dde2:0xe5d6b4,[-42,15,10,24,24,37,-29,28]);shape(g,future?0x7395aa:0xc5b895,[-29,28,24,37,24,45,-29,36]);
  if(japan){g.lineStyle(5,0x8a6a57);g.lineBetween(-110,-22,43,2);g.lineBetween(-100,-90,-100,2);g.lineBetween(37,-69,37,26);for(const x of[-105,42]){g.fillStyle(0xcc7972);g.fillRoundedRect(x,-45,15,23,7);g.lineStyle(2,0xfde3b4);g.lineBetween(x+7,-42,x+7,-25);}}
  if(future){g.lineStyle(3,0x85f3e1,.8);g.lineBetween(52,-46,110,-76);g.lineBetween(52,-24,110,-54);g.fillStyle(0x527d99);g.fillRect(84,-142,4,42);g.fillStyle(0xc0eff4);g.fillEllipse(89,-154,42,18);g.lineStyle(2,0xb6f4ea);g.strokeEllipse(89,-154,42,18);}
- if(castle){for(const x of[-100,77]){g.fillStyle(0xaaa7c8);g.fillRoundedRect(x,-156,35,150,5);g.fillStyle(0x8075ae);g.fillTriangle(x-9,-155,x+44,-155,x+17,-204);g.fillStyle(0xffe6b9);g.fillRoundedRect(x+10,-130,12,24,6);}g.fillStyle(0xb898d9);g.fillRect(18,-158,20,40);g.fillStyle(0xf9e6b6);g.fillTriangle(18,-158,38,-158,28,-143);}
+ if(castle){for(const x of[-100,77]){g.fillStyle(future?0x82b4c8:0xaaa7c8);g.fillRoundedRect(x,-156,35,150,5);g.fillStyle(future?0x405f85:0x8075ae);g.fillTriangle(x-9,-155,x+44,-155,x+17,-204);g.fillStyle(future?0x9bf4e2:0xffe6b9);g.fillRoundedRect(x+10,-130,12,24,6);if(future){g.lineStyle(3,0x9bf4e2);g.lineBetween(x+6,-85,x+29,-85);g.lineBetween(x+6,-68,x+29,-68);}}g.fillStyle(0xb898d9);g.fillRect(18,-158,20,40);g.fillStyle(0xf9e6b6);g.fillTriangle(18,-158,38,-158,28,-143);}
  if(cave){g.clear();g.fillStyle(0x14233f,.18);g.fillEllipse(8,25,270,75);shape(g,0x899f8c,[-128,4,-108,-87,-44,-172,38,-163,117,-75,132,10,35,39]);shape(g,0xa9b7a1,[-128,4,-108,-87,-44,-172,-21,-77,-60,11]);shape(g,0x667d83,[38,-163,117,-75,132,10,70,4,44,-89]);g.fillStyle(0x344451);g.fillRoundedRect(-48,-85,97,112,45);g.fillStyle(0x7cbdb9,.35);g.fillRoundedRect(-37,-74,75,95,35);g.lineStyle(3,0xc0ebe0,.8);g.strokeRoundedRect(-28,-63,57,81,28);for(const [x,y]of[[-74,-21],[84,-21],[-28,-146]]){g.fillStyle(0x91be9b);g.fillCircle(x,y,17);g.fillStyle(0xc3d8a4);g.fillCircle(x-6,y-7,10);}}
  if(!future&&!cave){for(const x of[-115,65]){g.fillStyle(0xa4775e);g.fillRoundedRect(x,3,26,18,5);g.fillStyle(0x78987b);g.fillCircle(x+8,-3,13);g.fillStyle(0xa2b68f);g.fillCircle(x+19,-10,11);g.fillStyle(0xe1b5ae);g.fillCircle(x+13,-10,4);}}
- const badge=scene.add.text(0,-107,back?'←':place.genre==='music'?'♫':place.genre==='game'?'⊞':place.genre==='art'?'✳':place.genre==='anime'?'☆':'✦',{...textStyle,fontSize:'19px',color:'#fff4d5'}).setOrigin(.5);c.add(badge);
+ const emblem=scene.add.graphics().setPosition(-19,cave?-110:-124).setScale(.8);c.add(emblem);
+ for(const item of worldEmblem(place)){
+  const color=Phaser.Display.Color.HexStringToColor(item.fill).color;
+  if(item.kind==='polygon')shape(emblem,color,item.points);else {emblem.fillStyle(color);if(item.kind==='circle')emblem.fillCircle(item.x,item.y,item.r);else emblem.fillRoundedRect(item.x,item.y,item.width,item.height,3);}
+ }
  const label=scene.add.text(0,73,(back?'← ':'')+place.title,{...textStyle,fontSize:'18px',fontStyle:'bold',color:'#344e55',backgroundColor:'#fffdf3',padding:{x:13,y:9},align:'center',wordWrap:{width:210}}).setOrigin(.5);c.add(label);
  const halo=scene.add.graphics();halo.lineStyle(3,0xfff1c6,.8);halo.strokeEllipse(0,20,256,78);halo.setVisible(false);c.addAt(halo,0);c.setData('halo',halo);
  const body=castle?polygon([-132,-95,-109,-155,-83,-204,-57,-155,-20,-196,70,-155,94,-204,121,-155,130,-126,130,10,45,50,-120,17]):cave?polygon([-128,4,-108,-87,-44,-172,38,-163,117,-75,132,10,35,39]):buildingSilhouette;
