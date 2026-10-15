@@ -18,4 +18,11 @@ export const childrenOf=(id:string)=>places.filter(p=>p.parentId===id);
 export function pathTo(id:string):Place[]{const p=findPlace(id);return p?[...(p.parentId?pathTo(p.parentId):[]),p]:[];}
 export function postWorld(post:{genre:Genre;worldId?:string|null}):string{return findPlace(post.worldId||'')?.genre===post.genre?post.worldId!:'world:'+post.genre;}
 export function acceptsPost(worldId:string|null|undefined,genre:Genre){return !worldId||findPlace(worldId)?.genre===genre;}
-export function gatePoints(id:string){const destinations=[...childrenOf(id),...(findPlace(id)?.parentId?[findPlace(findPlace(id)!.parentId!)!]:[])];return destinations.map((place,i)=>({place,x:id==='public'?([390,760,1310,1660,380,760,1290,1660,410,1600][i]||1000):350+(i%4)*430,y:id==='public'?([440,370,365,430,820,1020,1020,805,1115,1110][i]||900):360+Math.floor(i/4)*360}));}
+// A courtyard has two side entrances; the central building is the destination guide.
+// All other destinations remain available in the guide and category navigation.
+export function gatePoints(id:string){
+  const current=findPlace(id), children=childrenOf(id);
+  const left=id==='public'?findPlace('world:discovery'):children[0];
+  const right=id==='public'?findPlace('world:art'):findPlace(current?.parentId||'');
+  return [left?{place:left,x:510,y:770}:null,right?{place:right,x:1490,y:770}:null].filter((p):p is {place:Place;x:number;y:number}=>!!p);
+}

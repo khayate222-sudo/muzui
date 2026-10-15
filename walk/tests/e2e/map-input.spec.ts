@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { toCourtyard } from "../../src/world-layout";
 import { gatePoints } from "../../shared/worlds";
 async function setup(p: Page) {
   await p.goto("/");
@@ -79,12 +80,12 @@ for (const mobile of [false, true])
         (g) => g.place.id === "world:art",
       )!;
       for (const [dx, dy] of [
-        [-20, -165],
-        [90, -35],
-        [-15, 10],
-        [0, 73],
+        [60, -430],
+        [240, -100],
+        [120, -30],
+        [0, 10],
       ]) {
-        await center(p, gate.x, gate.y - 80);
+        await center(p, gate.x+dx, gate.y+dy);
         await tap(gate.x + dx, gate.y + dy);
         await expect(p.locator(".map-top")).toContainText("アートの世界");
         await p
@@ -96,21 +97,23 @@ for (const mobile of [false, true])
           p.locator("[role=application][data-ready=true]"),
         ).toBeVisible();
       }
-      const castle = gatePoints("public").find(
-        (g) => g.place.id === "world:game",
-      )!;
-      for (const dx of [-83, 94]) {
-        await center(p, castle.x, castle.y - 80);
-        await tap(castle.x + dx, castle.y - 185);
-        await expect(p.locator(".map-top")).toContainText("ゲームの世界");
-        await p
-          .locator(".world-path")
-          .getByRole("button", { name: "不思議な駅", exact: true })
-          .click();
-        await expect(
-          p.locator("[role=application][data-ready=true]"),
-        ).toBeVisible();
+      // The central clock tower and its wall open the guide, not an unrelated world.
+      for (const [x,y] of [[1000,180],[1000,600]]) {
+        await center(p,x,y);
+        await tap(x,y);
+        await expect(p.getByRole('dialog',{name:'行き先をえらぶ'})).toBeVisible();
+        await p.getByRole('button',{name:'閉じる',exact:true}).click();
       }
+      // Every background family retains a working physical return building.
+      for (const id of ['world:discovery','world:music','world:video','world:game-rpg']) {
+        await p.goto('/#/world/'+encodeURIComponent(id));
+        await p.getByRole('button',{name:'この場所へ行く',exact:true}).click();
+        await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();
+        await center(p,1600,570); await tap(1600,570);
+        await expect(p.locator('.map-top')).toContainText(id==='world:game-rpg'?'ゲームの世界':'不思議な駅');
+      }
+      await p.locator('.world-path').getByRole('button',{name:'不思議な駅',exact:true}).click();
+      await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();
       await center(p, gate.x, gate.y - 80);
       const at = await point(p, gate.x, gate.y - 100);
       await p.mouse.move(at.x, at.y);
@@ -160,8 +163,9 @@ test("post board and avatar respond at their visible positions after zooming", a
       a.locator("[role=application][data-ready=true]"),
     ).toBeVisible();
     await a.getByRole("button", { name: "拡大", exact: true }).click();
-    await center(a, post.mapX, post.mapY - 50);
-    const pt = await point(a, post.mapX, post.mapY - 80);
+    const board = toCourtyard({x:post.mapX,y:post.mapY});
+    await center(a, board.x, board.y - 140);
+    const pt = await point(a, board.x, board.y - 140);
     await a.mouse.click(pt.x, pt.y);
     await expect(a.locator(".post-detail h2")).toHaveText(post.title);
     await a.getByRole("button", { name: "閉じる", exact: true }).click();
@@ -172,8 +176,9 @@ test("post board and avatar respond at their visible positions after zooming", a
     await expect(
       a.locator("[role=application][data-ready=true]"),
     ).toBeVisible();
-    await center(a, 1100, 710);
-    const peer = await point(a, 1100, 710);
+    const resident=toCourtyard({x:1100,y:750});
+    await center(a,resident.x,resident.y-60);
+    const peer = await point(a,resident.x,resident.y-60);
     await a.mouse.click(peer.x, peer.y);
     await expect(
       a.getByRole("dialog", { name: "旅人のプロフィール" }),

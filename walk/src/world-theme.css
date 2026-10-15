@@ -1,0 +1,133 @@
+/* The scene and its surrounding pages share paper, graphite, wood and sage.
+   Keep social controls contemporary and readable; texture belongs to the art. */
+:root {
+  --walk-ink: #433f38;
+  --walk-cream: #f4f0e7;
+  --walk-border: #ddd4c5;
+  --walk-accent: #68745b;
+  background: var(--walk-cream);
+  color: var(--walk-ink);
+}
+body { background: var(--walk-cream); }
+.app-shell { background: radial-gradient(ellipse at 60% 0, #fffaf0, transparent 65%), #f4f0e7; }
+.topbar, .left-sidebar, .right-sidebar, .mobile-nav { background: #faf6ed; border-color: var(--walk-border); }
+.topbar { box-shadow: 0 1px 0 #ffffff80 inset; }
+.brand, .tagline b, .user-menu, .notification, .intro-row h1, .side-heading h2 { color: #474236; }
+.brand-mark { background: #5c6651; color: #fff7e7; border-radius: 11px 11px 4px 11px; }
+.beta, .soft-badge, .nav-count { color: #716955; background: #ebe4d5; }
+.tagline, .connection, .eyebrow, .nav-label, .sidebar-bottom, .intro-row p, .side-subtitle { color: #7f7767; }
+.intro-row h1 > span { color: #748065; }
+.intro-row h1, .world-story h3, .destination-sheet h2, .profile-form h2 { font-family: Georgia, 'Hiragino Mincho ProN', 'Yu Mincho', serif; }
+.search-box, .modal-search { border-color: #ded5c7; background: #f1ebdf; color: #7d7463; }
+.search-box input { color: #514b40; }
+.search-box input::placeholder { color: #887f6e; }
+.nav-link, .area-nav { color: #766e5f; }
+.nav-link.active, .nav-link:hover, .area-nav:hover, .person-row:hover, .chat-active { background: #e9eadc; color: #4e5e42; }
+.nav-dot, .connection.is-live i, .live-small, .map-live i { background: #738363; box-shadow: 0 0 0 3px #73836312; }
+.nav-section, .sidebar-chat, .section-line, .world-stats { border-color: var(--walk-border); }
+.world-navigation, .map-card { background: #faf6ec; border-color: #d4c8b6; }
+.world-navigation { box-shadow: 0 1px 0 #fffaf4 inset; }
+.world-path, .world-path [aria-current], .route-heading, .world-navigation > p { color: #6e6657; }
+.world-gate, .world-gate.theme-garden, .world-gate.theme-japan, .world-gate.theme-future, .world-gate.theme-fantasy {
+  background: #f1ebdd; color: #6c6353; border-color: #d9cfbd;
+}
+.world-gate:hover { background: #e7e5d5; }
+.map-card { box-shadow: 0 8px 26px #6552350a; }
+.map-top, .area-dock { background: #faf5ea; border-color: #ded3c1; }
+.map-top b, .map-live, .map-breadcrumb { color: #706553; }
+.location-dot { background: #af8b57; }
+.map-stage { background: #ddd0b4; }
+.map-note, .map-tools, .near-prompt { background: #fff7e9ef; color: #675b48; border-color: #dacbb2; box-shadow: 0 3px 12px #68533513; }
+.map-tools button { color: #6c6652; }
+.map-tools button:hover { background: #e9e5d6; }
+.world-caption { color: #605746; }
+.world-caption > span:first-child { background: #fff8e6dd; border-radius: 8px; padding: 6px 9px; }
+.world-caption kbd { background: #fff8e6e6; border-color: #d9cbb2; }
+.mini-map { display: none; }
+.area-dock button, .area-dock button > span { color: #776e5c; }
+.area-dock button.selected, .area-dock button:hover { background: #e7e8d9; color: #526347; }
+.primary, .filter-tabs .selected, .chat-compose button { background: #626d55; border-color: #626d55; color: #fff9ec; }
+.primary:hover { background: #515e45; }
+.outline { border-color: #d5cbb9; background: #fbf7ee; color: #6b614f; }
+.outline:hover, .icon-button:hover { background: #ebe7da; }
+.text-button, .account-switch button, .privacy-note button { color: #687651; }
+.mobile-nav button, .mobile-nav button:first-child { color: #6e6656; }
+.mobile-nav button[aria-current], .mobile-nav .active { color: #4f6340; }
+.mobile-nav { box-shadow: 0 -3px 18px #68533508; }
+.world-story { border-color: var(--walk-border); background: #eee8da; }
+.world-story p, .world-story .eyebrow, .privacy-note p, .privacy-note strong, .person-row small, .nearby-empty p, .nearby-empty small { color: #7b725f; }
+.nearby-empty { border-color: #d8cdbb; background: #f3eddf; }
+.featured-card, .post-tile { background: #faf6ed; border-color: #ded2bf; }
+.featured-body h3, .featured-body p, .featured-bottom { color: #746951; }
+.modal-backdrop, .watch-layer.is-large { background: #3d382c70; }
+.modal, .modal-top, .watch-panel, .watch-controls, .watch-full .watch-audience, .watch-grab { background: #fcf8ef; border-color: #ddd1bf; }
+.modal { box-shadow: 0 24px 80px #3d332b30; }
+.modal h2, .modal h3, .post-detail h2, .tile-title { color: #4c4437; }
+.modal-top > span, .muted, .fineprint { color: #817660; }
+.modal input, .modal select, .modal textarea, input, select, textarea { background: #fffaf2; border-color: #d7cbb7; color: #51493b; }
+input:focus, select:focus, textarea:focus { border-color: #88916e; box-shadow: 0 0 0 3px #87916e20; }
+button:focus-visible, a:focus-visible, .next-settings summary:focus-visible { outline-color: #88916e; }
+input[type=checkbox] { accent-color: #687653; }
+.profile-form { background: #fcf8ef; }
+.welcome-art { background: #e0d5be url('/art/courtyard-station.webp') center 41% / cover; }
+.welcome-art .welcome-path, .welcome-art .art-spark { display: none; }
+.welcome-art > .illustrated-avatar { background: #fff6e8c9; border: 1px solid #fff9eb; border-radius: 32%; transform: none; padding: 2px; }
+.privacy-check, .viewing-box, .watch-audience > .viewing-box, .next-discovery, .active-activity, .activity-start, .record-editor {
+  background: #f0eddf; border-color: #d9d0bc;
+}
+.privacy-check strong, .privacy-check small, .viewing-box small, .next-settings, .next-settings > small { color: #786e59; }
+.viewer-avatars button { color: #625b49; }
+.reaction-bar button { color: #7d715c; background: #faf5e9; border-color: #ded1bc; }
+.reaction-bar button[aria-pressed=true] { background: #e7e8d7; border-color: #b7c09e; color: #596b42; }
+.filter-tabs button { border-color: #ddd0bb; color: #7e725c; }
+.chat-bubble p { background: #eae8d9; color: #605845; }
+.chat-bubble.mine p { background: #677358; color: #fff7e6; }
+.destination-card, .destination-card.theme-japan, .destination-card.theme-future, .destination-card.theme-fantasy {
+  border-color: #d8cab3; background: #f1eadb;
+}
+.destination-card .place-illustration { display: block; object-fit: cover; object-position: center 35%; margin: 12px 0 0; height: 140px; }
+.destination-card > div { background: #fbf6e9; border-color: #ded1bb; }
+.destination-card strong, .destination-card div > p, .destination-card div > span, .destination-card .destination-depth,
+.destination-sheet > p, .destination-path button, .sheet-eyebrow, .destination-card > .destination-edition { color: #796d57; }
+.destination-activities button { background: #f3ecdf; border-color: #daceb9; }
+.destination-activities .place-illustration { object-fit: cover; border-radius: 9px; }
+.account-symbol, .account-benefits, .account-identity, .moderation-edit, .place-invitation-list article, .together-start, .together-members > span {
+  background: #eee9dc; border-color: #d9cdb8; color: #6f654f;
+}
+.account-panel > p, .account-panel form > p, .legal-panel p, .account-panel small, .account-menu button, .account-benefits, .together-controls p { color: #7c715e; }
+.share-symbol, .destination-symbol { background: #e9e4d5; color: #727a5d; }
+.toast, .together-inbox, .party-launcher.voice-live { background: #566047; color: #fff8e9; }
+.party-launcher { background: #fcf7eb; border-color: #dbceb7; }
+.party-launcher button { color: #6b7555; }
+.danger-button { background: #a54f68; border-color: #a54f68; }
+.danger-button:hover { background: #874056; }
+.illustrated-avatar { flex-shrink: 0; }
+.courtyard-routes { display: none; }
+.empty-footsteps, .nearby-empty button, .world-story button, .privacy-note > svg, .world-story .eyebrow { color: #78815f; }
+.intro-row .eyebrow:before, .mobile-nav button.active:after { background: #78815f; }
+.world-gate > span { color: #78815f; background: #faf7ec; }
+@media (min-width: 761px) {
+  .main-content { padding-top: 24px; }
+  .intro-row { margin-bottom: 18px; }
+  .world-navigation { padding: 10px 12px; }
+  .world-navigation > p:not(.quiet-world) { display: none; }
+  .world-gates { margin-top: 8px; }
+  .map-stage, .watching .map-stage { height: clamp(480px, calc(100dvh - 385px), 680px); min-height: 480px; }
+}
+@media (max-width: 760px) {
+  .topbar { background: #faf6ed; }
+  .mobile-world-header, .mobile-world-actions { color: #716751; }
+  .mobile-world-actions .primary { background: #5e6b51; color: #fff7e7; }
+  .mobile-world-actions .route-ticket { background: #5e6b51; color: #fff7e7; }
+  .world-caption > span:first-child { font-size: 9px; }
+  .world-caption { bottom: 3px; }
+  .world-caption > span:first-child { padding: 2px 5px; font-size: 8px; }
+  .mobile-nav button[aria-current='page']:after { background: #78815f; }
+  .destination-card .place-illustration { height: 118px; }
+  .watch-grab { color: #9b8f78; }
+  .grab-line { background: #d9cdb7; }
+  .courtyard-routes { position: absolute; bottom: 42px; left: 10px; right: 10px; display: flex; justify-content: space-between; gap: 12px; pointer-events: none; }
+  .courtyard-routes button { pointer-events: auto; min-height: 44px; max-width: 48%; border: 1px solid #d7c6aa; background: #fff6e7ed; color: #695c47; border-radius: 9px; padding: 7px 10px; font-size: 10px; box-shadow: 0 2px 8px #5d493316; }
+  .courtyard-routes button span { margin-right: 5px; }
+  .near-prompt { bottom: 94px; }
+}
