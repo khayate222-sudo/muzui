@@ -1,7 +1,8 @@
 import { invitationUrl, type Invitation } from "../shared/invitations";
 import { isNative, serviceUrl } from "./native";
+export const shareOrigin=()=>isNative()?serviceUrl(''):location.origin;
 export function shareUrl(target: Invitation) {
-  return invitationUrl(isNative() ? serviceUrl("") : location.origin, target);
+  return invitationUrl(shareOrigin(), target);
 }
 export async function shareInvitation(
   title: string,

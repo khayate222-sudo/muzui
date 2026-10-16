@@ -15,6 +15,8 @@ import {
   type WatchingInvite,
   type WatchingState,
 } from "../shared/watching";
+import {api} from './api';
+import {HostWatchLink,type CreatedWatchLink} from './WatchLinks';
 import Avatar from "./Avatar";
 import Modal from "./Modal";
 
@@ -204,6 +206,8 @@ export function TogetherControls({
     [consent, setConsent] = useState(false),
     [busy, setBusy] = useState(false),
     [sent, setSent] = useState<string[]>([]);
+  const [createdLink,setCreatedLink]=useState<(CreatedWatchLink&{groupId:string})|null>(null);
+  const pendingFriends=data.friendships.filter(f=>f.status==='pending'&&f.receiverId===data.user.id);
   const group = session.state.group,
     eligible = canSynchronize(post);
   if (!eligible) return null;
@@ -219,6 +223,12 @@ export function TogetherControls({
     } finally {
       setBusy(false);
     }
+  }
+  async function approveAndInvite(id:string,userId:string){
+    setBusy(true);let approved=false;
+    try{await api('/friendships/'+id,'PATCH',{action:'accept'});approved=true;await session.send('invite',{targetId:userId});setSent(ids=>[...ids,userId]);notify('交流を承認し、同期視聴に招待しました');}
+    catch(e){notify((approved?'交流は承認済みです。同期視聴の招待をもう一度お試しください。 ':'')+(e as Error).message);}
+    finally{setBusy(false);}
   }
   return (
     <div className="together-controls" data-testid="together-controls">
@@ -287,7 +297,7 @@ export function TogetherControls({
                   setOpen(true);
                 }}
               >
-                友達を招待
+                {pendingFriends.length?'交流の申込み '+pendingFriends.length+'件':'友達を招待'}
               </button>
             )}
             <button
@@ -360,6 +370,7 @@ export function TogetherControls({
                 <p>
                   招待は2分間有効です。相手が参加を選ぶまで再生や移動は変えません。
                 </p>
+                {!!pendingFriends.length&&<section className="watch-link-requests"><h3>交流の申込み</h3><p>承認後に同期視聴へ招待します。相手の参加同意も必要です。</p>{pendingFriends.map(f=><div className="room-row" key={f.id}><Avatar color={f.user.color} style={f.user.style} size={30}/><span>{f.user.displayName}</span><button className="primary" disabled={busy} onClick={()=>void approveAndInvite(f.id,f.user.id)}>承認して同期視聴に招待</button><button className="text-button" disabled={busy} onClick={()=>{setBusy(true);void api('/friendships/'+f.id,'PATCH',{action:'decline'}).then(()=>notify('交流の申込みを見送りました')).catch(e=>notify(e.message)).finally(()=>setBusy(false));}}>今回は見送る</button></div>)}</section>}
                 {data.friendships
                   .filter(
                     (f) =>
@@ -391,9 +402,10 @@ export function TogetherControls({
                   ))}
                 {!data.friendships.some((f) => f.status === "accepted") && (
                   <p>
-                    プロフィールから交流リクエストを送り、双方が承認すると招待できます。
+                    下のリンクなら、初めての友達からこの画面に交流の申込みが届きます。
                   </p>
                 )}
+                <HostWatchLink title={post.title} value={createdLink?.groupId===group.id?createdLink:null} change={link=>setCreatedLink(link?{...link,groupId:group.id}:null)}/>
                 <button className="primary full" onClick={() => setOpen(false)}>
                   動画へ戻る
                 </button>

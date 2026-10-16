@@ -17,7 +17,7 @@ const ack=(s:Socket,event:string,payload:object)=>s.timeout(4000).emitWithAck(ev
 beforeEach(async()=>{directory=mkdtempSync(join(tmpdir(),'walk-discovery-'));instance=await createApp({database:join(directory,'app.sqlite'),adminKey:key});origin=await instance.app.listen({host:'127.0.0.1',port:0});a=await guest();b=await guest();});
 afterEach(async()=>{sockets.splice(0).forEach(s=>s.disconnect());await instance.app.close();rmSync(directory,{recursive:true,force:true});});
 it('offers real original films while excluding settings samples, source-only links and invalid players',()=>{
-  const films=a.data.posts.filter(discoverableVideo);expect(films).toHaveLength(7);expect(films.every(canSynchronize)).toBe(true);
+  const films=a.data.posts.filter(discoverableVideo);expect(films).toHaveLength(13);expect(films.every(canSynchronize)).toBe(true);
   const film=films[0];
   for(const change of [{isSample:true},{mediaUrl:'/films/walk-stolen.mp4'},{mediaUrl:'http://insecure.example/video.mp4'},{type:'external' as const,provider:'X',externalUrl:'https://x.com/someone/status/123'}])expect(discoverableVideo({...film,...change})).toBe(false);
   expect(discoverableVideo({...film,type:'youtube',externalUrl:'https://youtu.be/aqz-KE-bpKQ'})).toBe(true);
@@ -52,7 +52,7 @@ it('adds films once to an existing database and preserves existing posts and fav
   sql.prepare('UPDATE posts SET title=? WHERE id=?').run('ユーザーが編集した投稿','text-0-0');
   sql.prepare('INSERT INTO favorites(user_id,post_id,created_at) VALUES (?,?,?)').run(a.data.user.id,'text-0-0',Date.now());
   seed(instance.store);seed(instance.store);
-  expect(sql.prepare('SELECT COUNT(*) AS n FROM posts').get()).toEqual({n:32});expect(sql.prepare('SELECT title FROM posts WHERE id=?').get('text-0-0')).toEqual({title:'ユーザーが編集した投稿'});expect(sql.prepare('SELECT COUNT(*) AS n FROM favorites').get()).toEqual({n:1});
+  expect(sql.prepare('SELECT COUNT(*) AS n FROM posts').get()).toEqual({n:38});expect(sql.prepare('SELECT title FROM posts WHERE id=?').get('text-0-0')).toEqual({title:'ユーザーが編集した投稿'});expect(sql.prepare('SELECT COUNT(*) AS n FROM favorites').get()).toEqual({n:1});
 });
 it('requires viewing and explicit consent to synchronize an original and leaves others individually watching when advancing',async()=>{
   const sa=await connect(a),sb=await connect(b),film='walk-film-music';

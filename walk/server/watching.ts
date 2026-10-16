@@ -300,5 +300,10 @@ export function synchronizedWatching(c: Context) {
     });
     emit(socket.id);
   }
-  return { attach, refresh, close: () => clearInterval(timer) };
+  function hosting(userId:string){
+    const g=[...groups.values()].find(g=>g.hostId===userId),host=g?.members.find(m=>m.userId===userId);
+    if(!g||!host||c.viewer(host.socketId)?.postId!==g.postId||c.video(g.postId)?.source!==g.source)return null;
+    return {id:g.id,postId:g.postId};
+  }
+  return { attach, refresh, hosting, close: () => clearInterval(timer) };
 }

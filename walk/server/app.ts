@@ -25,6 +25,7 @@ import { and, eq, or, count, lt, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { openDatabase } from './db.js';
 import { seed } from './seed.js';
+import {watchLinks} from './watch-links.js';
 import {videoDiscovery} from './discovery.js';
 import {canSynchronize} from '../shared/discovery.js';
 import * as t from './schema.js';
@@ -149,6 +150,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
   }});
   const discovery=videoDiscovery(app,store,postList,()=>io.emit('posts'));
   const watchingFeatures=synchronizedWatching({io,connected,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},video:id=>{const p=readablePost(id);return p&&canSynchronize(p)?{id:p.id,title:p.title,source:p.mediaUrl}:null;},viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,postId:s.postId}:null;}});
+  const watchLinkFeatures=watchLinks({app,hosting:watchingFeatures.hosting,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},post:readablePost,blocked});
   const playFeatures=cooperativePlay({io,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},allowed:(id,userId)=>findPlace(id)?.genre==='game'||features.accessible(features.readRoom(id),userId),viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,worldId:positions.get(s.userId)?.worldId||'public'}:null;},entered:id=>{const s=sockets.get(id);if(s)s.postId=null;broadcast();}});
   const meetupFeatures=destinationInvitations({app,connected,notify,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},resolve:(target,userId)=>{
     if(target.kind==='room'){const r=features.readRoom(target.id);return r?.isPublic&&features.accessible(r,userId)?{title:r.title,path:['不思議な駅','住人のルーム',r.title]}:null;}
@@ -340,6 +342,6 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.post('/api/admin/posts',async req=>{const p=makePostSchema(worldFeatures.catalog()).parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,origin:p.isSample?'sample':p.externalUrl?'external':'editorial',createdAt:Date.now()}).run();io.emit('posts');return {id};});
   app.put('/api/admin/posts/:id',async(req,reply)=>{const p=makePostSchema(worldFeatures.catalog()).parse(req.body); const id=(req.params as {id:string}).id;if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});db.update(t.posts).set(p).where(eq(t.posts.id,id)).run();io.emit('posts');return {ok:true};});
   app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');io.emit('rooms');return {ok:true};});
-  app.addHook('onClose',async()=>{meetupFeatures.close();watchingFeatures.close();playFeatures.close();clearInterval(expiryTimer);clearInterval(activityTimer);clearInterval(cleanupTimer);await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
+  app.addHook('onClose',async()=>{meetupFeatures.close();watchLinkFeatures.close();watchingFeatures.close();playFeatures.close();clearInterval(expiryTimer);clearInterval(activityTimer);clearInterval(cleanupTimer);await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
   return {app,io,store};
 }

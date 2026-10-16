@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import {isShortMedia} from './starter-shorts';
 import { acceptsPost, places, type Place } from './worlds';
 import type { ActivityGhost } from './activities';
 export const genres = ['discovery', 'music', 'video', 'art', 'meme', 'game', 'anime'] as const;
@@ -27,7 +28,7 @@ export function youtubeId(value: string): string | null {
 const url = z.string().max(2048).refine(v => v === '' || safeExternal(v), 'HTTPS URLを入力してください');
 export const makePostSchema = (catalog:readonly Place[]=places) => z.object({
   worldId: z.string().max(80).nullable().optional(), type: z.enum(['text', 'image', 'video', 'youtube', 'external']), title: z.string().trim().min(1).max(120), body: z.string().max(4000),
-  mediaUrl: z.string().max(2048).refine(v => v === '' || (/^\/art\/[\w-]+\.svg$/.test(v)||/^\/films\/walk-(discovery|music|video|art|meme|game|anime)\.mp4$/.test(v)||/^\/media\/[a-f0-9-]{36}\.(png|jpg|webp|gif|mp4|webm)$/.test(v)) || safeExternal(v)),
+  mediaUrl: z.string().max(2048).refine(v => v === '' || isShortMedia(v) || (/^\/art\/[\w-]+\.svg$/.test(v)||/^\/films\/walk-(discovery|music|video|art|meme|game|anime)\.mp4$/.test(v)||/^\/media\/[a-f0-9-]{36}\.(png|jpg|webp|gif|mp4|webm)$/.test(v)) || safeExternal(v)),
   externalUrl: url, provider: z.string().max(60), authorName: z.string().trim().min(1).max(60), genre: z.enum(genres),
   mapX: z.number().min(80).max(1920), mapY: z.number().min(100).max(1320), isSample: z.boolean().default(false),
 }).superRefine((p, ctx) => {

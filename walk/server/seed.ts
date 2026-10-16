@@ -3,8 +3,24 @@ import type { Store } from './db.js';
 import { posts } from './schema.js';
 import { areas, type PostInput } from '../shared/model.js';
 import {originalFilms} from '../shared/discovery.js';
+import {starterShorts} from '../shared/starter-shorts.js';
+import {postPosition} from './placement.js';
 export function seed(store:Store){
   seedSamples(store);
+  seedLandscapes(store);
+  const {sqlite,db}=store;
+  if(sqlite.prepare('SELECT id FROM seed_state WHERE id=3').get())return;
+  sqlite.transaction(()=>{
+    const now=Date.now();
+    for(const [i,film]of starterShorts.entries()){
+      const id='walk-short-'+film.slug;
+      db.insert(posts).values({id,type:'video',title:film.title,body:film.description+'\n\n見終わったら：'+film.question+'\n\nWALK制作のオリジナル描画アニメーションです。実写や人の手描き作業を撮影したものではありません。映像・合成音はこのアプリのために制作し、第三者の映像や楽曲は取り込んでいません。物語はフィクションです。',authorName:'WALK STUDIO',genre:film.genre,mediaUrl:'/films/walk-short-'+film.slug+'.mp4',provider:'WALK SHORTS · 描画アニメーション',origin:'editorial',isSample:false,...postPosition(store,film.genre),createdAt:now}).onConflictDoNothing().run();
+      sqlite.prepare('INSERT OR IGNORE INTO discovery_picks(post_id,position) VALUES (?,?)').run(id,i+1);
+    }
+    sqlite.prepare('INSERT INTO seed_state(id) VALUES (3)').run();
+  })();
+}
+function seedLandscapes(store:Store){
   const {sqlite,db}=store;
   if(sqlite.prepare('SELECT id FROM seed_state WHERE id=2').get())return;
   sqlite.transaction(()=>{
