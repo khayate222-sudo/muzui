@@ -27,7 +27,8 @@ import { openDatabase } from './db.js';
 import { seed } from './seed.js';
 import {watchLinks} from './watch-links.js';
 import {videoDiscovery} from './discovery.js';
-import {canSynchronize} from '../shared/discovery.js';
+import {soloRoom} from './solo-room.js';
+import {canSynchronize,discoverableVideo} from '../shared/discovery.js';
 import * as t from './schema.js';
 import { areaAt, moveSchema, makePostSchema, profileSchema, type Peer, type WorldState } from '../shared/model.js';
 
@@ -149,6 +150,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     }
   }});
   const discovery=videoDiscovery(app,store,postList,()=>io.emit('posts'));
+  soloRoom({app,store,readRoom:features.readRoom,eligible:id=>{const p=readablePost(id);return !!p&&discoverableVideo(p);},changed:id=>{notify(id);io.emit('posts');io.emit('rooms');broadcast();}});
   const watchingFeatures=synchronizedWatching({io,connected,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},video:id=>{const p=readablePost(id);return p&&canSynchronize(p)?{id:p.id,title:p.title,source:p.mediaUrl}:null;},viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,postId:s.postId}:null;}});
   const watchLinkFeatures=watchLinks({app,hosting:watchingFeatures.hosting,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},post:readablePost,blocked});
   const playFeatures=cooperativePlay({io,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},allowed:(id,userId)=>findPlace(id)?.genre==='game'||features.accessible(features.readRoom(id),userId),viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,worldId:positions.get(s.userId)?.worldId||'public'}:null;},entered:id=>{const s=sockets.get(id);if(s)s.postId=null;broadcast();}});

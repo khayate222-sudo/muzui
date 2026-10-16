@@ -19,7 +19,7 @@ export function canSynchronize(post:Pick<Post,'id'|'mediaUrl'|'origin'|'type'|'i
   return !post.isSample&&post.type==='video'&&(post.origin==='walk'&&/^\/media\/[a-f0-9-]{36}\.(mp4|webm)$/.test(post.mediaUrl)||!!originalFilm(post)||!!starterShort(post));
 }
 // Eligibility means a real player can be offered; external availability can still change.
-export function discoverableVideo(post:Post){
+export function discoverableVideo(post:Pick<Post,'id'|'origin'|'type'|'isSample'|'mediaUrl'|'externalUrl'|'provider'>){
   if(post.isSample)return false;
   if(post.type==='video')return /^\/media\/[a-f0-9-]{36}\.(mp4|webm)$/.test(post.mediaUrl)||!!originalFilm(post)||!!starterShort(post)||safeExternal(post.mediaUrl);
   if(post.type==='youtube')return !!youtubeId(post.externalUrl);
