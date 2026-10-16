@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Check, Edit3, Plus, Shield, Trash2 } from 'lucide-react';
-import { places } from '../shared/worlds';
+import { places } from './worlds';
 import { areas, type Bootstrap, type Post, type PostInput } from '../shared/model';
 import SourceCollections from './SourceCollections';
 import { api } from './api';

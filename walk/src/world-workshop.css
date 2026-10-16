@@ -1,0 +1,22 @@
+.resident-world-invitation{margin:24px 0;padding:20px;border:1px solid #d7cbb7;border-radius:5px 16px 5px 16px;background:linear-gradient(120deg,#f0eddf,#faf6ed);box-shadow:0 3px 0 #e8decc}
+.resident-world-invitation h3{margin:8px 0;color:#4b5743;font-family:Georgia,'Noto Serif JP',serif;font-weight:600}
+.resident-world-invitation p,.world-parent-note{color:#71624f;font-size:13px;line-height:1.8}
+.resident-world-entry{border-style:dashed!important}
+.world-workshop{max-width:720px;margin:auto;display:grid;gap:18px;padding:8px 4px 20px;color:#514b3e}
+.world-workshop h2{font-family:Georgia,'Noto Serif JP',serif;font-size:24px;margin:0;line-height:1.6}
+.world-workshop>label{display:grid;gap:8px;font-size:13px;font-weight:600}
+.world-workshop input:not([type=radio]),.world-workshop textarea{width:100%;min-height:44px;border:1px solid #bfb299;background:#fffdf7;border-radius:6px;padding:11px 12px;color:#514b3e;font:inherit;box-sizing:border-box}
+.world-workshop textarea{min-height:96px;resize:vertical}
+.landscape-picker{border:0;margin:0;padding:0;min-width:0}
+.landscape-picker legend{font-size:13px;font-weight:600;margin-bottom:12px}
+.landscape-picker>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.landscape-picker label{position:relative;display:grid;grid-template-rows:auto 1fr;border:2px solid transparent;border-radius:7px;background:#f4eee1;cursor:pointer;overflow:hidden;color:#665842;min-height:44px}
+.landscape-picker label.chosen{border-color:#647354;background:#e7ebdc;color:#3e5034}
+.landscape-picker label:focus-within{outline:2px solid #4a6541;outline-offset:3px}
+.landscape-picker input{position:absolute;top:9px;left:9px;width:18px;height:18px;margin:0;accent-color:#596a47;z-index:1}
+.landscape-picker img{display:block;width:100%;aspect-ratio:1.6;object-fit:cover;object-position:center 25%}
+.landscape-picker label>span{display:flex;gap:5px;align-items:center;justify-content:space-between;padding:9px;font-size:12px;line-height:1.5}
+.world-remove{border-top:1px dashed #d3c6ae;padding-top:16px;margin-top:12px}
+.workshop-error{padding:12px;background:#f8e6dc;color:#8c3d29;border-radius:6px;font-size:13px}
+.world-workshop .feature-buttons>button,.resident-world-invitation button{min-height:44px}
+@media(max-width:600px){.landscape-picker>div{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.resident-world-invitation{padding:16px}.world-workshop h2{font-size:21px}.world-workshop .feature-buttons>button{flex:1 1 130px}}

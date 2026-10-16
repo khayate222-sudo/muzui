@@ -13,13 +13,13 @@ const stories: Record<
     edition: "THE LITTLE SCREEN",
     subtitle: "立ち止まりたくなる、一場面。",
     detail:
-      "青い屋根の小さな映像館。短い動画も、じっくり見る一本も。同じ投稿を開いている人と、気になる場面を見つけよう。",
+      "赤いひさしの小さな映画館。短い動画も、じっくり見る一本も。同じ投稿を開いている人と、気になる場面を見つけよう。",
   },
   "world:meme": {
     edition: "A SMALL DETOUR",
     subtitle: "くだらないことほど、分かち合いたい。",
     detail:
-      "緑に隠れた丸い洞窟。思わず笑ったこと、ちょっとした共感。気軽に寄り道できる小さな隠れ家です。",
+      "紙の飾りが揺れる、小さな雑貨通り。思わず笑ったこと、ちょっとした共感。気軽に寄り道できる小さな隠れ家です。",
   },
   "activity:gym": {
     edition: "BODY IN MOTION",
@@ -43,19 +43,19 @@ const stories: Record<
     edition: "THE BETWEEN STATION",
     subtitle: "ここは、好きな世界への乗換駅。",
     detail:
-      "行き先のない切符を一枚。時計台の下から、和の音楽街、光るゲームの城、緑の工房へ。気になる建物全体が入口です。",
+      "行き先のない切符を一枚。時計台の下から、音の中庭、冒険の工房、緑のアトリエへ。気になる建物全体が入口です。",
   },
   "world:music": {
     edition: "AFTER HOURS",
     subtitle: "路地に、まだ知らない音がある。",
     detail:
-      "夕暮れの木造街と小さな灯り。お気に入りの一曲を持ち寄って、その先の演奏の家へ。",
+      "楽器の工房と、小さな演奏会場の中庭。お気に入りの一曲を持ち寄って、その先に自分たちの音の居場所を。",
   },
   "world:game": {
     edition: "THE PLAY COURTYARD",
-    subtitle: "冒険の入口は、青い屋根の向こう。",
+    subtitle: "次の冒険は、この工房から。",
     detail:
-      "青い塔のゲームの城から、RPGの洞窟へ。その先には、住人の物語を語れる静かな工房があります。",
+      "石造りの工房と木のゲーム盤。作品や遊び方ごとの細かな世界は住人の手で。その先にも、急がず過ごせる場所を。",
   },
   "world:art": {
     edition: "OPEN AIR ATELIER",
@@ -67,7 +67,7 @@ const stories: Record<
     edition: "SAKURA FRAME",
     subtitle: "あの一瞬を、何度でも語ろう。",
     detail:
-      "桜の路地で、作品や場面を持ち寄る。奥の工房では、作画や演出の話をもっと深く。",
+      "窓の向こうに空の作画机。好きな作品や場面を持ち寄って、その先の語り場を住人の手で育てよう。",
   },
   "world:game-rpg": {
     edition: "THE QUIET QUEST",

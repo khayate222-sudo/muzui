@@ -1,5 +1,8 @@
+import {useState} from 'react';
+import type {Bootstrap} from '../shared/model';
+import WorldWorkshop from './WorldWorkshop';
 import { ArrowRight, ChevronLeft, MapPin } from "lucide-react";
-import { childrenOf, findPlace, pathTo, type Place } from "../shared/worlds";
+import { childrenOf, findPlace, pathTo, canAddWorld, type Place } from "./worlds";
 import Modal from "./Modal";
 import { worldPresentation } from "./world-presentation";
 import { courtyardArt } from "./world-layout";
@@ -8,19 +11,20 @@ export function PlaceIllustration({ place }: { place: Place }) {
 }
 
 export default function WorldNavigator({
-  worldId,
+  data, refresh, notify, account, reportOwner, worldId,
   travel,
   enter,
   close,
 }: {
-  worldId: string;
+  data:Bootstrap; refresh:()=>Promise<unknown>; notify:(s:string)=>void; account:()=>void; reportOwner:(id:string,place:Place)=>void; worldId: string;
   travel: boolean;
   enter: (id: string) => void;
   close: () => void;
 }) {
+  const [workshop,setWorkshop]=useState<'new'|'edit'|null>(null);
   const place = findPlace(worldId),
     destinations = childrenOf(worldId),
-    options = destinations.length ? destinations : childrenOf("public");
+    options = place?.genre ? destinations : destinations.length ? destinations : childrenOf("public");
   const worlds = options.filter((p) => !p.id.startsWith("activity:")),
     activities = options.filter((p) => p.id.startsWith("activity:"));
   const choose = (id: string) => {
@@ -39,7 +43,7 @@ export default function WorldNavigator({
       </span>
       <PlaceIllustration place={p} />
       <div>
-        <span>{p.parentId === "public" ? "趣味の入口" : "もっと奥の世界"}</span>
+        <span>{p.ownerId ? "住人がつくった世界" : p.parentId === "public" ? "趣味の入口" : "もっと奥の世界"}</span>
         <strong>{p.title}</strong>
         <ArrowRight size={17} />
         <p>{worldPresentation(p).subtitle}</p>
@@ -53,7 +57,7 @@ export default function WorldNavigator({
   );
   return (
     <Modal title="行き先をえらぶ" wide close={close}>
-      <div className="destination-sheet">
+      {workshop&&place?<WorldWorkshop parent={workshop==='edit'?findPlace(place.parentId||'')!:place} editing={workshop==='edit'?place:undefined} refresh={refresh} notify={notify} cancel={()=>setWorkshop(null)} done={choose}/>:<div className="destination-sheet">
         <span className="sheet-eyebrow">
           <MapPin size={14} /> YOUR NEXT WORLD
         </span>
@@ -76,10 +80,12 @@ export default function WorldNavigator({
             ひとつ上の世界へ
           </button>
         )}
+        {place?.genre&&<section className="resident-world-invitation"><span className="sheet-eyebrow">RESIDENT WORLDS</span><h3>この先の世界は、住人の手で。</h3><p>{canAddWorld(place,data.user.id)?'ひとつの作品、ひとつの楽しみ。もっと深い「好き」の場所を作ろう。':'ここは住人が作った世界です。新しい分岐は趣味の入口、または自分の世界から追加できます。'}</p><div className="feature-buttons">{canAddWorld(place,data.user.id)&&<button className="primary" disabled={travel} onClick={()=>{if(data.requireAccountForPublishing&&!data.account?.registered){account();return;}setWorkshop('new');}}>この先に世界を作る</button>}{place.ownerId&&(place.ownerId===data.user.id||data.isAdmin)&&<button className="outline" onClick={()=>setWorkshop('edit')}>世界の案内を編集</button>}{place.ownerId&&place.ownerId!==data.user.id&&<button className="text-button" onClick={()=>{close();reportOwner(place.ownerId!,place);}}>この世界の作成者を通報</button>}</div></section>}
         <section className="destination-section">
-          <h3>{destinations.length ? "世界への入口" : "駅から、別の世界へ"}</h3>
+          <h3>{place?.genre ? "この先への入口" : "世界への入口"}</h3>{place?.genre&&!worlds.length&&<p className="quiet-world">まだ奥の世界はありません。最初の小さな「好き」を育てよう。</p>}
           <div className="destination-grid">{worlds.map(card)}</div>
         </section>
+        {worldId==='public'&&data.worlds?.some(p=>p.ownerId===data.user.id)&&<section className="destination-section"><h3>自分が作った世界</h3><div className="destination-grid">{data.worlds.filter(p=>p.ownerId===data.user.id).map(card)}</div></section>}
         {activities.length > 0 && (
           <section className="destination-activities">
             <h3>WALKの外で、いまからすること</h3>
@@ -104,7 +110,7 @@ export default function WorldNavigator({
             </div>
           </section>
         )}
-      </div>
+      </div>}
     </Modal>
   );
 }

@@ -9,9 +9,10 @@ import type { Store } from './db';
 import {usedMediaBytes,mediaQuota} from './storage-quota';
 import * as t from './schema';
 import { postPosition } from './placement';
-import { acceptsPost } from '../shared/worlds';
+import { acceptsPost,places,type Place } from '../shared/worlds';
 import { genres } from '../shared/model';
-export const nativePostSchema=z.object({worldId:z.string().max(80).nullable().optional(),title:z.string().trim().min(1).max(120),body:z.string().trim().max(4000),genre:z.enum(genres),attachmentId:z.string().uuid().nullable().default(null)}).refine(p=>acceptsPost(p.worldId,p.genre),'ジャンルに合う世界を選んでください');
+export const makeNativePostSchema=(catalog:readonly Place[]=places)=>z.object({worldId:z.string().max(80).nullable().optional(),title:z.string().trim().min(1).max(120),body:z.string().trim().max(4000),genre:z.enum(genres),attachmentId:z.string().uuid().nullable().default(null)}).refine(p=>acceptsPost(p.worldId,p.genre,catalog),'ジャンルに合う世界を選んでください');
+export const nativePostSchema=makeNativePostSchema();
 type Upload={id:string;owner_id:string;filename:string;mime:string;bytes:number;created_at:number};
 export function identifyMedia(b:Buffer):{mime:string;ext:string}|null{
   if(b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))return {mime:'image/png',ext:'png'};
@@ -23,7 +24,7 @@ export function identifyMedia(b:Buffer):{mime:string;ext:string}|null{
   return null;
 }
 
-export async function publishing({app,store,changed,mediaDirectory}:{app:FastifyInstance;store:Store;changed:()=>void;mediaDirectory:string}){
+export async function publishing({app,store,changed,mediaDirectory,catalog=()=>places}:{app:FastifyInstance;store:Store;changed:()=>void;mediaDirectory:string;catalog?:()=>Place[]}){
   const {db,sqlite}=store,root=resolve(mediaDirectory);await mkdir(root,{recursive:true,mode:0o700});
   await app.register(multipart,{limits:{fileSize:25*1024*1024,files:1,fields:0,parts:1}});
   app.post('/api/uploads',{config:{rateLimit:{max:5,timeWindow:'1 minute'}}},async(req,reply)=>{
@@ -61,7 +62,7 @@ export async function publishing({app,store,changed,mediaDirectory}:{app:Fastify
     sqlite.prepare('DELETE FROM media_uploads WHERE id=?').run(row.id);await unlink(join(root,row.filename)).catch(()=>{});return {ok:true};
   });
   app.post('/api/posts',{config:{rateLimit:{max:6,timeWindow:'1 minute'}}},async(req,reply)=>{
-    const p=nativePostSchema.parse(req.body),owner=req.session!.userId;
+    const p=makeNativePostSchema(catalog()).parse(req.body),owner=req.session!.userId;
     if((sqlite.prepare("SELECT COUNT(*) AS n FROM posts WHERE owner_id=? AND origin='walk'").get(owner) as {n:number}).n>=100)return reply.code(409).send({error:'直接投稿は1人100件までです'});
     const attachment=p.attachmentId?sqlite.prepare('SELECT * FROM media_uploads WHERE id=? AND owner_id=?').get(p.attachmentId,owner) as Upload|undefined:null;
     if(p.attachmentId&&!attachment)return reply.code(403).send({error:'自分がアップロードしたファイルを選んでください'});

@@ -8,7 +8,7 @@ import { api } from "./api";
 import Modal from "./Modal";
 import Avatar from "./Avatar";
 import { PlaceIllustration } from "./WorldNavigator";
-import { findPlace } from "../shared/worlds";
+import { findPlace } from "./worlds";
 
 export function usePlaceInvitations(
   socket: Socket | null,

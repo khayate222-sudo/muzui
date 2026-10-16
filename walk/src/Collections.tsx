@@ -3,7 +3,7 @@ import { areas, type Bootstrap } from '../shared/model';
 import { sourceInfo, type Room, type RoomInput } from '../shared/community';
 import { api } from './api';
 import Modal from './Modal';
-import {findPlace} from '../shared/worlds';
+import {findPlace} from './worlds';
 
 type Props={data:Bootstrap;notify:(s:string)=>void;refresh:()=>Promise<unknown>;openPost:(id:string)=>void};
 export function ImportPosts({data,notify,refresh,openPost,close}:Props&{close:()=>void}){

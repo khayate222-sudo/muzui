@@ -2,7 +2,7 @@ import {walkFetch} from './native';
 import PrivatePhoto from './PrivatePhoto';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { activityEnd, activityLabels, isActive, type Activity } from '../shared/activities';
-import { findPlace } from '../shared/worlds';
+import { findPlace } from './worlds';
 import { api } from './api';
 import Modal from './Modal';
 import type { Socket } from 'socket.io-client';

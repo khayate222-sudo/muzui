@@ -5,7 +5,7 @@ import {courtyardArt,toCourtyard,fromCourtyard} from './world-layout';
 import {prepareCourtyard,drawCourtyard,lightCourtyard} from './world-courtyard';
 import type {WorldLight} from './world-light';
 import { containsContainer, isTap, polygon, rectangle, type HitRegion } from './world-input';
-import { gatePoints } from '../shared/worlds';
+import { gatePoints } from './worlds';
 import { areas, areaAt, type Peer, type Post } from '../shared/model';
 import type { WorldProps } from './World';
 const ink=0x344b40;
@@ -19,7 +19,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
     preload(){this.load.image('courtyard',courtyardArt(get().place));this.load.image('walk-residents','/art/walk-residents.webp');for(let i=0;i<5;i++)this.load.image('art-'+i,'/art/scene-'+i+'.svg');}
     create(){
       this.cameras.main.setBackgroundColor('#dbe8d1');this.cameras.main.setBounds(0,0,2000,1400);
-      prepareIllustrations(this);prepareCourtyard(this);this.drawLandscape();host.dataset.art=this.textures.exists('courtyard')?'painted-courtyard':'fallback';host.dataset.projection='courtyard';
+      prepareIllustrations(this);prepareCourtyard(this);this.drawLandscape();host.dataset.art=this.textures.exists('courtyard')?'painted-courtyard':'fallback';host.dataset.projection='courtyard';host.dataset.landscape=get().place?.landscape||get().place?.theme||'garden';
       const own=get().state.peers.find(p=>p.id===get().user.id);if(own)this.player={x:own.x,y:own.y};
       this.me=this.makeAvatar({...get().user,...this.player,area:'discovery',currentPost:null},true);
       this.avatarVersion=get().user.color+get().user.style;

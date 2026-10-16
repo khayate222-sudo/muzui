@@ -83,6 +83,10 @@ export function dataManagement({
       sqlite.prepare("DELETE FROM rooms WHERE owner_id=?").run(id);
       sqlite.prepare("DELETE FROM posts WHERE owner_id=?").run(id);
       sqlite.prepare("DELETE FROM media_uploads WHERE owner_id=?").run(id);
+      // Keep other residents' posts when their host leaves. Each branch below
+      // an owned world has the same owner (enforced by world creation).
+      sqlite.prepare("UPDATE posts SET world_id=NULL WHERE world_id IN (SELECT id FROM user_worlds WHERE owner_id=?)").run(id);
+      sqlite.prepare("DELETE FROM user_worlds WHERE owner_id=?").run(id);
       sqlite.prepare("DELETE FROM users WHERE id=?").run(id);
     })();
     disconnect(id);

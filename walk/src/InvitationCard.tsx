@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import type { Room } from "../shared/community";
 import type { Bootstrap } from "../shared/model";
-import { findPlace, pathTo, postWorld } from "../shared/worlds";
+import { findPlace, pathTo, postWorld } from "./worlds";
 import type { Invitation } from "../shared/invitations";
 import Modal from "./Modal";
 import { PlaceIllustration } from "./WorldNavigator";

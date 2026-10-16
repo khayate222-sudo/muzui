@@ -48,7 +48,7 @@ npm run dev
 
 「足あと・活動」で終了時刻を自分で設定すると、WALKを閉じてもジムルーム・学校・居酒屋に活動中の分身が残ります。分身はオンライン人数や投稿閲覧人数に含めません。活動記録は既定で非公開。終了・延長、記録修正、メモ・写真、選んだ活動の共有ができます。
 
-操作と制限、実装済み／将来構想の区別は [docs/WORLDS_AND_FOOTPRINTS.md](docs/WORLDS_AND_FOOTPRINTS.md)、引き継ぎ方針は [docs/PRODUCT_DIRECTION.md](docs/PRODUCT_DIRECTION.md) を参照してください。直接投稿動画の同期再生は[招待・同意付きで実装済み](docs/SYNCHRONIZED_WATCHING.md)です。住人による世界作成、自由建築、通貨・経済は未実装です。
+操作と制限、実装済み／将来構想の区別は [docs/WORLDS_AND_FOOTPRINTS.md](docs/WORLDS_AND_FOOTPRINTS.md)、引き継ぎ方針は [docs/PRODUCT_DIRECTION.md](docs/PRODUCT_DIRECTION.md) を参照してください。直接投稿動画の同期再生は[招待・同意付きで実装済み](docs/SYNCHRONIZED_WATCHING.md)です。住人による世界作成は[名前・紹介・景観の選択で実装済み](docs/RESIDENT_WORLDS.md)です。自由なパーツ建築、通貨・経済は未実装です。
 
 ## 追加した楽しみ方
 
@@ -132,3 +132,11 @@ Dockerは非rootユーザーで実行し、`walk-data` ボリュームにSQLite�
 - [iOS / Androidと実機検証の残り](docs/NATIVE_APP.md)
 
 運営者名・問い合わせ先・正式な規約と公開サーバーは未定です。未設定のまま公開用パッケージを作らず、開発用の実行・検証と区別します。`data/`、`.env`、バックアップ、管理者キーはGitへ含めないでください。
+
+
+## 住人が育てる世界
+
+既存の七つの趣味の入口に専用の風景を追加しました。趣味の世界で「世界を育てる」を開くと、名前・紹介・景観を決めて子世界を作れます。既存の投稿や細分類は残し、新しい固定カテゴリーは追加していません。
+
+- [作成方法・権限・保存と将来の建築](docs/RESIDENT_WORLDS.md)
+- [今回の検証結果](docs/VALIDATION_RESIDENT_WORLDS_2026-10-16.md)

@@ -86,6 +86,7 @@ export function accounts({
       "SELECT 1 FROM favorites WHERE user_id=?",
       "SELECT 1 FROM reactions WHERE user_id=?",
       "SELECT 1 FROM rooms WHERE owner_id=?",
+      "SELECT 1 FROM user_worlds WHERE owner_id=?",
       "SELECT 1 FROM activities WHERE user_id=?",
       "SELECT 1 FROM messages WHERE sender_id=?",
       "SELECT 1 FROM friendships WHERE requester_id=? OR receiver_id=?",
@@ -422,6 +423,7 @@ export function accounts({
             policyVersion: read(id)!.policy_version,
           }
         : null,
+      worlds: all("SELECT id,parent_id,title,description,landscape,created_at FROM user_worlds WHERE owner_id=?"),
       posts: all("SELECT * FROM posts WHERE owner_id=?"),
       favorites: all("SELECT * FROM favorites WHERE user_id=?"),
       reactions: all("SELECT * FROM reactions WHERE user_id=?"),

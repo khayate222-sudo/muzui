@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { toCourtyard } from "../../src/world-layout";
-import { gatePoints } from "../../shared/worlds";
+import { gatePoints, findPlace } from "../../shared/worlds";
 async function setup(p: Page) {
   await p.goto("/");
   await p.getByLabel("ニックネーム").fill("タップ旅人");
@@ -108,6 +108,7 @@ for (const mobile of [false, true])
       for (const id of ['world:discovery','world:music','world:video','world:game-rpg']) {
         await p.goto('/#/world/'+encodeURIComponent(id));
         await p.getByRole('button',{name:'この場所へ行く',exact:true}).click();
+        await expect(p.locator('.map-top')).toContainText(findPlace(id)!.title);
         await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();
         await center(p,1600,570); await tap(1600,570);
         await expect(p.locator('.map-top')).toContainText(id==='world:game-rpg'?'ゲームの世界':'不思議な駅');

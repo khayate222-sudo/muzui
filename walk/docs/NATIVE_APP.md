@@ -102,3 +102,10 @@ FilesystemのREADMEにあるFileTimestampの用途（C617.1）を`PrivacyInfo.xc
 ## ロゴと上下の駅のUI
 
 アプリ内のロゴ・現在地・行き先・カテゴリー・下部ナビを駅舎、切符、旅の手帳の線画へ揃え、iOS / Androidへ同期しました。320px / 390pxのブラウザで操作範囲と文字のコントラストを確認し、Androidの開発用ビルドとWeb / 両OSのHTML・JavaScript・CSSの一致も確認しています。ランチャーアイコンやストア掲載画像、実機の読み上げ・safe-areaは別工程です。[実装と検証](VALIDATION_STATION_UI_2026-10-15.md)を参照してください。
+
+
+## 2026-10-16：住人の世界と専用の景観
+
+七つの趣味の専用背景と、子世界の作成・案内編集・投稿先の選択をiOS・Androidへ同期した。Androidのdebugビルドと、APK内を含むWeb素材23ファイルの一致を確認。iOSのコンパイル・両OSの実機・ストア公開は今回の成功に含めない。世界を保存するにはサーバーもこの版へ更新し、追加のSQLite移行 `0008.sql` を適用する。既存のDBを消して初期化する必要はない。
+
+今回のツールチェーンと検証結果は [VALIDATION_RESIDENT_WORLDS_2026-10-16.md](VALIDATION_RESIDENT_WORLDS_2026-10-16.md) を参照。

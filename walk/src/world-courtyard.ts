@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { gatePoints, type Place } from '../shared/worlds';
+import { gatePoints, type Place } from './worlds';
 import { polygon, rectangle, type HitRegion } from './world-input';
 import { avatarFrames } from './world-layout';
 import type { WorldLight } from './world-light';
@@ -61,7 +61,7 @@ export function drawCourtyard(scene: Phaser.Scene, place?: Place): Entrance[] | 
     const halo = scene.add.graphics().lineStyle(3, 0xffedc7, .85).strokeEllipse(x, 760, 235, 24).setVisible(false);
     const label = scene.add.text(x, 780, title, { fontFamily, fontSize: '22px', color: '#594d40', backgroundColor: '#fff7e8', padding: { x: 16, y: 10 } }).setOrigin(.5);
     c.add([halo, label]); c.setData('halo', halo);
-    return { container: c, regions: [courtyardBuildings(place.theme)[index], rectangle(x - label.width / 2, 780 - label.height / 2, label.width, label.height)], destination: gate?.place.id };
+    return { container: c, regions: [courtyardBuildings(place.landscape&&!['garden','japan','future','fantasy'].includes(place.landscape)?'garden':place.theme)[index], rectangle(x - label.width / 2, 780 - label.height / 2, label.width, label.height)], destination: gate?.place.id };
   });
 }
 
