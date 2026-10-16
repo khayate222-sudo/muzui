@@ -2,7 +2,22 @@ import { count } from 'drizzle-orm';
 import type { Store } from './db.js';
 import { posts } from './schema.js';
 import { areas, type PostInput } from '../shared/model.js';
-export function seed({ db, sqlite }: Store) {
+import {originalFilms} from '../shared/discovery.js';
+export function seed(store:Store){
+  seedSamples(store);
+  const {sqlite,db}=store;
+  if(sqlite.prepare('SELECT id FROM seed_state WHERE id=2').get())return;
+  sqlite.transaction(()=>{
+    for(const [i,film] of originalFilms.entries()){
+      const a=areas.find(a=>a.id===film.genre)!;
+      const id='walk-film-'+film.genre;
+      db.insert(posts).values({id,type:'video',title:film.title,body:'WALKのために制作した風景イラストを、ゆっくり眺める12秒のオリジナル映像にしました。音声はありません。実写やアニメ作品の映像ではありません。気になった世界を歩いたり、友達を誘って同じ瞬間を眺めたりしてみてください。',authorName:'WALK STUDIO',genre:film.genre,mediaUrl:'/films/walk-'+film.genre+'.mp4',provider:'WALK ORIGINAL · 風景映像',origin:'editorial',isSample:false,mapX:Math.max(80,a.x+200),mapY:Math.min(1320,a.y+130),createdAt:Date.UTC(2026,9,16)}).onConflictDoNothing().run();
+      sqlite.prepare('INSERT OR IGNORE INTO discovery_picks(post_id,position) VALUES (?,?)').run(id,i+1);
+    }
+    sqlite.prepare('INSERT INTO seed_state(id) VALUES (2)').run();
+  })();
+}
+function seedSamples({ db, sqlite }: Store) {
   if (sqlite.prepare('SELECT id FROM seed_state WHERE id=1').get()) return;
   if (db.select({ n: count() }).from(posts).get()!.n) {sqlite.prepare('INSERT OR IGNORE INTO seed_state VALUES (1)').run();return;}
   const text = [

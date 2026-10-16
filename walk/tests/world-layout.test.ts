@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { fromCourtyard, toCourtyard } from '../src/world-layout';
+import { courtyardFollowOffset, fromCourtyard, toCourtyard } from '../src/world-layout';
 import { gatePoints, findPlace } from '../shared/worlds';
 
 it('keeps saved post, room and network positions reversible across the courtyard foreground', () => {
@@ -9,6 +9,14 @@ it('keeps saved post, room and network positions reversible across the courtyard
     expect(scene.y).toBeGreaterThanOrEqual(810); expect(scene.y).toBeLessThanOrEqual(1280);
     expect(saved.x).toBeCloseTo(x, 8); expect(saved.y).toBeCloseTo(y, 8);
   }
+});
+it('keeps the followed resident and usable ground inside short and zoomed phone maps',()=>{
+  for(const height of [200,272,360,480,720,982])for(const zoom of [.28,.36,.52,1,1.4]){
+    const offset=courtyardFollowOffset(height,zoom),screenY=height/2+offset*zoom;
+    expect(screenY).toBeGreaterThanOrEqual(height/2);expect(screenY).toBeLessThanOrEqual(height-64);
+    expect(offset).toBeLessThanOrEqual(430);
+  }
+  expect(courtyardFollowOffset(720,.36)).toBe(430);
 });
 it('uses real destinations for the two physical gates, retaining the parent path in nested worlds', () => {
   expect(gatePoints('public').map(g=>g.place.id)).toEqual(['world:discovery','world:art']);

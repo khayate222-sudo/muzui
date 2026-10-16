@@ -9,6 +9,7 @@ import {createPortal} from 'react-dom';
 import type { Socket } from "socket.io-client";
 import { Link2, Pause, Play, Users, X } from "lucide-react";
 import type { Bootstrap, Post } from "../shared/model";
+import {canSynchronize} from '../shared/discovery';
 import {
   playbackPosition,
   type WatchingInvite,
@@ -204,7 +205,7 @@ export function TogetherControls({
     [busy, setBusy] = useState(false),
     [sent, setSent] = useState<string[]>([]);
   const group = session.state.group,
-    eligible = post.origin === "walk" && post.type === "video";
+    eligible = canSynchronize(post);
   if (!eligible) return null;
   const host = group?.hostId === data.user.id;
   async function act(event: string, payload: object) {

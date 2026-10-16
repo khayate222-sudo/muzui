@@ -1,0 +1,4 @@
+CREATE TABLE discovery_picks (
+  post_id TEXT PRIMARY KEY REFERENCES posts(id) ON DELETE CASCADE,
+  position INTEGER NOT NULL CHECK(position BETWEEN 1 AND 100)
+);

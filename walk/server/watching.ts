@@ -188,7 +188,7 @@ export function synchronizedWatching(c: Context) {
         c.viewer(socket.id)?.postId !== p.data.postId ||
         !c.video(p.data.postId)
       )
-        return "直接投稿したWALKの動画を開いてください";
+        return "直接投稿した動画かWALKのオリジナル映像を開いてください";
       if (memberGroup(userId))
         return "すでに同期視聴中です。参加中の端末で退出してください";
       if (groups.size >= 1000) return "いまは新しいグループを作れません";

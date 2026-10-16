@@ -27,7 +27,7 @@ export function youtubeId(value: string): string | null {
 const url = z.string().max(2048).refine(v => v === '' || safeExternal(v), 'HTTPS URLを入力してください');
 export const makePostSchema = (catalog:readonly Place[]=places) => z.object({
   worldId: z.string().max(80).nullable().optional(), type: z.enum(['text', 'image', 'video', 'youtube', 'external']), title: z.string().trim().min(1).max(120), body: z.string().max(4000),
-  mediaUrl: z.string().max(2048).refine(v => v === '' || (/^\/art\/[\w-]+\.svg$/.test(v)||/^\/media\/[a-f0-9-]{36}\.(png|jpg|webp|gif|mp4|webm)$/.test(v)) || safeExternal(v)),
+  mediaUrl: z.string().max(2048).refine(v => v === '' || (/^\/art\/[\w-]+\.svg$/.test(v)||/^\/films\/walk-(discovery|music|video|art|meme|game|anime)\.mp4$/.test(v)||/^\/media\/[a-f0-9-]{36}\.(png|jpg|webp|gif|mp4|webm)$/.test(v)) || safeExternal(v)),
   externalUrl: url, provider: z.string().max(60), authorName: z.string().trim().min(1).max(60), genre: z.enum(genres),
   mapX: z.number().min(80).max(1920), mapY: z.number().min(100).max(1320), isSample: z.boolean().default(false),
 }).superRefine((p, ctx) => {
@@ -44,6 +44,6 @@ export type Peer = Pick<User, 'id' | 'displayName' | 'color' | 'style'> & { x: n
 export type WorldState = { activities?: ActivityGhost[]; peers: Peer[]; counts: Record<string, number>; viewers: Record<string, (Pick<Peer, 'id' | 'displayName' | 'color' | 'style'>&{reaction?:string|null})[]>; online: number };
 export type Friendship = { id: string; requesterId: string; receiverId: string; status: string; createdAt: number; user: Pick<User, 'id' | 'displayName' | 'color' | 'style'> };
 export type Message = { id: string; senderId: string; receiverId: string; content: string; createdAt: number };
-export type Bootstrap = { worlds?:Place[]; requireAccountForPublishing?:boolean; account?:import('./accounts').AccountSummary; user: User; posts: Post[]; favorites: string[]; reactions: Record<string,string>; friendships: Friendship[]; blocks: string[]; isAdmin: boolean };
+export type Bootstrap = { discoveryPicks?:import('./discovery').DiscoveryPick[]; worlds?:Place[]; requireAccountForPublishing?:boolean; account?:import('./accounts').AccountSummary; user: User; posts: Post[]; favorites: string[]; reactions: Record<string,string>; friendships: Friendship[]; blocks: string[]; isAdmin: boolean };
 export const moveSchema = z.object({ x: z.number().finite().min(40).max(1960), y: z.number().finite().min(70).max(1360) });
 export function areaAt(x: number, y: number): Genre { return [...areas].sort((a, b) => Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0].id; }

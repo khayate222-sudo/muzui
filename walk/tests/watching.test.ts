@@ -100,7 +100,7 @@ beforeEach(async () => {
   c = await guest();
   instance.store.sqlite
     .prepare(
-      "UPDATE posts SET type='video',origin='walk',media_url=?,owner_id=? WHERE id=?",
+      "UPDATE posts SET type='video',origin='walk',is_sample=0,media_url=?,owner_id=? WHERE id=?",
     )
     .run("/media/11111111-1111-4111-8111-111111111111.webm", a.id, video);
 });

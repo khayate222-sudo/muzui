@@ -25,6 +25,8 @@ import { and, eq, or, count, lt, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { openDatabase } from './db.js';
 import { seed } from './seed.js';
+import {videoDiscovery} from './discovery.js';
+import {canSynchronize} from '../shared/discovery.js';
 import * as t from './schema.js';
 import { areaAt, moveSchema, makePostSchema, profileSchema, type Peer, type WorldState } from '../shared/model.js';
 
@@ -43,6 +45,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
   await app.register(helmet, { contentSecurityPolicy: { directives: {
     defaultSrc: ["'self'"], scriptSrc: process.env.NODE_ENV === 'production' ? ["'self'"] : ["'self'", "'unsafe-inline'"],
     styleSrc: ["'self'", "'unsafe-inline'"], imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+    mediaSrc: ["'self'", 'https:'],
     connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com','https://www.tiktok.com'],
     objectSrc: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"], upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
   } }, crossOriginEmbedderPolicy: false });
@@ -144,7 +147,8 @@ export async function createApp(options: { database?: string; adminKey: string; 
       const r=features.readRoom(p.worldId);if(!features.accessible(r,userId))changeWorld(userId,'public');
     }
   }});
-  const watchingFeatures=synchronizedWatching({io,connected,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},video:id=>{const p=readablePost(id);return p?.origin==='walk'&&p.type==='video'&&/^\/media\/[a-f0-9-]{36}\.(mp4|webm)$/.test(p.mediaUrl)?{id:p.id,title:p.title,source:p.mediaUrl}:null;},viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,postId:s.postId}:null;}});
+  const discovery=videoDiscovery(app,store,postList,()=>io.emit('posts'));
+  const watchingFeatures=synchronizedWatching({io,connected,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},video:id=>{const p=readablePost(id);return p&&canSynchronize(p)?{id:p.id,title:p.title,source:p.mediaUrl}:null;},viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,postId:s.postId}:null;}});
   const playFeatures=cooperativePlay({io,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},allowed:(id,userId)=>findPlace(id)?.genre==='game'||features.accessible(features.readRoom(id),userId),viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,worldId:positions.get(s.userId)?.worldId||'public'}:null;},entered:id=>{const s=sockets.get(id);if(s)s.postId=null;broadcast();}});
   const meetupFeatures=destinationInvitations({app,connected,notify,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},resolve:(target,userId)=>{
     if(target.kind==='room'){const r=features.readRoom(target.id);return r?.isPublic&&features.accessible(r,userId)?{title:r.title,path:['不思議な駅','住人のルーム',r.title]}:null;}
@@ -265,7 +269,8 @@ export async function createApp(options: { database?: string; adminKey: string; 
       const now=Date.now();let bucket=sessionCreations.get(req.ip);if(!bucket||bucket.reset<now){bucket={count:0,reset:now+60000};sessionCreations.set(req.ip,bucket);}if(++bucket.count>12)return reply.code(429).send({error:'ゲスト作成が多すぎます。1分ほど待ってください。'});
       createGuest(req,reply);
     }
-    return {worlds:worldFeatures.catalog(),user:db.select().from(t.users).where(eq(t.users.id,uid(req))).get(),posts:postList(),favorites:db.select().from(t.favorites).where(eq(t.favorites.userId,uid(req))).all().map(f=>f.postId),reactions:Object.fromEntries(db.select().from(t.reactions).where(eq(t.reactions.userId,uid(req))).all().map(r=>[r.postId,r.kind])),friendships:friendList(uid(req)),blocks:db.select().from(t.blocks).where(eq(t.blocks.userId,uid(req))).all().map(b=>b.targetId),isAdmin:req.session!.isAdmin,account:accountFeatures.summary(uid(req)),requireAccountForPublishing:process.env.WALK_PUBLIC_RELEASE==='true'};
+    const availablePosts=postList();
+    return {discoveryPicks:discovery.picks(availablePosts),worlds:worldFeatures.catalog(),user:db.select().from(t.users).where(eq(t.users.id,uid(req))).get(),posts:availablePosts,favorites:db.select().from(t.favorites).where(eq(t.favorites.userId,uid(req))).all().map(f=>f.postId),reactions:Object.fromEntries(db.select().from(t.reactions).where(eq(t.reactions.userId,uid(req))).all().map(r=>[r.postId,r.kind])),friendships:friendList(uid(req)),blocks:db.select().from(t.blocks).where(eq(t.blocks.userId,uid(req))).all().map(b=>b.targetId),isAdmin:req.session!.isAdmin,account:accountFeatures.summary(uid(req)),requireAccountForPublishing:process.env.WALK_PUBLIC_RELEASE==='true'};
   });
   app.patch('/api/profile',async req=>{ const p=profileSchema.parse(req.body);db.update(t.users).set(p).where(eq(t.users.id,uid(req))).run();broadcast();return {ok:true}; });
   app.put('/api/favorites/:id',async(req,reply)=>{

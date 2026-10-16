@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
+import {toCourtyard} from '../../src/world-layout';
 const title='ここでは、寄り道が正解。';
 async function onboard(page:Page,name:string,share=true){await page.goto('/');const modal=page.getByRole('dialog',{name:'WELCOME TO WALK'});await expect(modal).toBeVisible();await modal.getByLabel('ニックネーム').fill(name);if(share)await modal.locator('input[name=share]').check();await modal.getByRole('button',{name:'WALKをはじめる'}).click();await expect(modal).toBeHidden();await expect(page.locator('[role=application][data-ready=true]')).toBeVisible();await expect(page.locator('.connection')).toContainText('人が散歩中');}
 async function openPost(page:Page,name=title){await page.getByRole('button',{name:'投稿を探す',exact:true}).click();await page.getByRole('dialog').getByLabel('投稿を絞り込む').fill(name);await page.getByRole('button',{name,exact:true}).click();await expect(page.getByRole('dialog',{name:'A LITTLE DISCOVERY'})).toBeVisible();}
@@ -36,7 +37,10 @@ test('mobile onboarding, tap movement, area shortcut, search, saving and private
   const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await context.newPage();const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   try{
     await page.goto('/');await page.screenshot({path:'artifacts/walk-welcome-mobile.png',fullPage:true});await page.getByLabel('ニックネーム').fill('モバイル旅人');await page.getByRole('button',{name:'WALKをはじめる'}).click();await expect(page.locator('[role=application][data-ready=true]')).toBeVisible();
-    const old=await position(page);const box=await page.locator('canvas').boundingBox();await page.locator('canvas').tap({position:{x:box!.width*.35,y:box!.height*.7}});await expect.poll(async()=>Math.hypot((await position(page)).x-old.x,(await position(page)).y-old.y)).toBeGreaterThan(15);
+    const old=await position(page);await page.locator('canvas').scrollIntoViewIfNeeded();
+    // Pick the paving in world coordinates: a percentage of a resized map can hit the guide's roof.
+    const ground=await page.getByRole('application').evaluate((host,target)=>{const canvas=host.querySelector('canvas')!,box=canvas.getBoundingClientRect(),v=JSON.parse(host.getAttribute('data-viewport')!);return {x:((target.x-v.scrollX-v.width/2)*v.zoom+v.width/2)*box.width/v.width,y:((target.y-v.scrollY-v.height/2)*v.zoom+v.height/2)*box.height/v.height};},toCourtyard({x:1350,y:980}));
+    const box=await page.locator('canvas').boundingBox();expect(ground.x).toBeGreaterThan(0);expect(ground.x).toBeLessThan(box!.width);expect(ground.y).toBeGreaterThan(0);expect(ground.y).toBeLessThan(box!.height);await page.locator('canvas').tap({position:ground});await expect.poll(async()=>Math.hypot((await position(page)).x-old.x,(await position(page)).y-old.y)).toBeGreaterThan(15);
     await page.locator('.area-dock').getByRole('button',{name:'音楽',exact:true}).tap();await expect(page.locator('.map-top')).toContainText('音楽の世界');await expect.poll(async()=>(await position(page)).x).toBe(1100);
     await page.waitForTimeout(650);await page.screenshot({path:'artifacts/walk-mobile.png',fullPage:true});
     await openPost(page,'雨の日のプレイリスト');await page.getByRole('button',{name:'お気に入りに保存',exact:true}).tap();await expect(page.getByRole('button',{name:'保存済み',exact:true})).toBeVisible();await closeTop(page);

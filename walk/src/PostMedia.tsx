@@ -1,18 +1,21 @@
-import type { RefObject } from 'react';
+import {useState,type RefObject} from 'react';
 import { Link, Video } from 'lucide-react';
 import { youtubeId, type Post } from '../shared/model';
+import {originalFilm} from '../shared/discovery';
 import { sourceInfo } from '../shared/community';
 import { serviceUrl } from './native';
 
 // Layout changes keep this component and its video/iframe mounted.
-export default function PostMedia({ post, video, autoPlay, canControl, publish }: {
+export default function PostMedia({ post, video, autoPlay, canControl, publish, ended }: {
   post: Post;
   video: RefObject<HTMLVideoElement | null>;
   autoPlay: boolean;
   canControl: boolean;
   publish: () => void;
+  ended?: () => void;
 }) {
-  if (post.type === 'video') return <video ref={video} key={post.id} onPlay={publish} onPause={publish} onSeeked={publish} onEnded={publish} onRateChange={publish} className="native-video" src={post.mediaUrl.startsWith('/media/') ? serviceUrl(post.mediaUrl) : post.mediaUrl} controls={canControl} playsInline autoPlay={autoPlay} preload="metadata" />;
+  const [failed,setFailed]=useState<string|null>(null);
+  if (post.type === 'video') return <><video ref={video} key={post.id} onError={()=>setFailed(post.id)} onLoadedData={()=>setFailed(null)} onPlay={publish} onPause={publish} onSeeked={publish} onEnded={()=>{publish();ended?.();}} onRateChange={publish} className="native-video" poster={originalFilm(post)?'/art/world-'+post.genre+'.webp':undefined} src={post.mediaUrl.startsWith('/media/') ? serviceUrl(post.mediaUrl) : post.mediaUrl} controls={canControl} playsInline autoPlay={autoPlay} preload="metadata" />{failed===post.id&&<div className="discovery-error" role="alert"><p>動画を読み込めませんでした。接続を確認して、もう一度お試しください。</p><button className="outline" onClick={()=>{setFailed(null);video.current?.load();}}>動画を読み直す</button></div>}</>;
   if (post.type === 'image') return <img className="detail-image" src={post.mediaUrl.startsWith('/media/') ? serviceUrl(post.mediaUrl) : post.mediaUrl} alt={post.title} />;
   if (post.type === 'youtube') return post.isSample
     ? <div className="embed-placeholder"><Video size={30}/><h3>動画設定用サンプル</h3><p>再生・埋め込み許可は未確認です。管理者が確認済み動画に差し替えると、公式プレーヤーを表示します。</p></div>

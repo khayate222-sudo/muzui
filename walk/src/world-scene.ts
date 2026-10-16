@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { drawBuilding, drawPlaceArt } from './world-art';
 import {prepareIllustrations,drawIllustratedGround,applyWorldLight} from './world-illustration';
-import {courtyardArt,toCourtyard,fromCourtyard} from './world-layout';
+import {courtyardArt,courtyardFollowOffset,toCourtyard,fromCourtyard} from './world-layout';
 import {prepareCourtyard,drawCourtyard,lightCourtyard} from './world-courtyard';
 import type {WorldLight} from './world-light';
 import { containsContainer, isTap, polygon, rectangle, type HitRegion } from './world-input';
@@ -23,7 +23,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       const own=get().state.peers.find(p=>p.id===get().user.id);if(own)this.player={x:own.x,y:own.y};
       this.me=this.makeAvatar({...get().user,...this.player,area:'discovery',currentPost:null},true);
       this.avatarVersion=get().user.color+get().user.style;
-      this.cameras.main.setZoom(this.scale.width<600?.36:.52);this.cameras.main.startFollow(this.me,true,.07,.07,0,430);
+      this.cameras.main.setZoom(this.scale.width<600?.36:.52);this.followPlayer();
       this.marker=this.add.container(0,0);const mg=this.add.graphics();mg.lineStyle(2,0x2c7158,.8);mg.strokeEllipse(0,0,36,18);this.marker.add(mg);this.marker.setVisible(false).setDepth(2);
       this.tweens.add({targets:this.marker,alpha:.3,scaleX:.7,scaleY:.7,yoyo:true,repeat:-1,duration:650});
       this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E') as typeof this.keys;
@@ -48,17 +48,18 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
         const point=fromCourtyard(this.cameras.main.getWorldPoint(p.x,p.y));
         if(point.x<40||point.x>1960||point.y<70||point.y>1360)return;
         this.target={x:Phaser.Math.Clamp(point.x,40,1960),y:Phaser.Math.Clamp(point.y,70,1360)};
-        this.marker.setPosition(toCourtyard(this.target).x,toCourtyard(this.target).y).setVisible(true);this.cameras.main.startFollow(this.me,true,.07,.07,0,430);host.focus();
+        this.marker.setPosition(toCourtyard(this.target).x,toCourtyard(this.target).y).setVisible(true);this.followPlayer();host.focus();
       });
       get().actions.current={
         goTo:(x,y,teleport=false)=>{if(teleport){this.player={x,y};this.target=null;this.me.setPosition(toCourtyard({x,y}).x,toCourtyard({x,y}).y);get().onTeleport(x,y);}else {this.target={x,y};this.marker.setPosition(toCourtyard({x,y}).x,toCourtyard({x,y}).y).setVisible(true);}host.focus();},
         zoom:(delta)=>{this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom+delta,.28,1.4));},
-        home:()=>{this.cameras.main.startFollow(this.me,true,.12,.12,0,430);host.focus();},
+        home:()=>{this.followPlayer(.12);host.focus();},
         sync:(x,y)=>{this.player={x,y};this.me.setPosition(toCourtyard({x,y}).x,toCourtyard({x,y}).y);this.target=null;this.marker.setVisible(false);},
       };
       this.scale.on('resize',()=>this.cameras.main.setSize(this.scale.width,this.scale.height));
       this.rebuildPosts();
     }
+    followPlayer(speed=.07){const cam=this.cameras.main;cam.startFollow(this.me,true,speed,speed,0,courtyardFollowOffset(cam.height,cam.zoom));}
     drawLandscape(){
       const room=get().room;
       if(room){
@@ -144,9 +145,10 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
     }
     update(time:number,delta:number){
       if(!this.me)return;const props=get();if(this.light!==props.light){this.light=props.light;applyWorldLight(this,props.light);lightCourtyard(this,props.light);host.dataset.light=props.light;}
+      this.cameras.main.followOffset.y=courtyardFollowOffset(this.cameras.main.height,this.cameras.main.zoom);
       if(time-this.diagnosticAt>100){this.diagnosticAt=time;const cam=this.cameras.main;host.dataset.viewport=JSON.stringify({scrollX:cam.scrollX,scrollY:cam.scrollY,zoom:cam.zoom,width:cam.width,height:cam.height});host.dataset.ready='true';}this.input.enabled=!document.querySelector('[aria-modal="true"]');
       const version=props.posts.map(p=>p.id+p.title+p.mapX+p.mapY+p.type+p.mediaUrl+p.genre).join('|');if(version!==this.postsVersion){this.postsVersion=version;this.rebuildPosts();}
-      const av=props.user.color+props.user.style;if(av!==this.avatarVersion){this.avatarVersion=av;this.me.destroy();this.me=this.makeAvatar({...props.user,...this.player,area:'discovery',currentPost:null},true);this.cameras.main.startFollow(this.me,true,.07,.07,0,430);}
+      const av=props.user.color+props.user.style;if(av!==this.avatarVersion){this.avatarVersion=av;this.me.destroy();this.me=this.makeAvatar({...props.user,...this.player,area:'discovery',currentPost:null},true);this.followPlayer();}
       const typing=['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement?.tagName||'') || !!document.querySelector('[aria-modal="true"]');
       if(typing){for(const key of Object.values(this.keys))key.reset();}
       if(document.activeElement===host&&!typing)this.input.keyboard!.enableGlobalCapture();else this.input.keyboard!.disableGlobalCapture();
