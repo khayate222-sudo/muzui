@@ -26,7 +26,7 @@ export default function WatchFrame({
   children: ReactNode;
   audience: ReactNode;
   hasPost?: boolean;
-  room?: { active: boolean; title: string; toggle: () => void; posts: Post[]; selected?: string; open: (id: string) => void; edit: () => void; busy: boolean };
+  room?: { active: boolean; title: string; toggle: () => void; posts: Post[]; selected?: string; open: (id: string) => void; edit?: () => void; after?:ReactNode; busy: boolean };
 }) {
   const panel = useRef<HTMLElement>(null),
     content = useRef<HTMLDivElement>(null),
@@ -148,7 +148,8 @@ export default function WatchFrame({
           >
             {children}
           </div>
-          {inRoom && room && <section className="room-shelf" aria-label="この部屋の投稿"><div><h3>今夜、何を見よう。</h3><button className="text-button" onClick={room.edit}>投稿の配置を編集</button></div><p>この部屋に置いた投稿から選べます。</p><div className="room-shelf-items">{room.posts.map(p => <button key={p.id} disabled={room.busy} aria-current={p.id === room.selected ? 'true' : undefined} onClick={() => room.open(p.id)}><span>{p.type === 'video' || p.type === 'youtube' || p.provider === 'TikTok' ? 'PLAY' : p.type === 'image' ? 'PHOTO' : 'READ'}</span><b>{p.title}</b><small>{p.authorName}</small></button>)}</div>{!room.posts.length && <p className="room-empty-hint">保存した投稿や、自分の動画をルームに配置すると、ここで選べます。</p>}</section>}
+          {inRoom && room && <section className="room-shelf" aria-label="この部屋の投稿"><div><h3>今夜、何を見よう。</h3>{room.edit&&<button className="text-button" onClick={room.edit}>投稿の配置を編集</button>}</div><p>この部屋に置いた投稿から選べます。</p><div className="room-shelf-items">{room.posts.map(p => <button key={p.id} disabled={room.busy} aria-current={p.id === room.selected ? 'true' : undefined} onClick={() => room.open(p.id)}><span>{p.type === 'video' || p.type === 'youtube' || p.provider === 'TikTok' ? 'PLAY' : p.type === 'image' ? 'PHOTO' : 'READ'}</span><b>{p.title}</b><small>{p.authorName}</small></button>)}</div>{!room.posts.length && <p className="room-empty-hint">保存した投稿や、自分の動画をルームに配置すると、ここで選べます。</p>}</section>}
+          {inRoom&&room?.after}
         </div>
       </section>
     </div>,

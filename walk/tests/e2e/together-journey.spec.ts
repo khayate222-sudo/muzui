@@ -1,0 +1,41 @@
+import {test,expect,type Page} from '@playwright/test';
+import {readFile} from 'node:fs/promises';
+const mutate=(p:Page,path:string,payload:object,method='POST')=>p.request.fetch('/api'+path,{method,headers:{'X-Walk-Client':'1'},data:payload});
+async function onboard(p:Page,name:string){await p.goto('/');await p.getByLabel('ニックネーム').fill(name);await p.locator('input[name=share]').check();await p.getByRole('button',{name:'WALKをはじめる',exact:true}).click();await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();}
+async function journey(p:Page){await p.locator('.quick-discovery').getByRole('button',{name:'一緒に過ごす',exact:true}).click();await expect(p.getByRole('dialog',{name:'一緒に過ごす',exact:true})).toBeVisible();}
+async function acceptPlace(p:Page,title:string){await expect(p.locator('.place-invitation-inbox')).toContainText(title);await p.getByRole('button',{name:'行き先を確認',exact:true}).click();await p.getByRole('button',{name:'確認してこの場所へ行く',exact:true}).click();await expect(p.locator('.map-top')).toContainText(title);}
+test('two phone users meet at the station, share a real video at home, then choose to play together',async({browser})=>{
+  const ca=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),cb=await browser.newContext({viewport:{width:320,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'});
+  const a=await ca.newPage(),b=await cb.newPage(),errors:string[]=[];for(const p of [a,b])p.on('pageerror',e=>errors.push(e.message));
+  try{
+    await onboard(a,'時計台で待つ人');await onboard(b,'寄り道する友達');
+    const bid=(await (await b.request.get('/api/bootstrap')).json()).user.id;await mutate(a,'/friendships',{targetId:bid});const f=(await (await b.request.get('/api/social')).json()).friendships[0];await mutate(b,'/friendships/'+f.id,{action:'accept'},'PATCH');
+    const file=await a.request.post('/api/uploads',{headers:{'X-Walk-Client':'1'},multipart:{file:{name:'our-evening.webm',mimeType:'video/webm',buffer:await readFile(new URL('../fixtures/walk-together.webm',import.meta.url))}}});expect(file.ok()).toBe(true);
+    const created=await mutate(a,'/posts',{title:'同じ窓辺で見る、小さな映像',body:'自分で作った検証映像',genre:'discovery',attachmentId:(await file.json()).id});expect(created.ok()).toBe(true);const postId=(await created.json()).id;
+    await journey(a);await a.getByRole('tab',{name:/待ち合わせ/}).focus();await a.keyboard.press('ArrowRight');await expect(a.getByRole('tab',{name:/家で見る/})).toHaveAttribute('aria-selected','true');await a.keyboard.press('Home');await expect(a.getByRole('tab',{name:/待ち合わせ/})).toHaveAttribute('aria-selected','true');await a.getByRole('button',{name:'ここに招待',exact:true}).click();await journey(b);await acceptPlace(b,'不思議な駅');
+    await expect(b.locator('.native-video')).toHaveCount(0);await expect(b.getByRole('dialog',{name:'星の切符あわせ'})).toHaveCount(0);
+    await a.getByRole('dialog',{name:'一緒に過ごす',exact:true}).evaluate(el=>el.scrollTo(0,0));await expect(a.locator('.toast')).toHaveCount(0);
+    await a.screenshot({path:'artifacts/together-journey-station.png',animations:'disabled'});
+    await a.getByRole('tab',{name:/家で見る/}).click();await a.getByRole('button',{name:'小さな家を用意する',exact:true}).click();
+    await expect(a.getByLabel('みんなが訪問できるように公開する',{exact:true})).not.toBeChecked();await a.getByLabel('家の名前',{exact:true}).fill('時計台のそばの、小さな家');await a.getByLabel('最初に置く投稿',{exact:true}).selectOption(postId);await a.getByLabel('みんなが訪問できるように公開する',{exact:true}).check();await a.getByRole('button',{name:'家を作って窓辺へ',exact:true}).click();await expect(a.getByTestId('room-interior')).toBeVisible();
+    await a.getByRole('button',{name:'この家に友達を誘う',exact:true}).click();await a.getByRole('button',{name:'ここに招待',exact:true}).click();await a.getByRole('dialog',{name:'この場所に招待'}).getByRole('button',{name:'閉じる',exact:true}).click();
+    await journey(b);await acceptPlace(b,'時計台のそばの、小さな家');await expect(b.getByTestId('room-interior')).toBeVisible();await expect(b.getByRole('button',{name:'投稿の配置を編集',exact:true})).toHaveCount(0);
+    for(const p of [a,b])await p.getByRole('region',{name:'この部屋の投稿'}).getByRole('button',{name:/同じ窓辺で見る、小さな映像/}).click();
+    for(const p of [a,b])await expect(p.locator('.viewing-box')).toContainText('2人がこの投稿を開いています');
+    await a.getByRole('button',{name:/友達と、同じ瞬間を/}).click();await a.getByLabel('名前とアバターを参加者に表示し、動画を同期して見ることに同意する').check();await a.getByRole('button',{name:'同期視聴を始める',exact:true}).click();await a.getByRole('button',{name:'同期視聴に招待',exact:true}).click();await a.getByRole('button',{name:'動画へ戻る',exact:true}).click();
+    await b.getByRole('button',{name:/一緒に見る招待/}).click();await expect(b.getByRole('button',{name:'同意して一緒に見る',exact:true})).toBeDisabled();await b.getByLabel('内容を確認し、同期視聴への参加に同意する').check();await b.getByRole('button',{name:'同意して一緒に見る',exact:true}).click();
+    for(const p of [a,b])await expect(p.getByTestId('together-controls')).toContainText('同期視聴 · 2人');
+    const av=a.locator('.native-video'),bv=b.locator('.native-video');await expect.poll(()=>bv.evaluate((v:HTMLVideoElement)=>v.readyState)).toBeGreaterThanOrEqual(2);await av.evaluate((v:HTMLVideoElement)=>{v.muted=true;v.pause();v.currentTime=3;});await expect.poll(()=>bv.evaluate((v:HTMLVideoElement)=>v.currentTime)).toBeCloseTo(3,1);
+    await b.screenshot({path:'artifacts/together-journey-house-320.png',animations:'disabled'});
+    const departedA=await av.elementHandle(),departedB=await bv.elementHandle();await bv.evaluate((v:HTMLVideoElement)=>{v.muted=true;});await av.evaluate(async(v:HTMLVideoElement)=>{v.muted=true;v.loop=true;await v.play();});await expect.poll(()=>bv.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(false);
+    await a.getByRole('button',{name:'視聴を終えて遊びへ',exact:true}).click();expect(await departedA!.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);await a.getByRole('button',{name:'ここに招待',exact:true}).click();await expect(b.getByTestId('together-controls')).not.toContainText('同期視聴 ·');await expect.poll(()=>departedB!.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);
+    await bv.evaluate(async(v:HTMLVideoElement)=>{v.muted=true;v.loop=true;await v.play();});await expect.poll(()=>bv.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(false);
+    await b.getByRole('button',{name:'視聴を終えて遊びへ',exact:true}).click();expect(await departedB!.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);await acceptPlace(b,'ゲームの世界');await a.getByRole('button',{name:'ゲームの世界へ出かける',exact:true}).click();
+    await expect(a.getByRole('button',{name:'同意してテーブルにつく',exact:true})).toBeDisabled();await a.getByLabel('名前とアバターをゲーム参加者に表示して参加する').check();await a.getByRole('button',{name:'同意してテーブルにつく',exact:true}).click();
+    await expect(b.getByRole('dialog',{name:'星の切符あわせ',exact:true})).toHaveCount(0);await b.locator('.quick-discovery').getByRole('button',{name:'遊びのテーブル',exact:true}).click();await b.getByLabel('名前とアバターをゲーム参加者に表示して参加する').check();await b.getByRole('button',{name:'同意してテーブルにつく',exact:true}).click();
+    for(const p of [a,b]){await expect(p.getByRole('dialog',{name:'星の切符あわせ',exact:true})).toBeVisible();await expect(p.locator('.play-members')).toContainText('時計台で待つ人');await expect(p.locator('.play-members')).toContainText('寄り道する友達');expect(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const small=await p.locator('.play-card').evaluateAll(cards=>cards.filter(c=>{const r=c.getBoundingClientRect();return r.width<44||r.height<44;}).length);expect(small).toBe(0);}
+    await a.getByRole('button',{name:'1枚目・裏向き',exact:true}).click();await expect(b.locator('.play-card').nth(0)).not.toHaveAttribute('aria-label','1枚目・裏向き');await b.getByRole('button',{name:'2枚目・裏向き',exact:true}).click();for(const p of [a,b])await expect(p.locator('.play-progress')).toContainText('1回の組み合わせ');
+    await b.screenshot({path:'artifacts/together-journey-game-320.png',animations:'disabled'});await a.screenshot({path:'artifacts/together-journey-game-390.png',animations:'disabled'});
+    await b.getByRole('button',{name:'テーブルから退出する',exact:true}).click();await expect(a.locator('.play-progress')).toContainText('1/6人');await a.getByRole('button',{name:'テーブルから退出する',exact:true}).click();expect(errors).toEqual([]);
+  }finally{await ca.close();await cb.close();}
+});

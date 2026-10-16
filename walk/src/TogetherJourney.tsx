@@ -1,0 +1,33 @@
+import {useState,type FormEvent,type ReactNode,type KeyboardEvent} from 'react';
+import {ArrowRight,Home,MapPin,Sparkles,Ticket,Users} from 'lucide-react';
+import type {Bootstrap,WorldState} from '../shared/model';
+import type {Room} from '../shared/community';
+import type {Invitation} from '../shared/invitations';
+import Modal from './Modal';
+import Avatar from './Avatar';
+import {FriendDestinationSend} from './Meetups';
+import {api} from './api';
+
+export type JourneyStep='station'|'home'|'play';
+export default function TogetherJourney({step,data,world,worldId,rooms,room,close,travel,watch,reloadRooms,share,editRooms,play,profile,notify,invitations}:{step:JourneyStep;data:Bootstrap;world:WorldState;worldId:string;rooms:Room[];room?:Room;close:()=>void;travel:(id:string)=>Promise<void>;watch:(id:string)=>Promise<void>;reloadRooms:()=>Promise<unknown>;share:(target:Invitation,title:string)=>void;editRooms:()=>void;play:()=>void;profile:(id:string)=>void;notify:(message:string)=>void;invitations?:ReactNode}){
+  const [tab,setTab]=useState(step),[create,setCreate]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
+  const own=rooms.filter(r=>r.ownerId===data.user.id),choices=data.posts.filter(p=>p.ownerId===data.user.id&&p.origin==='walk'||data.favorites.includes(p.id)||data.reactions[p.id]==='heart');
+  function tabKey(e:KeyboardEvent<HTMLButtonElement>){
+    const steps:JourneyStep[]=['station','home','play'],index=steps.indexOf(tab);
+    const next=e.key==='ArrowRight'?steps[(index+1)%3]:e.key==='ArrowLeft'?steps[(index+2)%3]:e.key==='Home'?'station':e.key==='End'?'play':null;
+    if(next){e.preventDefault();setTab(next);setError('');document.getElementById('journey-tab-'+next)?.focus();}
+  }
+  async function run(fn:()=>Promise<unknown>){if(busy)return;setBusy(true);setError('');try{await fn();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function createHouse(e:FormEvent<HTMLFormElement>){e.preventDefault();const f=new FormData(e.currentTarget);await run(async()=>{const postId=String(f.get('post')||''),r=await api<Room>('/rooms','POST',{title:f.get('title'),description:'窓辺で、好きな時間を一緒に。',isPublic:f.get('public')==='on',theme:'studio',items:postId?[{postId,x:1000,y:700}]:[],decorations:[]});await reloadRooms();notify('小さな家を用意しました');await watch(r.id);});}
+  return <Modal title="一緒に過ごす" close={close} wide><div className="together-journey">
+    <span className="sheet-eyebrow"><Ticket size={15}/> A DAY IN OUR LITTLE WORLD</span><h2>今日は、誰と寄り道しよう。</h2><p>駅で会って、家でひと息。その続きは、小さな遊びへ。</p>
+    <div className="journey-tabs" role="tablist" aria-label="一緒に過ごす行き先">{([['station','待ち合わせ',MapPin],['home','家で見る',Home],['play','遊びに行く',Sparkles]] as const).map(([key,label,Icon],i)=><button key={key} id={'journey-tab-'+key} role="tab" tabIndex={tab===key?0:-1} onKeyDown={tabKey} aria-selected={tab===key} aria-controls="journey-panel" onClick={()=>{setTab(key);setError('');}}><Icon size={18}/><span><small>0{i+1}</small>{label}</span></button>)}</div>
+    {invitations}
+    <section id="journey-panel" role="tabpanel" aria-labelledby={'journey-tab-'+tab}>
+      {tab==='station'&&<><div className="journey-landscape station-landscape"><span>THE BETWEEN STATION</span><h3>時計台の下で、待ってる。</h3></div><div className="feature-buttons"><button className="primary" disabled={busy||worldId==='public'} onClick={()=>void run(async()=>{await travel('public');close();})}>{worldId==='public'?'いま、不思議な駅にいます':'不思議な駅へ行く'}<ArrowRight size={16}/></button><button className="outline" onClick={()=>share({kind:'world',id:'public'},'不思議な駅')}>駅の招待リンク</button></div>{worldId==='public'&&<div className="journey-nearby"><h3><Users size={16}/>この駅で表示できる人</h3>{world.peers.filter(p=>p.id!==data.user.id).map(p=><button key={p.id} onClick={()=>profile(p.id)}><Avatar color={p.color} style={p.style} size={32}/>{p.displayName}</button>)}{world.peers.filter(p=>p.id!==data.user.id).length===0&&<p>今は、ゆっくり待ち合わせ。友達に駅の場所を送ってみよう。</p>}</div>}<FriendDestinationSend target={{kind:'world',id:'public'}} friends={data.friendships} notify={notify}/><p className="fineprint">表示できるオンラインの人だけを案内します。招待の受け取りだけでは移動・視聴・音声参加は起きません。</p></>}
+      {tab==='home'&&<><div className="journey-landscape house-landscape"><span>A WINDOW FOR EVERYONE</span><h3>同じ窓辺で、好きな一本を。</h3></div><p>公開した家に友達を招こう。同じ投稿を見ることと、再生を合わせる同期視聴は、別々に選べます。</p>{room&&<button className="primary full" disabled={busy} onClick={()=>void run(()=>watch(room.id))}>いまの家の窓辺へ</button>}<div className="journey-houses">{rooms.map(r=><article key={r.id}><Home size={20}/><div><h3>{r.title}</h3><small>{r.ownerName} · {r.isPublic?'公開の家':'自分だけの家'} · {r.items.length}投稿</small></div><div className="feature-buttons"><button className="outline" disabled={busy} onClick={()=>void run(()=>watch(r.id))}>窓辺へ行く</button>{r.isPublic&&<button className="text-button" onClick={()=>share({kind:'room',id:r.id},r.title)}>家に招待</button>}</div></article>)}</div>{!rooms.length&&<p>まだ訪問できる家はありません。好きな投稿を置く、小さな家を用意しよう。</p>}
+        {!create?<div className="feature-buttons"><button className="primary" disabled={own.length>=5} onClick={()=>setCreate(true)}>小さな家を用意する</button><button className="outline" onClick={editRooms}>公開・投稿の配置を編集</button></div>:<form className="journey-create-house" onSubmit={e=>void createHouse(e)}><h3>好きな時間の、置き場所。</h3><label>家の名前<input name="title" required maxLength={60} defaultValue={data.user.displayName+'の小さな家'}/></label><label>最初に置く投稿<select name="post" aria-label="最初に置く投稿"><option value="">あとで選ぶ</option>{choices.map(p=><option key={p.id} value={p.id}>{p.title}</option>)}</select></label><label className="privacy-check"><input type="checkbox" name="public"/><span>みんなが訪問できるように公開する</span></label><p className="fineprint">既定は自分だけ。招待するには公開を選んでください。公開した家の投稿は訪問者に見えます。後から公開・配置を編集できます。</p><button className="primary full" disabled={busy}>{busy?'家を用意しています…':'家を作って窓辺へ'}</button></form>}</>}
+      {tab==='play'&&<><div className="journey-landscape game-landscape"><span>THE PLAY COURTYARD</span><h3>見終わったら、もうひとつ寄り道。</h3></div><div className="journey-game"><Sparkles size={24}/><div><h3>星の切符あわせ</h3><p>6つのペアを探す、小さな協力ゲーム。ひとりでも最大6人でも、同じテーブルで遊べます。</p></div></div><button className="primary full" disabled={busy} onClick={()=>void run(async()=>{await travel('world:game');close();play();})}>ゲームの世界へ出かける<ArrowRight size={17}/></button>{room&&<button className="outline full" onClick={()=>{close();play();}}>いまの家のテーブルで遊ぶ</button>}<FriendDestinationSend target={{kind:'world',id:'world:game'}} friends={data.friendships} notify={notify}/><p className="fineprint">友達も招待を確認してから移動します。ゲーム参加は別に同意し、動画やマイクには自動参加しません。ひとりで立ち寄っても、途中で席を離れても大丈夫です。</p></>}
+    </section>{error&&<p role="alert" className="workshop-error">{error}</p>}
+  </div></Modal>;
+}

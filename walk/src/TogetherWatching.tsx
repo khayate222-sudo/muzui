@@ -5,6 +5,7 @@ import {
   useState,
   type RefObject,
 } from "react";
+import {createPortal} from 'react-dom';
 import type { Socket } from "socket.io-client";
 import { Link2, Pause, Play, Users, X } from "lucide-react";
 import type { Bootstrap, Post } from "../shared/model";
@@ -418,11 +419,15 @@ export function TogetherInvitations({
     [busy, setBusy] = useState(false);
   const invitation =
     chosen && session.state.invites.find((i) => i.id === chosen.id);
-  return (
-    <>
-      {!chosen && session.state.invites.length > 0 && (
+  const [slot,setSlot]=useState<HTMLElement|null>(null),[blocked,setBlocked]=useState(false);
+  useEffect(()=>{
+    const update=()=>{setSlot(document.querySelector<HTMLElement>('.watch-audience'));setBlocked(!!document.querySelector('.modal-backdrop'));};
+    const observer=new MutationObserver(update);observer.observe(document.body,{childList:true});update();
+    return()=>observer.disconnect();
+  },[]);
+  const trigger=!chosen&&session.state.invites.length>0&&!blocked?(
         <button
-          className="together-inbox"
+          className={'together-inbox'+(slot?' in-watch':'')}
           onClick={() => {
             setChosen(session.state.invites[0]);
             setConsent(false);
@@ -431,7 +436,10 @@ export function TogetherInvitations({
           <Link2 size={17} />
           <span>一緒に見る招待 · {session.state.invites.length}</span>
         </button>
-      )}
+  ):null;
+  return (
+    <>
+      {trigger&&(slot?createPortal(trigger,slot):trigger)}
       {chosen && (
         <Modal title="同期視聴への招待" close={() => setChosen(null)}>
           <div className="together-setup">

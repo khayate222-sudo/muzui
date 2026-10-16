@@ -140,3 +140,11 @@ Dockerは非rootユーザーで実行し、`walk-data` ボリュームにSQLite�
 
 - [作成方法・権限・保存と将来の建築](docs/RESIDENT_WORLDS.md)
 - [今回の検証結果](docs/VALIDATION_RESIDENT_WORLDS_2026-10-16.md)
+
+
+## 駅で会って、家で見て、遊びへ
+
+「一緒に過ごす」から待ち合わせ・家の用意と招待・次の遊びを選べます。公開した家では訪問者も同じ窓辺から視聴でき、ゲームの世界や家では最大6人で「星の切符あわせ」を遊べます。同期視聴とゲームは、それぞれ本人の参加同意を必要とします。
+
+- [一日の流れ・協力ゲームと今後の世界](docs/TOGETHER_JOURNEY.md)
+- [今回の検証結果と画面](docs/VALIDATION_TOGETHER_JOURNEY_2026-10-16.md)
