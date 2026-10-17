@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import Phaser from 'phaser';
 import type { Place } from '../shared/worlds';
 import {worldEmblem} from './world-emblem';
@@ -61,7 +62,7 @@ export function drawPlaceArt(scene:Phaser.Scene,place:Place,tree:(x:number,y:num
   // Tracks, a tiny midnight-blue train and a copper station clock.
   g.fillStyle(0x829392);g.fillRoundedRect(200,146,1600,103,18);g.lineStyle(4,0xe2decc);g.lineBetween(230,164,1770,164);g.lineBetween(230,223,1770,223);
   for(let x=240;x<1770;x+=45){g.lineStyle(3,0x556d76);g.lineBetween(x,166,x+18,221);}
-  const train=scene.add.container(530,187).setDepth(240),t=scene.add.graphics();t.fillStyle(0x334e6d);t.fillRoundedRect(-230,-73,460,100,25);t.fillStyle(0xb5c6c2);t.fillRoundedRect(-220,-80,430,18,10);t.fillStyle(0xc2936d);t.fillRect(-230,9,460,9);for(let x=-197;x<200;x+=63){t.fillStyle(0xf5d892);t.fillRoundedRect(x,-51,40,37,7);t.fillStyle(0xe9b779);t.fillRect(x+17,-51,3,37);}for(const x of[-160,160]){t.fillStyle(0x273b50);t.fillCircle(x,28,17);}train.add(t);
+  const train=scene.add.container(530,187).setDepth(240),trainArt=scene.add.graphics();trainArt.fillStyle(0x334e6d);trainArt.fillRoundedRect(-230,-73,460,100,25);trainArt.fillStyle(0xb5c6c2);trainArt.fillRoundedRect(-220,-80,430,18,10);trainArt.fillStyle(0xc2936d);trainArt.fillRect(-230,9,460,9);for(let x=-197;x<200;x+=63){trainArt.fillStyle(0xf5d892);trainArt.fillRoundedRect(x,-51,40,37,7);trainArt.fillStyle(0xe9b779);trainArt.fillRect(x+17,-51,3,37);}for(const x of[-160,160]){trainArt.fillStyle(0x273b50);trainArt.fillCircle(x,28,17);}train.add(trainArt);
   const hall=scene.add.container(1030,590).setDepth(580).setSize(430,350),h=scene.add.graphics();guideHall=hall;hall.add(h);
   h.fillStyle(0x24374c,.18);h.fillEllipse(12,14,422,135);
   shape(h,0xe0c7a5,[-175,-130,78,-98,78,27,-175,-4]);shape(h,0xad947c,[78,-98,180,-159,180,-34,78,27]);shape(h,0x506a77,[-208,-131,-55,-252,105,-100]);shape(h,0x718f98,[-55,-252,209,-165,105,-100]);
@@ -71,7 +72,7 @@ export function drawPlaceArt(scene:Phaser.Scene,place:Place,tree:(x:number,y:num
   h.fillStyle(0xb89a77);h.fillRect(-190,-121,9,136);h.fillRect(84,-96,9,130);h.fillStyle(0xffe3a6);h.fillCircle(-175,-67,11);h.fillCircle(87,-50,11);
   h.fillStyle(0xfcf5dc);h.fillCircle(-53,-173,28);h.lineStyle(3,0x6a7c7a);h.strokeCircle(-53,-173,28);h.lineBetween(-53,-173,-53,-191);h.lineBetween(-53,-173,-37,-166);
   hall.add(scene.add.text(-36,-113,'WALK STATION',{...textStyle,fontSize:'18px',fontStyle:'bold',color:'#fff7d9',backgroundColor:'#3c5a69',padding:{x:12,y:5}}).setOrigin(.5));
-  hall.add(scene.add.text(-5,59,'不思議な駅 · 好きな世界へ',{...textStyle,fontSize:'20px',color:'#fff4d5',backgroundColor:'#38576b',padding:{x:18,y:10}}).setOrigin(.5));
+  hall.add(scene.add.text(-5,59,t('不思議な駅 · 好きな世界へ'),{...textStyle,fontSize:'20px',color:'#fff4d5',backgroundColor:'#38576b',padding:{x:18,y:10}}).setOrigin(.5));
  }else{
   scene.add.text(1010,146,place.title,{...textStyle,fontSize:'29px',fontStyle:'bold',color:future?'#ddf8f0':fantasy?'#f3e5ff':'#53656c',backgroundColor:future?'#344c70':fantasy?'#68607e':'#fff7e7',padding:{x:26,y:14}}).setOrigin(.5).setDepth(190);
   if(future){for(const [x,y]of[[1400,400],[480,1110]]){const a=scene.add.graphics().setDepth(y-90);a.fillStyle(0x597b98);a.fillRoundedRect(x-65,y-190,130,170,24);a.fillStyle(0x7be6db,.5);a.fillRoundedRect(x-53,y-180,106,137,16);a.lineStyle(4,0xb9f6e7);a.strokeRoundedRect(x-65,y-190,130,170,24);a.fillStyle(0xb4dcdb);a.fillEllipse(x,y-190,160,48);}}

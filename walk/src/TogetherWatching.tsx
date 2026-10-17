@@ -55,7 +55,7 @@ export function useTogetherWatching(
           state?: WatchingState;
         };
       if (!result.ok)
-        throw new Error(result.error || "操作を確認できませんでした");
+        throw new Error(t(result.error || "操作を確認できませんでした"));
       if (result.state && event === "get")
         offset.current = result.state.serverNow - (sent + Date.now()) / 2;
       return result;
@@ -228,7 +228,7 @@ export function TogetherControls({
   async function approveAndInvite(id:string,userId:string){
     setBusy(true);let approved=false;
     try{await api('/friendships/'+id,'PATCH',{action:'accept'});approved=true;await session.send('invite',{targetId:userId});setSent(ids=>[...ids,userId]);notify(t("交流を承認し、同期視聴に招待しました"));}
-    catch(e){notify((approved?'交流は承認済みです。同期視聴の招待をもう一度お試しください。 ':'')+(e as Error).message);}
+    catch(e){notify((approved?t('交流は承認済みです。同期視聴の招待をもう一度お試しください。')+' ':'')+(e as Error).message);}
     finally{setBusy(false);}
   }
   return (

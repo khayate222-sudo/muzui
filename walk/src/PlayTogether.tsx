@@ -11,7 +11,7 @@ export function useCooperativePlay(socket:Socket|null,userId:string|undefined){
   const send=useCallback(async(event:string,payload:object={})=>{
     if(!socket?.connected)throw new Error(t("接続が戻ってから操作してください"));
     const result=await socket.timeout(5000).emitWithAck('play:'+event,payload).catch(()=>{throw new Error(t("操作を確認できませんでした。接続と現在のカードを確認してください。"));}) as {ok:boolean;error?:string;state?:PlayState};
-    if(!result.ok)throw new Error(result.error||'操作を確認できませんでした');
+    if(!result.ok)throw new Error(t(result.error||'操作を確認できませんでした'));
     // State events are ordered by the socket. Do not overwrite a newer event
     // with the snapshot from an earlier action's acknowledgement.
     return result;

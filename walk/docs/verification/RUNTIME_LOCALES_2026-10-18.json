@@ -1,0 +1,80 @@
+{
+  "checkedDate": "2026-10-18",
+  "timezone": "Asia/Tokyo",
+  "baselineCommit": "21ab3b4c3aeb82d8600c2e92d3f79dda536058e9",
+  "translationsAdded": 47,
+  "translationKeys": 1319,
+  "unitTests": {
+    "files": 29,
+    "passed": 151,
+    "newNativeSharingTests": 4
+  },
+  "browserTests": {
+    "distinctPassedScenarios": 21,
+    "singleAllPassingRun": false,
+    "relatedRun": {
+      "passed": 18,
+      "failedFromIncorrectPriorViewingAssumption": 3
+    },
+    "finalInvitationRerun": {
+      "passed": 3,
+      "failed": 0
+    },
+    "initialStoppedRun": {
+      "failedFromMissingPlayerOpenStep": 1,
+      "interrupted": 1,
+      "unrun": 4
+    },
+    "passedScenarios": [
+      "English account deletion requires an explicit DELETE and only removes the current guest",
+      "a missing illustration still leaves the station and destinations usable",
+      "a newcomer finds a real curated library on phones, sees honest provenance and opens the official player only by choice",
+      "a phone user retries a failed player and sends an editable playback report to the real moderation queue",
+      "a private phone room keeps the bilibili start button and real iframe inside its screen at 320px and 390px",
+      "changing language keeps the selected video element, position and privacy settings",
+      "closing a slow friendship request never navigates later, and a revoked preview stays outside viewing",
+      "first video and private window in en-US",
+      "first video and private window in zh-CN",
+      "first video and private window in zh-TW",
+      "illustrated worlds retain live interaction when local light changes (desktop)",
+      "illustrated worlds retain live interaction when local light changes (touch)",
+      "language choice persists without changing the account at 320px",
+      "localized playback report is editable and preserves the original post in en-US",
+      "localized playback report is editable and preserves the original post in zh-CN",
+      "localized playback report is editable and preserves the original post in zh-TW",
+      "localized watch invitation requires consent and a revoked preview stops before viewing in en-US",
+      "localized watch invitation requires consent and a revoked preview stops before viewing in zh-CN",
+      "localized watch invitation requires consent and a revoked preview stops before viewing in zh-TW",
+      "two actual guests share a curated post without fake viewers, duplicate cards or automatic synchronization",
+      "two new phone users go from a hosted link through friendship approval to consented, real short-film playback"
+    ],
+    "locales": [
+      "en-US",
+      "zh-CN",
+      "zh-TW"
+    ],
+    "phoneViewport": {
+      "width": 320,
+      "height": 844
+    },
+    "externalPlayerBoundary": "fixture, not proof of real external playback"
+  },
+  "native": {
+    "webAssets": 61,
+    "androidAssetsMatch": true,
+    "iosAssetsMatch": true,
+    "apkAssetsMatch": true,
+    "apkCrcVerified": true,
+    "apkSha256": "2d7c02a45f89138f18cee37696268dada0414c60d617e171dda66f102674083b",
+    "androidBuild": "debug",
+    "signedStoreRelease": false,
+    "iosCompilation": false,
+    "physicalDeviceTest": false
+  },
+  "typecheck": true,
+  "lint": true,
+  "viteBuild": true,
+  "environmentConfigurationChanged": false,
+  "dockerImageRebuilt": false,
+  "publicDeployment": false
+}

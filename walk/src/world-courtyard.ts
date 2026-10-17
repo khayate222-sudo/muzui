@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import Phaser from 'phaser';
 import { gatePoints, type Place } from './worlds';
 import { polygon, rectangle, type HitRegion } from './world-input';
@@ -56,7 +57,7 @@ export function drawCourtyard(scene: Phaser.Scene, place?: Place): Entrance[] | 
   return [0, 1, 2].map(index => {
     const x = [510, 1000, 1490][index], gate = gates.find(g => g.x === x);
     const back = gate?.place.id === place?.parentId;
-    const title = gate ? (back ? '← ' : '') + gate.place.title : index === 1 ? '行き先の案内' : 'ほかの世界へ';
+    const title = gate ? (back ? '← ' : '') + gate.place.title : index === 1 ? t('行き先の案内') : t('ほかの世界へ');
     const c = scene.add.container(0, 0).setSize(2000, 1400).setDepth(760);
     const halo = scene.add.graphics().lineStyle(3, 0xffedc7, .85).strokeEllipse(x, 760, 235, 24).setVisible(false);
     const label = scene.add.text(x, 780, title, { fontFamily, fontSize: '22px', color: '#594d40', backgroundColor: '#fff7e8', padding: { x: 16, y: 10 } }).setOrigin(.5);

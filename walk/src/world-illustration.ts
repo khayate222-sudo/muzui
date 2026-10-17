@@ -1,3 +1,4 @@
+import {t,tr} from './i18n';
 import Phaser from 'phaser';
 import type { Place } from '../shared/worlds';
 import type { HitRegion } from './world-input';
@@ -78,7 +79,7 @@ export function drawIllustratedBuilding(scene: Phaser.Scene, c: Phaser.GameObjec
     else if (item.kind === 'rect') badge.fillRoundedRect(item.x, item.y, item.width, item.height, 3);
     else badge.fillPoints(item.points.reduce<{ x: number; y: number }[]>((a, n, i) => { if (i % 2 === 0) a.push({ x: n, y: item.points[i + 1] }); return a; }, []), true);
   }
-  const label = scene.add.text(0, 73, (back ? '← ' : guide ? '案内 · ' : '') + place.title, { fontFamily, fontSize: '24px', fontStyle: 'bold', color: '#584b43', backgroundColor: '#fff7e9', padding: { x: 14, y: 10 }, align: 'center', wordWrap: { width: 210 } }).setOrigin(.5);
+  const label = scene.add.text(0, 73, back ? '← '+place.title : guide ? tr('案内 · {title}',{title:place.title}) : place.title, { fontFamily, fontSize: '24px', fontStyle: 'bold', color: '#584b43', backgroundColor: '#fff7e9', padding: { x: 14, y: 10 }, align: 'center', wordWrap: { width: 210 } }).setOrigin(.5);
   c.add([badge, label]);
   return [spriteMask(scene, image, key, frame), rectangle(-label.width / 2, 73 - label.height / 2, label.width, label.height)];
 }
@@ -109,7 +110,7 @@ export function drawIllustratedPlace(scene: Phaser.Scene, place: Place) {
     const hall = scene.add.container(1030, 590).setDepth(580).setSize(460, 370);
     const image = illustratedImage(scene, 0, 0, 'world-station').setDisplaySize(490, 440).setOrigin(.5, .86);
     const shadow = scene.add.graphics().fillStyle(0x624b43, .1).fillEllipse(0, 15, 440, 110);
-    const label = scene.add.text(0, 65, '不思議な駅 · 好きな世界へ', { fontFamily, fontSize: '23px', color: '#554a40', backgroundColor: '#fff6e5', padding: { x: 18, y: 10 } }).setOrigin(.5);
+    const label = scene.add.text(0, 65, t('不思議な駅 · 好きな世界へ'), { fontFamily, fontSize: '23px', color: '#554a40', backgroundColor: '#fff6e5', padding: { x: 18, y: 10 } }).setOrigin(.5);
     hall.add([shadow, image, label]);
     hall.setData('hitRegions', [spriteMask(scene, image, 'world-station'), rectangle(-label.width / 2, 65 - label.height / 2, label.width, label.height)]);
     return hall;

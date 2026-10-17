@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import { invitationUrl, type Invitation } from "../shared/invitations";
 import { isNative, serviceUrl } from "./native";
 export const shareOrigin=()=>isNative()?serviceUrl(''):location.origin;
@@ -13,9 +14,9 @@ export async function shareInvitation(
       const { Share } = await import("@capacitor/share");
       await Share.share({
         title,
-        text: "WALKで、この「好き」に集まろう。",
+        text: t("WALKで、この「好き」に集まろう。"),
         url,
-        dialogTitle: "WALKへ招待",
+        dialogTitle: t("WALKへ招待"),
       });
       return "shared";
     }
