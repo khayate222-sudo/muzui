@@ -50,7 +50,7 @@ export function community(c:Context){
   });
   app.post('/api/imports',{config:{rateLimit:{max:8,timeWindow:'1 minute'}}},async(req,reply)=>{
     const p=z.object({url:z.string().max(2048),title:z.string().trim().min(1).max(120),authorName:z.string().trim().min(1).max(60),body:z.string().max(1000).default(''),genre:z.enum(genres),worldId:z.string().max(80).nullable().optional()}).parse(req.body),source=sourceInfo(p.url);
-    if(!source)return reply.code(400).send({error:'YouTubeの動画URL、Xの投稿URL、TikTokの @ユーザー名/video/番号 のURLを入力してください。短縮URLは元の投稿URLに開いてから貼り付けてください。'});
+    if(!source)return reply.code(400).send({error:'抖音・快手の投稿URLまたは共有短縮リンクを一つ入力してください。YouTube・X・TikTokの投稿URLも登録できます。プロフィール・ライブ・複数URLは登録できません。'});
     if(!acceptsPost(p.worldId,p.genre,c.catalog()))return reply.code(400).send({error:'ジャンルに合う世界を選んでください'});
     const existing=db.select().from(t.posts).where(and(eq(t.posts.externalUrl,source.url),eq(t.posts.isSample,false))).get();
     if(existing){if(!c.readablePost(existing.id))return reply.code(409).send({error:'この投稿は現在登録できません'});db.insert(t.favorites).values({userId:req.session!.userId,postId:existing.id,createdAt:Date.now()}).onConflictDoNothing().run();notify(req.session!.userId);return {id:existing.id,existing:true,worldId:postWorld(existing,c.catalog())};}
