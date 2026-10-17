@@ -28,17 +28,17 @@ async function openPost(p: Page, title: string) {
 test("a public room shares its own link, loads outside the first listing, and a stale private destination never moves the recipient", async ({
   browser,
 }) => {
-  const ca = await browser.newContext({
+  const ca = await browser.newContext({locale:'ja-JP',
       viewport: { width: 390, height: 844 },
       isMobile: true,
       hasTouch: true,
     }),
-    cb = await browser.newContext({
+    cb = await browser.newContext({locale:'ja-JP',
       viewport: { width: 320, height: 844 },
       isMobile: true,
       hasTouch: true,
     }),
-    cc = await browser.newContext(),
+    cc = await browser.newContext({locale:'ja-JP'}),
     a = await ca.newPage(),
     b = await cb.newPage(),
     c = await cc.newPage();
@@ -158,12 +158,12 @@ test("a public room shares its own link, loads outside the first listing, and a 
 test("friends receive a destination, confirm or decline it on mobile, and post previews do not count as views", async ({
   browser,
 }) => {
-  const ca = await browser.newContext({
+  const ca = await browser.newContext({locale:'ja-JP',
       viewport: { width: 390, height: 844 },
       isMobile: true,
       hasTouch: true,
     }),
-    cb = await browser.newContext({
+    cb = await browser.newContext({locale:'ja-JP',
       viewport: { width: 320, height: 844 },
       isMobile: true,
       hasTouch: true,

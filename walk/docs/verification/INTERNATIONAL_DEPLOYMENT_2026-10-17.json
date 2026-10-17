@@ -1,0 +1,13 @@
+{
+  "testConfigurationOnly": true,
+  "composeMissingRequiredConfigRejected": true,
+  "composeConfiguredValid": true,
+  "containerHealth": true,
+  "legalFlagsForwarded": true,
+  "secureCookie": true,
+  "externalVideoCount": 41,
+  "restartPreservedSessionAndData": true,
+  "unconfiguredPublicStartRejected": true,
+  "realPublicDeployment": false,
+  "imageId": "sha256:d3a11d27448c79ec8865c938a34d9354686ad4a705ab7577f8319dda6734e0ca"
+}

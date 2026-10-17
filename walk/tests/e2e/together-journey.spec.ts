@@ -5,7 +5,7 @@ async function onboard(p:Page,name:string){await p.goto('/');await p.getByLabel(
 async function journey(p:Page){await p.locator('.quick-discovery').getByRole('button',{name:'一緒に過ごす',exact:true}).click();await expect(p.getByRole('dialog',{name:'一緒に過ごす',exact:true})).toBeVisible();}
 async function acceptPlace(p:Page,title:string){await expect(p.locator('.place-invitation-inbox')).toContainText(title);await p.getByRole('button',{name:'行き先を確認',exact:true}).click();await p.getByRole('button',{name:'確認してこの場所へ行く',exact:true}).click();await expect(p.locator('.map-top')).toContainText(title);}
 test('two phone users meet at the station, share a real video at home, then choose to play together',async({browser})=>{
-  const ca=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),cb=await browser.newContext({viewport:{width:320,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'});
+  const ca=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),cb=await browser.newContext({locale:'ja-JP',viewport:{width:320,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'});
   const a=await ca.newPage(),b=await cb.newPage(),errors:string[]=[];for(const p of [a,b])p.on('pageerror',e=>errors.push(e.message));
   try{
     await onboard(a,'時計台で待つ人');await onboard(b,'寄り道する友達');

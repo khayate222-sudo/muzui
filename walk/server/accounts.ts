@@ -458,7 +458,7 @@ export function accounts({
   app.post("/api/account/delete", rate, async (req, reply) => {
     const p = z
         .object({
-          confirm: z.literal("削除"),
+          confirm: z.enum(["削除", "DELETE"]),
           password: z.string().max(128).optional(),
         })
         .parse(req.body),

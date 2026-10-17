@@ -11,7 +11,7 @@ export function seedCuratedVideos(store:Store,videos:readonly CuratedVideo[]=cur
       const id='walk-curated-'+video.bvid;
       const existing=sqlite.prepare('SELECT id FROM posts WHERE external_url=? AND is_sample=0').get(video.url);
       if(existing)continue;
-      db.insert(posts).values({id,type:'external',origin:'external',provider:'bilibili',title:video.title,authorName:video.authorName,body:'元の題名：'+video.sourceTitle+'\n\n日本語の題名はWALK編集部による紹介です。動画はbilibiliの公式プレーヤーで開き、ファイルを転載しません。再生条件は提供元に従います。',genre:video.genre,externalUrl:video.url,mediaUrl:'',isSample:false,...postPosition(store,video.genre),createdAt:Date.now()}).onConflictDoNothing().run();
+      db.insert(posts).values({id,type:'external',origin:'external',provider:'bilibili',title:video.title,authorName:video.authorName,body:'Original title: '+video.sourceTitle+'\n\nWatch with the official bilibili player. WALK links to the original; video files are not copied. Playback availability is controlled by the provider.',genre:video.genre,externalUrl:video.url,mediaUrl:'',isSample:false,...postPosition(store,video.genre),createdAt:Date.now()}).onConflictDoNothing().run();
       // A library can grow beyond the 100 manually selected shelf positions.
       if(i+10<=100)sqlite.prepare('INSERT OR IGNORE INTO discovery_picks(post_id,position) VALUES (?,?)').run(id,i+10);
     }

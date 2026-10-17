@@ -1,0 +1,12 @@
+{
+  "webAssets": 61,
+  "androidAssetsMatch": true,
+  "iosAssetsMatch": true,
+  "apkAssetsMatch": true,
+  "apkCrcVerified": true,
+  "apkSha256": "823306eaa9885bc1aa0f8d5228ae9461b37c1f61fede8164e45c414a470217ae",
+  "androidBuild": "debug",
+  "signedStoreRelease": false,
+  "iosCompilation": false,
+  "physicalDeviceTest": false
+}

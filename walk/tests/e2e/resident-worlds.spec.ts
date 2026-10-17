@@ -2,7 +2,7 @@ import {test,expect,type Page} from '@playwright/test';
 
 async function onboard(p:Page,name:string){await p.goto('/');await p.getByLabel('ニックネーム').fill(name);await p.locator('input[name=share]').check();await p.getByRole('button',{name:'WALKをはじめる',exact:true}).click();await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();}
 test('residents create, visit, publish and see real viewers in their own nested world on phones',async({browser})=>{
-  const ca=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),cb=await browser.newContext({viewport:{width:320,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'});
+  const ca=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),cb=await browser.newContext({locale:'ja-JP',viewport:{width:320,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'});
   const a=await ca.newPage(),b=await cb.newPage(),errors:string[]=[],missing:string[]=[];
   for(const p of [a,b]){p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.url().includes('/art/')&&!r.ok())missing.push(r.url());});}
   try{

@@ -6,7 +6,7 @@ const json=async(p:Page,path:string)=>(await p.request.get('/api'+path)).json();
 const mutate=(p:Page,path:string,data:object,method='POST')=>p.request.fetch('/api'+path,{method,headers:{'X-Walk-Client':'1'},data});
 async function openPost(p:Page,title:string){await p.getByRole('button',{name:'投稿を探す',exact:true}).click();await p.getByLabel('投稿を絞り込む').fill(title);await p.getByRole('button',{name:title,exact:true}).click();await expect(p.getByRole('dialog',{name:'A LITTLE DISCOVERY'})).toBeVisible();}
 test('one tap next moves the visible avatar; public rooms keep custom placements and real URL collection',async({browser})=>{
-  const ca=await browser.newContext(),cb=await browser.newContext();const a=await ca.newPage(),b=await cb.newPage();const errors:string[]=[];for(const p of[a,b])p.on('pageerror',e=>errors.push(e.message));
+  const ca=await browser.newContext({locale:'ja-JP'}),cb=await browser.newContext({locale:'ja-JP'});const a=await ca.newPage(),b=await cb.newPage();const errors:string[]=[];for(const p of[a,b])p.on('pageerror',e=>errors.push(e.message));
   try{
     await onboard(a,'早送りA');await onboard(b,'ルーム訪問B');const boot=await json(a,'/bootstrap'),id=boot.user.id;
     await b.locator('.area-dock').getByRole('button',{name:'広場',exact:true}).click();await expect(b.locator('.map-top')).toContainText('発見の広場');await openPost(a,'ここでは、寄り道が正解。');const first=await a.getByTestId('player-position').textContent();await a.getByRole('button',{name:'次の投稿・動画へ',exact:true}).click();await expect(a.locator('.post-detail h2')).toHaveText('今日見つけた、小さないいこと。');
@@ -23,7 +23,7 @@ test('one tap next moves the visible avatar; public rooms keep custom placements
   }finally{await ca.close();await cb.close();}
 });
 test('approved friends accept party invites and exchange actual WebRTC audio; mute and exiting stop the microphone',async({browser})=>{
-  const ca=await browser.newContext({permissions:['microphone']}),cb=await browser.newContext({permissions:['microphone']});
+  const ca=await browser.newContext({locale:'ja-JP',permissions:['microphone']}),cb=await browser.newContext({locale:'ja-JP',permissions:['microphone']});
   for(const context of[ca,cb])await context.addInitScript(()=>{
     window.__walkRTC=[];window.__walkStreams=[];const Native=window.RTCPeerConnection;window.RTCPeerConnection=class extends Native{constructor(config?:RTCConfiguration){super(config);window.__walkRTC.push(this);}};
     const get=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);navigator.mediaDevices.getUserMedia=async constraints=>{const s=await get(constraints);window.__walkStreams.push(s);return s;};

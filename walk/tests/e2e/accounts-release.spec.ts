@@ -37,12 +37,12 @@ async function saveRecovery(p: Page) {
 test("mobile account keeps the guest data, signs in on a second device, revokes it, recovers and deletes only its own data", async ({
   browser,
 }) => {
-  const ca = await browser.newContext({
+  const ca = await browser.newContext({locale:'ja-JP',
       viewport: { width: 390, height: 844 },
       isMobile: true,
       hasTouch: true,
     }),
-    cb = await browser.newContext({
+    cb = await browser.newContext({locale:'ja-JP',
       viewport: { width: 320, height: 844 },
       isMobile: true,
       hasTouch: true,
@@ -212,8 +212,8 @@ test("mobile account keeps the guest data, signs in on a second device, revokes 
 test("admin resolves reports and suspends and restores a user while preserving the user data controls", async ({
   browser,
 }) => {
-  const ca = await browser.newContext(),
-    cb = await browser.newContext({
+  const ca = await browser.newContext({locale:'ja-JP'}),
+    cb = await browser.newContext({locale:'ja-JP',
       viewport: { width: 390, height: 844 },
       isMobile: true,
       hasTouch: true,

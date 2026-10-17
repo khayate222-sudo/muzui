@@ -1,0 +1,6 @@
+# Set WALK_DOMAIN to the hostname you own, e.g. walk.your-domain.tld.
+# The domain must point at the host and ports 80/443 must reach Caddy.
+{$WALK_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:3001
+}

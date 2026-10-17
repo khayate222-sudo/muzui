@@ -59,7 +59,7 @@ for (const mobile of [false, true])
   test(`${mobile ? "touch" : "mouse"}: the roof, side wall and sign all open the house; dragging never enters it`, async ({
     browser,
   }) => {
-    const context = await browser.newContext({
+    const context = await browser.newContext({locale:'ja-JP',
       viewport: mobile
         ? { width: 390, height: 844 }
         : { width: 1512, height: 982 },
@@ -144,8 +144,8 @@ for (const mobile of [false, true])
 test("post board and avatar respond at their visible positions after zooming", async ({
   browser,
 }) => {
-  const ca = await browser.newContext(),
-    cb = await browser.newContext();
+  const ca = await browser.newContext({locale:'ja-JP'}),
+    cb = await browser.newContext({locale:'ja-JP'});
   const a = await ca.newPage(),
     b = await cb.newPage();
   try {

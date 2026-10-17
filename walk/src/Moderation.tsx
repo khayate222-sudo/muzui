@@ -1,3 +1,4 @@
+import {localeTag,t} from './i18n';
 import {WalkLogo} from "./StationIdentity";
 import { useEffect, useState, type FormEvent } from "react";
 import { ShieldAlert, Check, Undo2 } from "lucide-react";
@@ -14,20 +15,12 @@ export function SuspendedGate({ account }: { account: AccountSummary }) {
       <main className="auth-gate">
         <WalkLogo/>
         <ShieldAlert size={36} />
-        <h1>アカウントの利用を停止しています。</h1>
+        <h1>{t("アカウントの利用を停止しています。")}</h1>
         <p>{account.suspension?.reason}</p>
-        <p>
-          自分のデータの取得・削除やログアウトは、アカウント設定から行えます。お問い合わせ先は案内をご確認ください。
-        </p>
-        <button className="primary full" onClick={() => setSettings(true)}>
-          アカウントとデータ
-        </button>
-        <button className="outline full" onClick={() => setLegal(true)}>
-          問い合わせ先・利用ルール
-        </button>
-        <button className="text-button" onClick={() => location.reload()}>
-          状態を再確認する
-        </button>
+        <p>{t("自分のデータの取得・削除やログアウトは、アカウント設定から行えます。お問い合わせ先は案内をご確認ください。")}</p>
+        <button className="primary full" onClick={() => setSettings(true)}>{t("アカウントとデータ")}</button>
+        <button className="outline full" onClick={() => setLegal(true)}>{t("問い合わせ先・利用ルール")}</button>
+        <button className="text-button" onClick={() => location.reload()}>{t("状態を再確認する")}</button>
       </main>
       {settings && <Account close={() => setSettings(false)} />}
       {legal && <Legal close={() => setLegal(false)} />}
@@ -98,7 +91,7 @@ export default function ModerationQueue({
       <div className="filter-tabs">
         {[
           ["open", "未対応"],
-          ["all", "すべて"],
+          ["all", t("すべて")],
         ].map(([v, label]) => (
           <button
             key={v}
@@ -122,12 +115,12 @@ export default function ModerationQueue({
                 : r.status === "resolved"
                   ? "対応済み"
                   : "対応不要"}{" "}
-              · {r.targetType === "post" ? "投稿" : "ユーザー"}
+              · {r.targetType === "post" ? t("投稿") : "ユーザー"}
             </span>
             <h4>{r.targetLabel}</h4>
             <p>{r.reason}</p>
             <small>
-              {new Date(r.createdAt).toLocaleString("ja-JP")} · 通報者{" "}
+              {new Date(r.createdAt).toLocaleString(localeTag())} · 通報者{" "}
               {r.reporterId.slice(0, 8)}
             </small>
             {r.moderationNote && (

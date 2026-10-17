@@ -2,7 +2,7 @@ import {test,expect,type Page} from '@playwright/test';
 const title='一緒に描こう、小さなマグ。';
 async function onboard(p:Page,name:string){await p.getByLabel('ニックネーム',{exact:true}).fill(name);await p.getByRole('button',{name:'WALKをはじめる',exact:true}).click();await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();}
 test('two new phone users go from a hosted link through friendship approval to consented, real short-film playback',async({browser})=>{
-  const ca=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),cb=await browser.newContext({viewport:{width:320,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),a=await ca.newPage(),b=await cb.newPage(),errors:string[]=[];
+  const ca=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),cb=await browser.newContext({locale:'ja-JP',viewport:{width:320,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),a=await ca.newPage(),b=await cb.newPage(),errors:string[]=[];
   for(const p of [a,b])p.on('pageerror',e=>errors.push(e.message));
   try{
     await a.goto('/');await onboard(a,'窓辺で描く人');await a.locator('.discovery-entry').click();await a.getByRole('button',{name:title+'を見る',exact:true}).click();await expect(a.locator('.native-video')).toHaveAttribute('src','/films/walk-short-sketch-mug.mp4');
@@ -22,7 +22,7 @@ test('two new phone users go from a hosted link through friendship approval to c
   }finally{await ca.close();await cb.close();}
 });
 test('closing a slow friendship request never navigates later, and a revoked preview stays outside viewing',async({browser})=>{
-  const ca=await browser.newContext({viewport:{width:390,height:844}}),cb=await browser.newContext({viewport:{width:320,height:844}}),a=await ca.newPage(),b=await cb.newPage();let release=()=>{};
+  const ca=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844}}),cb=await browser.newContext({locale:'ja-JP',viewport:{width:320,height:844}}),a=await ca.newPage(),b=await cb.newPage();let release=()=>{};
   try{
     await a.goto('/');await onboard(a,'便りを待つ人');await a.locator('.discovery-entry').click();await a.getByRole('button',{name:title+'を見る',exact:true}).click();await a.getByRole('button',{name:/友達と、同じ瞬間を/}).click();await a.getByLabel('名前とアバターを参加者に表示し、動画を同期して見ることに同意する').check();await a.getByRole('button',{name:'同期視聴を始める',exact:true}).click();await a.getByLabel('リンクを持つ人に、自分の名前・アバターと動画のタイトルを見せる').check();await a.getByRole('button',{name:'初めての友達へのリンクを作る',exact:true}).click();const link=await a.getByLabel('一緒に見る招待リンク',{exact:true}).inputValue();
     await b.goto(link);await onboard(b,'ゆっくり返事をする人');let reached=()=>{};const started=new Promise<void>(r=>{reached=r;}),gate=new Promise<void>(r=>{release=r;});await b.route('**/api/friendships',async route=>{reached();await gate;await route.continue();});

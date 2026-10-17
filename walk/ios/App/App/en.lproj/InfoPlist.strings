@@ -1,0 +1,4 @@
+// System permission prompts follow the device/app language.
+"NSMicrophoneUsageDescription" = "WALK uses the microphone only when you choose to join voice in an invited party.";
+"NSPhotoLibraryUsageDescription" = "Attach photos you select to WALK posts or journal entries.";
+"NSCameraUsageDescription" = "Take photos or videos to attach to your own posts or journal entries.";

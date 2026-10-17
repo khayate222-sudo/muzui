@@ -1,5 +1,6 @@
+import {t} from './i18n';
 import type { ReactNode } from 'react';
-import type { Genre } from '../shared/model';
+import type { Genre } from './model';
 
 export function WalkLogo() {
   return <span className="brand station-brand">
@@ -13,7 +14,7 @@ export function WalkLogo() {
       </g>
       <path d="M33 11Q41 9 39 5Q34 5 33 11M36 14L40 8" stroke="#87946b" strokeWidth="1.2" strokeLinecap="round"/>
     </svg>
-    <span className="brand-wording"><span className="brand-title">walk</span><span className="brand-caption">好きへ、寄り道。</span></span>
+    <span className="brand-wording"><span className="brand-title">walk</span><span className="brand-caption">{t("好きへ、寄り道。")}</span></span>
     <span className="beta">BETA</span>
   </span>;
 }

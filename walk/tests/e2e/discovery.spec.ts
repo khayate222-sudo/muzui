@@ -4,7 +4,7 @@ const mutate=(p:Page,path:string,payload:object,method='POST')=>p.request.fetch(
 async function start(p:Page){await p.goto('/');await p.getByRole('button',{name:'まず動画を見てみる',exact:true}).click();await expect(p.getByRole('dialog',{name:'今日の動画の棚'})).toBeVisible();await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();}
 async function shelf(p:Page){await p.locator('.discovery-entry').click();await expect(p.getByRole('dialog',{name:'今日の動画の棚'})).toBeVisible();}
 test('first film on a phone: optional interests, real playback, a finite queue and returning to its world',async({browser})=>{
-  const c=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),p=await c.newPage(),errors:string[]=[];p.on('pageerror',e=>errors.push(e.message));
+  const c=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),p=await c.newPage(),errors:string[]=[];p.on('pageerror',e=>errors.push(e.message));
   try{
     await start(p);const d=p.getByRole('dialog',{name:'今日の動画の棚'});await expect(d).not.toContainText('動画設定サンプル');await expect(d).toContainText('12秒 · 音声なし');const range=await p.request.get('/films/walk-music.mp4',{headers:{Range:'bytes=0-99'}});expect(range.status()).toBe(206);expect(range.headers()['content-type']).toContain('video/mp4');expect((await range.body()).length).toBe(100);
     await d.getByRole('button',{name:'音楽',exact:true}).click();await d.getByRole('button',{name:'ゲーム',exact:true}).click();await expect(d.getByRole('button',{name:'音楽',exact:true})).toHaveAttribute('aria-pressed','true');
@@ -22,7 +22,7 @@ test('first film on a phone: optional interests, real playback, a finite queue a
   }finally{await c.close();}
 });
 test('two newcomers invite each other to an original film and separately consent to actual synchronized playback',async({browser})=>{
-  const ca=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),cb=await browser.newContext({viewport:{width:320,height:844},isMobile:true,hasTouch:true}),a=await ca.newPage(),b=await cb.newPage();
+  const ca=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844},isMobile:true,hasTouch:true}),cb=await browser.newContext({locale:'ja-JP',viewport:{width:320,height:844},isMobile:true,hasTouch:true}),a=await ca.newPage(),b=await cb.newPage();
   try{
     await start(a);await a.getByRole('button',{name:music+'を見る',exact:true}).click();await expect(a.locator('.post-detail h2')).toHaveText(music);
     await a.getByRole('button',{name:'友達をこの動画に誘う',exact:true}).click();const link=await a.getByLabel('招待リンク',{exact:true}).inputValue();await a.getByRole('dialog',{name:'この場所に招待'}).getByRole('button',{name:'閉じる',exact:true}).click();

@@ -1,0 +1,617 @@
+{
+  "scope": "Real WALK API and official player; opening seconds only; no mocks",
+  "planned": 16,
+  "completed": 16,
+  "stoppedReason": null,
+  "unrun": [],
+  "results": [
+    {
+      "url": "https://www.bilibili.com/video/BV1gtTF6zEfc",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:18:06.355Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.950076,
+          "duration": 173,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.964555,
+          "duration": 173,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.975984,
+          "duration": 173,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "《向海的轨迹》",
+      "authorName": "小食绘"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV15ftU6NEya",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:18:21.886Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.946306,
+          "duration": 210,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 358
+        },
+        {
+          "currentTime": 4.954668,
+          "duration": 210,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 358
+        },
+        {
+          "currentTime": 6.962434,
+          "duration": 210,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 358
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "荷花植物绘画过程",
+      "authorName": "四叶是兔叽"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV187MR6ZEYH",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:18:35.357Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.933148,
+          "duration": 174,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 346
+        },
+        {
+          "currentTime": 4.941583,
+          "duration": 174,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 346
+        },
+        {
+          "currentTime": 6.949122,
+          "duration": 174,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 346
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "豹子不同角度头部速写",
+      "authorName": "奔跑的老林嚯"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1aWG96zE89",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:18:51.292Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.945271,
+          "duration": 54,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 638,
+          "height": 360
+        },
+        {
+          "currentTime": 4.954798,
+          "duration": 54,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 638,
+          "height": 360
+        },
+        {
+          "currentTime": 6.963212,
+          "duration": 54,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 638,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "DynBrushes油画软件开发进展",
+      "authorName": "colorfulapp"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1L6tJ6REQw",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:19:05.638Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.941777,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.952728,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.964449,
+          "duration": 35.29433,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "画个简笔画｜我和妹妹比赛画小喷菇",
+      "authorName": "米菲爱画画"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1GnVA6YEw7",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:19:20.859Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.970146,
+          "duration": 415,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 4.977673,
+          "duration": 415,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 6.986786,
+          "duration": 415,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "抓特征，画狼，超简单！",
+      "authorName": "草沐童画"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1NfMj6jEG4",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:19:35.493Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.947219,
+          "duration": 222,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 4.955346,
+          "duration": 222,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 6.964259,
+          "duration": 222,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "当你不小心得到了亮晶晶上色的焚决",
+      "authorName": "不八岁"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1JnEk6eEUB",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:19:49.841Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.935094,
+          "duration": 1436,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 359
+        },
+        {
+          "currentTime": 4.942306,
+          "duration": 1436,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 359
+        },
+        {
+          "currentTime": 6.95333,
+          "duration": 1436,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 359
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "编绳教程-贝壳编绳项链教程",
+      "authorName": "哪里的天空不一样"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1kM9hBdE2U",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:20:05.021Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.939088,
+          "duration": 424,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.951787,
+          "duration": 424,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.964628,
+          "duration": 424,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "手帐｜梦幻乐园 带制作过程云朵是棉花糖的模样，泡泡在苔藓上轻晃，乐园里藏着所有幻想，这里的梦，都闪着光。",
+      "authorName": "Xylia小曦子"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1xNokBuE9z",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:20:31.346Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.950481,
+          "duration": 568,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.957301,
+          "duration": 568,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.966604,
+          "duration": 568,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "翻翻乐——我和温莎牛顿官方出的水彩本",
+      "authorName": "炒饼写生"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1CF5F6VEHQ",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:20:46.619Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.942752,
+          "duration": 37,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.956672,
+          "duration": 37,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.965977,
+          "duration": 36.78956,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "花枝轻颤，陋室里漾开清甜涟漪",
+      "authorName": "野生花艺师Fiona"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1RfhA6EEYZ",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:21:01.020Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.947226,
+          "duration": 51,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.952088,
+          "duration": 51,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.965191,
+          "duration": 51,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "挑战用粘土在桌子上做一个五彩脆皮…居然……",
+      "authorName": "肚肚小盆友"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1B7Lk6RER6",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:21:17.612Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.963342,
+          "duration": 315,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.975328,
+          "duration": 315,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.98378,
+          "duration": 315,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "像孔子一样写手帐（？",
+      "authorName": "所长鸦"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1Cx3x66EEM",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:21:32.497Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.965493,
+          "duration": 118,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.978575,
+          "duration": 118,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.993223,
+          "duration": 118,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "这项快要消失的非遗，只剩一位78岁的奶奶还在做",
+      "authorName": "丰安琪"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1oVJH6rErk",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:21:51.321Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.970096,
+          "duration": 420,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.977336,
+          "duration": 420,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.990743,
+          "duration": 420,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "印泥",
+      "authorName": "四姑_"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1Pdtw6DEsR",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:22:06.629Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.943883,
+          "duration": 40,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.951444,
+          "duration": 40,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.960372,
+          "duration": 40,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "今天朋友写东西出钩的时候，总爱犯几个毛病——尤其是第三个，离谱到不行，简直是跟书写规律对着干#书法教学#书法入门#零基础学书法#自学书法",
+      "authorName": "照无眠书法"
+    }
+  ]
+}

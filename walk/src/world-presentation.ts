@@ -1,4 +1,5 @@
 import type { Place } from "../shared/worlds";
+import {t} from './i18n';
 const stories: Record<
   string,
   { edition: string; subtitle: string; detail: string }
@@ -77,8 +78,10 @@ const stories: Record<
   },
 };
 export function worldPresentation(place?: Place) {
+  const story=stories[place?.id || ""];
+  if(story&&!place?.ownerId)return {...story,subtitle:t(story.subtitle),detail:t(story.detail)};
   return (
-    stories[place?.id || ""] || {
+    {
       edition: place?.id.startsWith("activity:")
         ? "LIFE, ELSEWHERE"
         : place?.theme === "fantasy"
@@ -86,8 +89,8 @@ export function worldPresentation(place?: Place) {
           : place?.theme === "future"
             ? "LIGHT & DISCOVERY"
             : "A WORLD OF YOUR OWN",
-      subtitle: place?.description || "好きなものを持ち寄る、小さな世界。",
-      detail: place?.description || "住人が配置した投稿を楽しむ部屋。",
+      subtitle: place?.description || t("好きなものを持ち寄る、小さな世界。"),
+      detail: place?.description || t("住人が配置した投稿を楽しむ部屋。"),
     }
   );
 }

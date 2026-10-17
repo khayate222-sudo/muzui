@@ -1,12 +1,13 @@
+import {t,localeTag} from './i18n';
 import Phaser from 'phaser';
 import { drawBuilding, drawPlaceArt } from './world-art';
 import {prepareIllustrations,drawIllustratedGround,applyWorldLight} from './world-illustration';
-import {courtyardArt,courtyardFollowOffset,toCourtyard,fromCourtyard} from './world-layout';
+import {courtyardArt,courtyardFollowOffset,toCourtyard,fromCourtyard,boardAt} from './world-layout';
 import {prepareCourtyard,drawCourtyard,lightCourtyard} from './world-courtyard';
 import type {WorldLight} from './world-light';
 import { containsContainer, isTap, polygon, rectangle, type HitRegion } from './world-input';
 import { gatePoints } from './worlds';
-import { areas, areaAt, type Peer, type Post } from '../shared/model';
+import { areas, areaAt, type Peer, type Post } from './model';
 import type { WorldProps } from './World';
 const ink=0x344b40;
 export function createWorld(host:HTMLElement, get:()=>WorldProps) {
@@ -122,7 +123,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       g.lineStyle(self?3:2,col,.9);g.strokeEllipse(0,4,self?55:45,self?22:18);c.add(g);
       if(this.textures.exists('walk-residents')){const image=this.add.image(0,0,get().light==='evening'?'walk-residents-evening':'walk-residents',p.style).setDisplaySize(128,128).setOrigin(.5,1);c.add(image);(this.data.get('resident-images') as Phaser.GameObjects.Image[]).push(image);}
       else {g.fillStyle(col);g.fillRoundedRect(-15,-37,30,36,9);g.fillStyle(0xe0bfa2);g.fillCircle(0,-48,14);}
-      const label=this.add.text(0,-145,self?'あなた':p.displayName,{fontFamily:'sans-serif',fontSize:'18px',color:'#51483f',backgroundColor:'#fff7e8',padding:{x:10,y:6}}).setOrigin(.5);
+      const label=this.add.text(0,-145,self?t('あなた'):p.displayName,{fontFamily:'sans-serif',fontSize:'18px',color:'#51483f',backgroundColor:'#fff7e8',padding:{x:10,y:6}}).setOrigin(.5);
       const status=this.add.text(0,27,'',{fontFamily:'sans-serif',fontSize:'16px',color:'#5d6a53',backgroundColor:'#fff7e8',padding:{x:7,y:4}}).setOrigin(.5);c.setData('name',label);c.setData('status',status);c.add([label,status]);c.setSize(80,165).setDepth(at.y+15);
       if(!self)this.bindAction(c,[rectangle(-43,-165,86,210)],()=>get().onProfile(p.id));
       c.setData('look',p.color+p.style+p.displayName);return c;
@@ -138,7 +139,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
         else c.add(this.add.text(0,-55,(p.type==='youtube'||p.type==='video')?'▶︎':p.type==='external'?'↗':a.icon,{fontFamily:'sans-serif',fontSize:'28px',color:'#74694e'}).setOrigin(.5));
         const title=this.add.text(0,-114,p.title,{fontFamily:'sans-serif',fontSize:'16px',fontStyle:'bold',color:'#594c38',backgroundColor:'#fff7e8',padding:{x:10,y:7},wordWrap:{width:190},align:'center'}).setOrigin(.5,1).setVisible(false);c.add(title);c.setData('title',title);
         const countLabel=this.add.text(0,-18,'',{fontFamily:'sans-serif',fontSize:'12px',color:'#7c7057'}).setOrigin(.5);c.add(countLabel);c.setData('count',countLabel);
-        c.setDepth(at.y-90).setSize(106,110);this.bindAction(c,[rectangle(-53,-86,106,110)],()=>get().onOpen(p.id));
+        c.setDepth(at.y-90).setSize(106,110);this.bindAction(c,[rectangle(-53,-86,106,110)],()=>{const pointer=this.input.activePointer,point=this.cameras.main.getWorldPoint(pointer.x,pointer.y);get().onOpen(boardAt(get().posts,point)||p.id);});
         c.on('pointerover',()=>{c.setData('hover',true);host.style.cursor='pointer';});c.on('pointerout',()=>{c.setData('hover',false);host.style.cursor='crosshair';});
         this.panels.set(p.id,c);
       }
@@ -163,11 +164,11 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       let nearest:Post|undefined;let dist=150;for(const p of props.posts){const d=Math.hypot(p.mapX-this.player.x,p.mapY-this.player.y);if(d<dist){dist=d;nearest=p;}}
       const near=nearest?.id||null;if(near!==this.near){this.near=near;props.onNear(near);}
       if(!typing&&near&&Phaser.Input.Keyboard.JustDown(k.E))props.onOpen(near);
-      for(const [id,c]of this.panels){const n=props.state.counts[id]||0;(c.getData('count') as Phaser.GameObjects.Text).setText(n>0?`${n}人が閲覧中`:'開く ↗');(c.getData('title') as Phaser.GameObjects.Text).setVisible(near===id||!!c.getData('hover')||props.currentPost===id);}
+      for(const [id,c]of this.panels){const n=props.state.counts[id]||0;(c.getData('count') as Phaser.GameObjects.Text).setText(n>0?n+' '+t('人が閲覧中'):t('開く ↗'));(c.getData('title') as Phaser.GameObjects.Text).setVisible(near===id||!!c.getData('hover')||props.currentPost===id);}
       const active=new Set<string>();
       for(const p of props.state.peers){if(p.id===props.user.id)continue;active.add(p.id);let c=this.people.get(p.id);if(c&&c.getData('look')!==p.color+p.style+p.displayName){c.destroy();this.people.delete(p.id);c=undefined;}if(!c){c=this.makeAvatar(p);this.people.set(p.id,c);}const viewing=props.posts.find(post=>post.id===p.currentPost);const viewerIndex=(props.state.viewers[p.currentPost||'']||[]).findIndex(v=>v.id===p.id);const px=viewing?viewing.mapX-45+Math.max(0,viewerIndex)%4*30:p.x,py=viewing?viewing.mapY+110+Math.floor(Math.max(0,viewerIndex)/4)*55:p.y;const at=toCourtyard({x:px,y:py});c.x=Phaser.Math.Linear(c.x,at.x,.2);c.y=Phaser.Math.Linear(c.y,at.y,.2);c.setDepth(c.y+20);(c.getData('name') as Phaser.GameObjects.Text).setY(p.currentPost?27:-145);(c.getData('status') as Phaser.GameObjects.Text).setY(p.currentPost?57:27);(c.getData('status') as Phaser.GameObjects.Text).setText(p.currentPost?'閲覧中':'');}
       for(const [id,c]of this.people)if(!active.has(id)){c.destroy();this.people.delete(id);}
-      const ghosts=new Set<string>();for(const a of props.state.activities||[]){ghosts.add(a.activityId);const look=a.displayName+a.style+a.color+a.title+a.endsAt+a.online;let c=this.ghosts.get(a.activityId);if(c&&c.getData('activityLook')!==look){c.destroy();this.ghosts.delete(a.activityId);c=undefined;}if(!c){c=this.makeAvatar({...a,area:'discovery',currentPost:null});c.setAlpha(.65);c.add(this.add.text(0,53,'現実で '+a.title+'\n'+new Date(a.endsAt).toLocaleTimeString('ja',{hour:'2-digit',minute:'2-digit'})+'まで · 自己申告',{fontFamily:'sans-serif',fontSize:'12px',color:'#435c66',backgroundColor:'#ffffffdd',padding:{x:8,y:5},align:'center'}).setOrigin(.5));c.setData('activityLook',look);this.ghosts.set(a.activityId,c);}}
+      const ghosts=new Set<string>();for(const a of props.state.activities||[]){ghosts.add(a.activityId);const look=a.displayName+a.style+a.color+a.title+a.endsAt+a.online;let c=this.ghosts.get(a.activityId);if(c&&c.getData('activityLook')!==look){c.destroy();this.ghosts.delete(a.activityId);c=undefined;}if(!c){c=this.makeAvatar({...a,area:'discovery',currentPost:null});c.setAlpha(.65);c.add(this.add.text(0,53,t('現実で')+' '+a.title+'\n'+new Date(a.endsAt).toLocaleTimeString(localeTag(),{hour:'2-digit',minute:'2-digit'})+' '+t('まで')+' '+t('· 自己申告'),{fontFamily:'sans-serif',fontSize:'12px',color:'#435c66',backgroundColor:'#ffffffdd',padding:{x:8,y:5},align:'center'}).setOrigin(.5));c.setData('activityLook',look);this.ghosts.set(a.activityId,c);}}
       for(const [id,c]of this.ghosts)if(!ghosts.has(id)){c.destroy();this.ghosts.delete(id);}
     }
   }

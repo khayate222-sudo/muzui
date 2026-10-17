@@ -3,6 +3,13 @@ node_modules
 dist
 data
 .env
+.env.*
+**/.env
+**/.env.*
+backups
+**/backups
+android
+ios
 .git
 artifacts
 test-results

@@ -40,7 +40,7 @@ export function collector({app,store,changed,loadFeed,catalog}:{app:FastifyInsta
     const url='https://www.youtube.com/watch?v='+item.video_id;
     const existing=db.select().from(t.posts).where(eq(t.posts.externalUrl,url)).all().find(p=>!p.isSample);
     const id=existing?.id||randomUUID();
-    if(!existing)db.insert(t.posts).values({id,worldId,origin:'external',type:'youtube',title:item.title,body:'',provider:'YouTube',authorName:item.author_name,genre:source.genre,externalUrl:url,mediaUrl:'',...postPosition(store,source.genre),isSample:false,createdAt:item.published_at}).run();
+    if(!existing)db.insert(t.posts).values({id,worldId,origin:'external',type:'youtube',title:item.title,body:'',provider:'YouTube',authorName:item.author_name,genre:source.genre,externalUrl:url,mediaUrl:'',...postPosition(store,source.genre,worldId),isSample:false,createdAt:item.published_at}).run();
     sqlite.prepare("UPDATE collection_items SET state='published',post_id=? WHERE id=?").run(id,item.id);return !existing;
   }
   async function sync(source:CollectionSource){

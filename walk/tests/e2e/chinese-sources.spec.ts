@@ -35,7 +35,7 @@ test('a phone imports copied Douyin sharing text as a clearly marked source link
 });
 
 test('two real guests save one Kuaishou post, keep attribution and distinguish the open card from external playback',async({page:p,browser})=>{
-  const context=await browser.newContext({viewport:{width:320,height:844}}),other=await context.newPage();
+  const context=await browser.newContext({locale:'ja-JP',viewport:{width:320,height:844}}),other=await context.newPage();
   try{
     await p.setViewportSize({width:390,height:844});await start(p);await start(other);const url='https://www.kuaishou.com/short-video/3xabcdefghijklm';
     const f=await form(p);await f.getByLabel('投稿のURL').fill(url);await f.getByLabel('タイトル',{exact:true}).fill('検証用：快手の短い動画');await f.getByLabel('元の投稿者名').fill('検証用の作者');await f.getByRole('combobox',{name:'ジャンル',exact:true}).selectOption('art');await f.getByRole('button',{name:'確認して世界に置く',exact:true}).click();await expect(p.locator('.post-detail h2')).toHaveText('検証用：快手の短い動画');

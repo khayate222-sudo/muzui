@@ -1,0 +1,32 @@
+# Load operator-reviewed settings from the shell or --env-file, never from Git.
+# This binds only to loopback; put an HTTPS reverse proxy in front of it.
+services:
+  walk:
+    image: walk:${WALK_IMAGE_TAG:-local}
+    build: .
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      NODE_ENV: production
+      DATABASE_PATH: /app/data/walk.sqlite
+      APP_ORIGIN: ${APP_ORIGIN:?Set the public HTTPS origin}
+      COOKIE_SECURE: "true"
+      WALK_PUBLIC_RELEASE: "true"
+      ADMIN_KEY: ${ADMIN_KEY:?Set a unique admin key with at least 24 characters}
+      WALK_OPERATOR_NAME: ${WALK_OPERATOR_NAME:?Set the actual operator name}
+      WALK_SUPPORT_EMAIL: ${WALK_SUPPORT_EMAIL:?Set the actual support email}
+      WALK_TERMS_URL: ${WALK_TERMS_URL:?Publish the reviewed HTTPS terms URL}
+      WALK_PRIVACY_URL: ${WALK_PRIVACY_URL:?Publish the reviewed HTTPS privacy URL}
+      WALK_POLICY_VERSION: ${WALK_POLICY_VERSION:?Set the reviewed policy version}
+      WALK_POLICIES_APPROVED: ${WALK_POLICIES_APPROVED:-false}
+      WALK_STUN_URL: ${WALK_STUN_URL:-off}
+      WALK_TURN_URL: ${WALK_TURN_URL:-}
+      WALK_TURN_USERNAME: ${WALK_TURN_USERNAME:-}
+      WALK_TURN_CREDENTIAL: ${WALK_TURN_CREDENTIAL:-}
+    volumes:
+      - walk-production-data:/app/data
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+volumes:
+  walk-production-data:

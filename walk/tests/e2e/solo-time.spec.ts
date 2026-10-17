@@ -16,8 +16,8 @@ async function findFilm(p:Page){
 }
 
 test('a solo newcomer finds a real film, saves it to a private window, and returns without any friends at 390px and 320px',async({browser})=>{
-  const c=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),p=await c.newPage(),errors:string[]=[];p.on('pageerror',e=>errors.push(e.message));
-  const outsider=await browser.newContext();
+  const c=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844},isMobile:true,hasTouch:true,timezoneId:'Asia/Tokyo'}),p=await c.newPage(),errors:string[]=[];p.on('pageerror',e=>errors.push(e.message));
+  const outsider=await browser.newContext({locale:'ja-JP'});
   try{
     await begin(p);await expect(p.locator('.solo-homes')).toContainText('部屋は勝手には作りません');
     const userId=(await (await p.request.get('/api/bootstrap')).json()).user.id;
@@ -46,7 +46,7 @@ test('a solo newcomer finds a real film, saves it to a private window, and retur
 });
 
 test('a slow save closed by the user never navigates later; retry reuses the private room and leaves public rooms intact',async({browser})=>{
-  const c=await browser.newContext({viewport:{width:320,height:844},isMobile:true,hasTouch:true}),p=await c.newPage();let release=()=>{};
+  const c=await browser.newContext({locale:'ja-JP',viewport:{width:320,height:844},isMobile:true,hasTouch:true}),p=await c.newPage();let release=()=>{};
   try{
     await begin(p);
     const layout={title:'大切にしている窓辺',description:'配置を残す',theme:'night',isPublic:false,items:[],decorations:[{kind:'tree',x:440,y:600}]};

@@ -14,7 +14,7 @@ async function travel(p: Page, id: string) {
   await expect(p.locator('.world-path')).toContainText(places.find(place => place.id === id)!.title);
 }
 for (const mobile of [false, true]) test(`illustrated worlds retain live interaction when local light changes (${mobile ? 'touch' : 'desktop'})`, async ({ browser }) => {
-  const context = await browser.newContext({ viewport: mobile ? { width: 390, height: 844 } : { width: 1512, height: 982 }, isMobile: mobile, hasTouch: mobile, timezoneId: 'Asia/Tokyo' });
+  const context = await browser.newContext({locale:'ja-JP', viewport: mobile ? { width: 390, height: 844 } : { width: 1512, height: 982 }, isMobile: mobile, hasTouch: mobile, timezoneId: 'Asia/Tokyo' });
   const p = await context.newPage(), errors: string[] = [], missing: string[] = [];
   p.on('pageerror', e => errors.push(e.message));
   p.on('response', r => { if (r.url().includes('/art/world-') && !r.ok()) missing.push(r.url()); });

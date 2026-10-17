@@ -6,6 +6,13 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>zh-Hans</string>
+		<string>zh-Hant</string>
+		<string>ja</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>WALK</string>
 	<key>CFBundleExecutable</key>
@@ -67,11 +74,11 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>招待を受けたパーティで、音声参加を選んだときだけマイクを使用します。</string>
+	<string>WALK uses the microphone only when you choose to join voice in an invited party.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>選んだ写真をWALKの投稿や足あとに添付します。</string>
+	<string>Attach photos you select to WALK posts or journal entries.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>自分の投稿や足あとに添える写真・動画を撮影します。</string>
+	<string>Take photos or videos to attach to your own posts or journal entries.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>

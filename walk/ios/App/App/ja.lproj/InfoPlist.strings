@@ -1,0 +1,4 @@
+// System permission prompts follow the device/app language.
+"NSMicrophoneUsageDescription" = "招待を受けたパーティで、音声参加を選んだときだけマイクを使用します。";
+"NSPhotoLibraryUsageDescription" = "選んだ写真をWALKの投稿や足あとに添付します。";
+"NSCameraUsageDescription" = "自分の投稿や足あとに添える写真・動画を撮影します。";

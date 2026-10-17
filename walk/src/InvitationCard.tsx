@@ -1,8 +1,9 @@
+import {t} from './i18n';
 import { ArrowRight, Link } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "./api";
 import type { Room } from "../shared/community";
-import type { Bootstrap } from "../shared/model";
+import type { Bootstrap } from "./model";
 import { findPlace, pathTo, postWorld } from "./worlds";
 import type { Invitation } from "../shared/invitations";
 import Modal from "./Modal";
@@ -62,7 +63,7 @@ export default function InvitationCard({
   const valid =
     target.kind === "room" ? !!room : target.kind === "post" ? !!post : !!place;
   return (
-    <Modal title="WALKへの招待" close={close}>
+    <Modal title={t("WALKへの招待")} close={close}>
       <div className="invitation-card">
         <span className="sheet-eyebrow">
           <Link size={15} /> MEET ME HERE
@@ -71,32 +72,29 @@ export default function InvitationCard({
         {room && <RoomIllustration theme={room.theme} />}
         <h2>
           {loading
-            ? "行き先を確認しています…"
+            ? t("行き先を確認しています…")
             : valid
               ? room?.title || post?.title || place?.title
-              : "この行き先は見つかりませんでした"}
+              : t("この行き先は見つかりませんでした")}
         </h2>
         <p>
           {valid
             ? room
-              ? `不思議な駅 › 住人のルーム › ${room.title}`
+              ? t('不思議な駅')+' › '+t('住人のルーム')+' › '+room.title
               : pathTo(place?.id || "")
                   .map((p) => p.title)
                   .join(" › ")
             : loading
-              ? "公開設定を確認しています。"
-              : "削除された投稿や、現在公開されていない場所の可能性があります。"}
+              ? t("公開設定を確認しています。")
+              : t("削除された投稿や、現在公開されていない場所の可能性があります。")}
         </p>
         {valid && (
           <>
             {room && (
-              <p className="destination-room-owner">
-                公開ルーム · {room.ownerName}
+              <p className="destination-room-owner">{t("公開ルーム ·")}{" "}{room.ownerName}
               </p>
             )}
-            <p>
-              移動してから、同じ場所の人や投稿を見ることができます。パーティ・音声・同期視聴には自動参加しません。
-            </p>
+            <p>{t("移動してから、同じ場所の人や投稿を見ることができます。パーティ・音声・同期視聴には自動参加しません。")}</p>
             {error && <p role="alert">{error}</p>}
             <button
               className="primary full"
@@ -110,10 +108,10 @@ export default function InvitationCard({
               }}
             >
               {busy
-                ? "移動を確認しています…"
+                ? t("移動を確認しています…")
                 : connected
-                  ? "この場所へ行く"
-                  : "接続しています…"}
+                  ? t("この場所へ行く")
+                  : t("接続しています…")}
               <ArrowRight size={18} />
             </button>
           </>

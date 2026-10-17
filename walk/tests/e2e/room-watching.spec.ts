@@ -24,7 +24,7 @@ async function enterRoom(p: Page, title: string) {
 }
 
 for (const mobile of [false, true]) test(`personal room keeps real playback and private access while switching cameras (${mobile ? 'touch' : 'desktop'})`, async ({ browser }) => {
-  const ca = await browser.newContext(mobile ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } : {}), cb = await browser.newContext();
+  const ca = await browser.newContext(mobile ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } : {}), cb = await browser.newContext({locale:'ja-JP'});
   const a = await ca.newPage(), b = await cb.newPage(), errors: string[] = [];
   for (const page of [a, b]) page.on('pageerror', e => errors.push(e.message));
   try {

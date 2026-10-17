@@ -1,7 +1,8 @@
+import {t} from './i18n';
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
 import { ArrowRight, MapPin, Send } from "lucide-react";
-import type { Friendship } from "../shared/model";
+import type { Friendship } from "./model";
 import type { Invitation } from "../shared/invitations";
 import type { DestinationInvite } from "../shared/meetups";
 import { api } from "./api";
@@ -31,7 +32,7 @@ export function usePlaceInvitations(
           next.some((i) => !seen.current.has(i.id)) &&
           !document.querySelector('[aria-modal="true"]')
         )
-          notify("場所への招待が届きました。通知から行き先を確認できます。");
+          notify(t("場所への招待が届きました。通知から行き先を確認できます。"));
         seen.current = new Set(next.map((i) => i.id));
         setInvites(next);
         setError("");
@@ -77,12 +78,8 @@ export function FriendDestinationSend({
   return (
     <section className="friend-destination-send">
       <h3>
-        <Send size={16} />
-        友達をこの場所に誘う
-      </h3>
-      <p>
-        承認済みの友達に、10分間有効の招待を送ります。相手が確認してから移動します。
-      </p>
+        <Send size={16} />{t("友達をこの場所に誘う")}</h3>
+      <p>{t("承認済みの友達に、10分間有効の招待を送ります。相手が確認してから移動します。")}</p>
       {friends
         .filter((f) => f.status === "accepted")
         .map((f) => (
@@ -100,24 +97,22 @@ export function FriendDestinationSend({
                 })
                   .then(() => {
                     setSent((ids) => [...ids, f.user.id]);
-                    notify("場所への招待を送りました");
+                    notify(t("場所への招待を送りました"));
                   })
                   .catch((e) => notify(e.message))
                   .finally(() => setBusy(null));
               }}
             >
               {sent.includes(f.user.id)
-                ? "招待済み"
+                ? t("招待済み")
                 : busy === f.user.id
-                  ? "送信中…"
-                  : "ここに招待"}
+                  ? t("送信中…")
+                  : t("ここに招待")}
             </button>
           </div>
         ))}
       {!friends.some((f) => f.status === "accepted") && (
-        <p className="fineprint">
-          プロフィールから交流リクエストを送り、双方が承認すると直接招待できます。リンクでの共有も利用できます。
-        </p>
+        <p className="fineprint">{t("プロフィールから交流リクエストを送り、双方が承認すると直接招待できます。リンクでの共有も利用できます。")}</p>
       )}
     </section>
   );
@@ -177,17 +172,13 @@ export function PlaceInvitationInbox({
     <section className="place-invitation-inbox">
       <div className="side-heading">
         <h3>
-          <MapPin size={17} />
-          場所への招待
-        </h3>
+          <MapPin size={17} />{t("場所への招待")}</h3>
         <span className="soft-badge">{state.invites.length}</span>
       </div>
       {state.error && (
         <p role="alert">
           {state.error}
-          <button className="text-button" onClick={() => void state.reload()}>
-            再読み込み
-          </button>
+          <button className="text-button" onClick={() => void state.reload()}>{t("再読み込み")}</button>
         </p>
       )}
       <div className="place-invitation-list">
@@ -195,21 +186,18 @@ export function PlaceInvitationInbox({
           <article key={i.id}>
             <Avatar color={i.from.color} style={i.from.style} size={35} />
             <div>
-              <strong>{i.from.displayName}から</strong>
+              <strong>{i.from.displayName}{t("から")}</strong>
               <p>{i.title}</p>
               <small>
                 {i.destination.kind === "room"
-                  ? "公開ルーム"
+                  ? t("公開ルーム")
                   : i.destination.kind === "post"
-                    ? "投稿"
-                    : "世界"}
-                への招待 ·{" "}
+                    ? t("投稿")
+                    : t("世界")}{t("への招待 ·")}{" "}
                 {new Intl.DateTimeFormat("ja", {
                   hour: "2-digit",
                   minute: "2-digit",
-                }).format(i.expiresAt)}
-                まで
-              </small>
+                }).format(i.expiresAt)}{t("まで")}</small>
             </div>
             <button
               className="outline"
@@ -218,14 +206,12 @@ export function PlaceInvitationInbox({
                 setError("");
                 setAccepted(null);
               }}
-            >
-              行き先を確認
-            </button>
+            >{t("行き先を確認")}</button>
           </article>
         ))}
       </div>
       {chosen && (
-        <Modal title="友達から場所への招待" close={close}>
+        <Modal title={t("友達から場所への招待")} close={close}>
           <div className="destination-invitation">
             <span className="sheet-eyebrow">
               <MapPin size={15} />
@@ -246,19 +232,13 @@ export function PlaceInvitationInbox({
                 style={chosen.from.style}
                 size={30}
               />
-              <span>{chosen.from.displayName}からの招待</span>
+              <span>{chosen.from.displayName}{t("からの招待")}</span>
             </div>
-            <p>
-              行き先を共有する招待です。相手の現在地を追跡せず、今もここにいることを示すものではありません。
-            </p>
-            <small>
-              移動しても、パーティ・音声・同期視聴には自動参加しません。投稿は実際に開いてから閲覧人数に含まれます。
-            </small>
+            <p>{t("行き先を共有する招待です。相手の現在地を追跡せず、今もここにいることを示すものではありません。")}</p>
+            <small>{t("移動しても、パーティ・音声・同期視聴には自動参加しません。投稿は実際に開いてから閲覧人数に含まれます。")}</small>
             {error && <p role="alert">{error}</p>}
             {!current && !accepted && !busy && (
-              <p role="status">
-                この招待は終了しました。期限や公開設定が変更された可能性があります。
-              </p>
+              <p role="status">{t("この招待は終了しました。期限や公開設定が変更された可能性があります。")}</p>
             )}
             <button
               className="primary full"
@@ -266,10 +246,10 @@ export function PlaceInvitationInbox({
               onClick={() => void respond(true)}
             >
               {busy
-                ? "行き先を確認中…"
+                ? t("行き先を確認中…")
                 : accepted
-                  ? "もう一度移動する"
-                  : "確認してこの場所へ行く"}
+                  ? t("もう一度移動する")
+                  : t("確認してこの場所へ行く")}
               <ArrowRight size={17} />
             </button>
             {current && !accepted && (
@@ -277,9 +257,7 @@ export function PlaceInvitationInbox({
                 className="text-button"
                 disabled={busy}
                 onClick={() => void respond(false)}
-              >
-                今回は辞退する
-              </button>
+              >{t("今回は辞退する")}</button>
             )}
           </div>
         </Modal>

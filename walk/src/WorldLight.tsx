@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { worldLight, type LightPreference } from './world-light';
@@ -19,5 +20,5 @@ export function useWorldLight() {
   return { preference, light: worldLight(preference, date), change };
 }
 export default function WorldLightControl({ state }: { state: ReturnType<typeof useWorldLight> }) {
-  return <label className="world-light-control" title="この端末に見える風景の光を変更します。自動は端末の時刻に合わせます。">{state.light === 'evening' ? <Moon size={13}/> : <Sun size={13}/>}<select aria-label="箱庭の光" value={state.preference} onChange={e => state.change(e.target.value as LightPreference)}><option value="auto">時間に合わせる</option><option value="afternoon">放課後</option><option value="evening">夕暮れ</option></select></label>;
+  return <label className="world-light-control" title={t("この端末に見える風景の光を変更します。自動は端末の時刻に合わせます。")}>{state.light === 'evening' ? <Moon size={13}/> : <Sun size={13}/>}<select aria-label={t("箱庭の光")} value={state.preference} onChange={e => state.change(e.target.value as LightPreference)}><option value="auto">{t("時間に合わせる")}</option><option value="afternoon">{t("放課後")}</option><option value="evening">{t("夕暮れ")}</option></select></label>;
 }

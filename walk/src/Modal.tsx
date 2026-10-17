@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import { useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -31,7 +32,7 @@ export default function Modal({
       >
         <div className="modal-top">
           <span>{title}</span>
-          <button className="icon-button" onClick={close} aria-label="閉じる">
+          <button data-close-dialog className="icon-button" onClick={close} aria-label={t("閉じる")}>
             <X size={21} />
           </button>
         </div>

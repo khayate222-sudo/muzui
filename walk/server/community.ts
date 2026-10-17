@@ -56,7 +56,7 @@ export function community(c:Context){
     if(existing){if(!c.readablePost(existing.id))return reply.code(409).send({error:'この投稿は現在登録できません'});db.insert(t.favorites).values({userId:req.session!.userId,postId:existing.id,createdAt:Date.now()}).onConflictDoNothing().run();notify(req.session!.userId);return {id:existing.id,existing:true,worldId:postWorld(existing,c.catalog())};}
     const owner=req.session!.userId;
     if((sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE owner_id=?').get(owner) as {n:number}).n>=200)return reply.code(409).send({error:'登録は1人200件までです'});
-    const id=randomUUID(),position=postPosition(c.store,p.genre);
+    const id=randomUUID(),position=postPosition(c.store,p.genre,p.worldId);
     db.insert(t.posts).values({id,worldId:p.worldId,type:source.provider==='YouTube'?'youtube':'external',title:p.title,body:p.body,mediaUrl:'',externalUrl:source.url,origin:'external',provider:source.provider,authorName:p.authorName,genre:p.genre,mapX:position.mapX,mapY:position.mapY,isSample:false,createdAt:Date.now()}).run();
     sqlite.prepare('UPDATE posts SET owner_id=? WHERE id=?').run(owner,id);
     db.insert(t.favorites).values({userId:owner,postId:id,createdAt:Date.now()}).run();notify(owner);io.emit('posts');return {id,existing:false,worldId:p.worldId||'world:'+p.genre};

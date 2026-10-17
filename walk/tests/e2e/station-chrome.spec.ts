@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 for (const width of [320, 390]) test(`station controls stay readable and usable at ${width}px`, async ({ browser }) => {
-  const context = await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true});
+  const context = await browser.newContext({locale:'ja-JP',viewport:{width,height:844},isMobile:true,hasTouch:true});
   const page = await context.newPage();
   try {
     await page.goto('/');

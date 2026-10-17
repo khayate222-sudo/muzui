@@ -1,7 +1,8 @@
+import {t} from './i18n';
 import { useRef, useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
 import type { Invitation } from "../shared/invitations";
-import type { Friendship } from "../shared/model";
+import type { Friendship } from "./model";
 import { FriendDestinationSend } from "./Meetups";
 import { shareInvitation, shareUrl } from "./sharing";
 import Modal from "./Modal";
@@ -27,11 +28,11 @@ export default function ShareSheet({
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
-      setStatus("リンクをコピーしました");
+      setStatus(t("リンクをコピーしました"));
     } catch {
       input.current?.focus();
       input.current?.select();
-      setStatus("リンクを選択しました。コピーして送ってください");
+      setStatus(t("リンクを選択しました。コピーして送ってください"));
     }
   }
   async function share() {
@@ -40,26 +41,24 @@ export default function ShareSheet({
       if (result !== "cancelled")
         setStatus(
           result === "copied"
-            ? "リンクをコピーしました"
-            : "共有メニューを開きました",
+            ? t("リンクをコピーしました")
+            : t("共有メニューを開きました"),
         );
     } catch {
-      setStatus("共有メニューを開けませんでした。リンクをコピーできます");
+      setStatus(t("共有メニューを開けませんでした。リンクをコピーできます"));
     }
   }
   return (
-    <Modal title="この場所に招待" close={close}>
+    <Modal title={t("この場所に招待")} close={close}>
       <div className="share-sheet">
         <span className="share-symbol">
           <Share2 size={26} />
         </span>
         <h2>{title}</h2>
-        <p>同じ「好き」がある場所で、待ち合わせ。</p>
-        <label>
-          招待リンク
-          <input
+        <p>{t("同じ「好き」がある場所で、待ち合わせ。")}</p>
+        <label>{t("招待リンク")}<input
             ref={input}
-            aria-label="招待リンク"
+            aria-label={t("招待リンク")}
             value={url}
             readOnly
             onClick={(e) => e.currentTarget.select()}
@@ -67,18 +66,12 @@ export default function ShareSheet({
         </label>
         <div className="share-buttons">
           <button className="outline" onClick={() => void copy()}>
-            <Copy size={17} />
-            リンクをコピー
-          </button>
+            <Copy size={17} />{t("リンクをコピー")}</button>
           <button className="primary" onClick={() => void share()}>
-            <Share2 size={17} />
-            共有する
-          </button>
+            <Share2 size={17} />{t("共有する")}</button>
         </div>
         {local && (
-          <p className="fineprint">
-            このリンクはこの端末用です。別の端末への招待には公開サーバーのURLが必要です。
-          </p>
+          <p className="fineprint">{t("このリンクはこの端末用です。別の端末への招待には公開サーバーのURLが必要です。")}</p>
         )}
         {status && (
           <p className="share-status" role="status">

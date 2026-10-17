@@ -7,6 +7,17 @@ services:
       APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3001}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       ADMIN_KEY: ${ADMIN_KEY:-}
+      WALK_PUBLIC_RELEASE: ${WALK_PUBLIC_RELEASE:-false}
+      WALK_OPERATOR_NAME: ${WALK_OPERATOR_NAME:-}
+      WALK_SUPPORT_EMAIL: ${WALK_SUPPORT_EMAIL:-}
+      WALK_TERMS_URL: ${WALK_TERMS_URL:-}
+      WALK_PRIVACY_URL: ${WALK_PRIVACY_URL:-}
+      WALK_POLICY_VERSION: ${WALK_POLICY_VERSION:-}
+      WALK_POLICIES_APPROVED: ${WALK_POLICIES_APPROVED:-false}
+      WALK_STUN_URL: ${WALK_STUN_URL:-stun:stun.l.google.com:19302}
+      WALK_TURN_URL: ${WALK_TURN_URL:-}
+      WALK_TURN_USERNAME: ${WALK_TURN_USERNAME:-}
+      WALK_TURN_CREDENTIAL: ${WALK_TURN_CREDENTIAL:-}
     volumes:
       - walk-data:/app/data
     restart: unless-stopped

@@ -8,7 +8,7 @@ async function closeTop(page:Page){await page.getByRole('dialog').last().getByRo
 const position=(page:Page)=>page.getByTestId('player-position').textContent().then(s=>JSON.parse(s||'null') as {x:number;y:number});
 test('two guests: movement, deduplicated viewers, persistence, approval, realtime chat, report and block',async({browser})=>{
   await mkdir('artifacts',{recursive:true});
-  const ca=await browser.newContext({viewport:{width:1512,height:982}}),cb=await browser.newContext({viewport:{width:1512,height:982}});
+  const ca=await browser.newContext({locale:'ja-JP',viewport:{width:1512,height:982}}),cb=await browser.newContext({locale:'ja-JP',viewport:{width:1512,height:982}});
   const errors:string[]=[];let a=await ca.newPage();const b=await cb.newPage();for(const p of[a,b]){p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});}
   try{
     await onboard(a,'テストA');await onboard(b,'テストB');await expect(a.locator('.connection')).toContainText('2人が散歩中');
@@ -34,7 +34,7 @@ test('two guests: movement, deduplicated viewers, persistence, approval, realtim
   }finally{await ca.close();await cb.close();}
 });
 test('mobile onboarding, tap movement, area shortcut, search, saving and private profile persist',async({browser})=>{
-  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await context.newPage();const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  const context=await browser.newContext({locale:'ja-JP',viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await context.newPage();const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   try{
     await page.goto('/');await page.screenshot({path:'artifacts/walk-welcome-mobile.png',fullPage:true});await page.getByLabel('ニックネーム').fill('モバイル旅人');await page.getByRole('button',{name:'WALKをはじめる'}).click();await expect(page.locator('[role=application][data-ready=true]')).toBeVisible();
     const old=await position(page);await page.locator('canvas').scrollIntoViewIfNeeded();

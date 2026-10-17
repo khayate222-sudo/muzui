@@ -33,17 +33,17 @@ async function findVideo(p: Page) {
 test("consented mobile viewers join by invitation, follow real video playback and leave for individual viewing", async ({
   browser,
 }) => {
-  const ca = await browser.newContext({
+  const ca = await browser.newContext({locale:'ja-JP',
       viewport: { width: 390, height: 844 },
       isMobile: true,
       hasTouch: true,
     }),
-    cb = await browser.newContext({
+    cb = await browser.newContext({locale:'ja-JP',
       viewport: { width: 320, height: 844 },
       isMobile: true,
       hasTouch: true,
     }),
-    cc = await browser.newContext(),
+    cc = await browser.newContext({locale:'ja-JP'}),
     a = await ca.newPage(),
     b = await cb.newPage(),
     c = await cc.newPage();

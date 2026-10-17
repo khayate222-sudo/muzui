@@ -67,7 +67,7 @@ export async function publishing({app,store,changed,mediaDirectory,catalog=()=>p
     const attachment=p.attachmentId?sqlite.prepare('SELECT * FROM media_uploads WHERE id=? AND owner_id=?').get(p.attachmentId,owner) as Upload|undefined:null;
     if(p.attachmentId&&!attachment)return reply.code(403).send({error:'自分がアップロードしたファイルを選んでください'});
     const author=db.select().from(t.users).where(eq(t.users.id,owner)).get()!,id=randomUUID();
-    db.insert(t.posts).values({id,worldId:p.worldId,ownerId:owner,origin:'walk',type:attachment?(attachment.mime.startsWith('video/')?'video':'image'):'text',title:p.title,body:p.body,genre:p.genre,mediaUrl:attachment?'/media/'+attachment.filename:'',externalUrl:'',provider:'WALK',authorName:author.displayName,...postPosition(store,p.genre),isSample:false,createdAt:Date.now()}).run();changed();return {id};
+    db.insert(t.posts).values({id,worldId:p.worldId,ownerId:owner,origin:'walk',type:attachment?(attachment.mime.startsWith('video/')?'video':'image'):'text',title:p.title,body:p.body,genre:p.genre,mediaUrl:attachment?'/media/'+attachment.filename:'',externalUrl:'',provider:'WALK',authorName:author.displayName,...postPosition(store,p.genre,p.worldId),isSample:false,createdAt:Date.now()}).run();changed();return {id};
   });
   app.delete('/api/posts/:id',async(req,reply)=>{
     const id=(req.params as {id:string}).id,row=db.select().from(t.posts).where(eq(t.posts.id,id)).get();

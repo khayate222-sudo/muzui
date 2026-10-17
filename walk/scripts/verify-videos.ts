@@ -22,7 +22,7 @@ const results:Record<string,unknown>[]=[];
 let stoppedReason:string|null=null;
 try{
   for(const [index,item]of items.entries()){
-    const page=await browser.newPage({viewport:{width:390,height:844}}),source=sourceInfo(item.url)!;
+    const page=await browser.newPage({viewport:{width:390,height:844},locale:'ja-JP'}),source=sourceInfo(item.url)!;
     const result:Record<string,unknown>={url:item.url,provider:source.provider,checkedAt:new Date().toISOString(),status:'unconfirmed',samples:[],failures:[]};
     let blocked=false;
     page.on('response',r=>{if([403,429,503].includes(r.status())){const u=new URL(r.url());if(['player.bilibili.com','api.bilibili.com','open.douyin.com'].includes(u.hostname)){(result.failures as unknown[]).push({host:u.hostname,path:u.pathname,status:r.status()});if([429,503].includes(r.status())){blocked=true;stoppedReason='provider-or-network-'+r.status();}}}});
@@ -33,8 +33,8 @@ try{
       await page.getByRole('button',{name:source.provider==='bilibili'?'bilibili公式プレーヤーを開く':'公式プレーヤーを開く',exact:true}).click();
       const selector=source.provider==='bilibili'?'.bilibili-player':'.douyin-player';await page.locator(selector).waitFor({state:'visible',timeout:15000});
       const frame=await (await page.locator(selector).elementHandle())!.contentFrame();if(!frame)throw new Error('公式プレーヤーを開けませんでした');
-      await frame.locator('video').first().waitFor({state:'attached',timeout:20000});
-      if(source.provider==='bilibili')for(const css of ['.bpx-player-play-pause-button:visible','.bpx-player-state-play:visible','.bpx-player-ctrl-play:visible','.bpx-player-video-area:visible','.bpx-player-play-pause-button:visible','video:visible']){const control=frame.locator(css).first();if(await control.count()){try{await control.click({timeout:3000});await page.waitForTimeout(1000);if(await frame.locator('video').first().evaluate(v=>!v.paused))break;}catch{/* Try another visible standard control. */}}}
+      await frame.locator('video').first().waitFor({state:'attached',timeout:20000});await frame.waitForFunction(()=>{const video=document.querySelector('video');return !!video&&video.readyState>=2;},null,{timeout:20000});
+      if(source.provider==='bilibili')for(const css of ['.bpx-player-play-pause-button:visible','.bpx-player-state-play:visible','.bpx-player-ctrl-play:visible','.bpx-player-video-area:visible','.bpx-player-play-pause-button:visible','video:visible']){const control=frame.locator(css).first();if(css==='.bpx-player-play-pause-button:visible')await control.waitFor({state:'visible',timeout:3000}).catch(()=>{});if(await control.count()){try{await control.click({timeout:3000});await page.waitForTimeout(1000);if(await frame.locator('video').first().evaluate(v=>!v.paused))break;}catch{/* Try another visible standard control. */}}}
       else if(await frame.locator('video:visible').count())await frame.locator('video:visible').first().click();
       await frame.waitForFunction(()=>{const video=document.querySelector('video');return !!video&&video.readyState>=2;},null,{timeout:20000});
       for(let i=0;i<8;i++){await page.waitForTimeout(2000);const state=await frame.locator('video').first().evaluate(v=>({currentTime:v.currentTime,duration:Number.isFinite(v.duration)?v.duration:null,readyState:v.readyState,paused:v.paused,error:v.error?.code||null,width:v.videoWidth,height:v.videoHeight}));(result.samples as unknown[]).push(state);const samples=result.samples as typeof state[];const loaded=samples.filter(s=>s.readyState>=2&&!s.error&&s.width>0);if(loaded.length>=3&&loaded.at(-1)!.currentTime-loaded[0].currentTime>=4){result.status='playback-confirmed';break;}}

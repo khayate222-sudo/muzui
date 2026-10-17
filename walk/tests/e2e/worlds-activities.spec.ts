@@ -4,7 +4,7 @@ const local=(n:number)=>{const d=new Date(n);return new Date(n-d.getTimezoneOffs
 async function onboard(p:Page,name:string){await p.goto('/');await p.getByLabel('ニックネーム').fill(name);await p.locator('input[name=share]').check();await p.getByRole('button',{name:'WALKをはじめる'}).click();await expect(p.locator('[role=application][data-ready=true]')).toBeVisible();await expect(p.locator('.connection')).toContainText('人が散歩中');}
 async function close(p:Page){await p.getByRole('dialog').last().getByRole('button',{name:'閉じる',exact:true}).click();}
 test('station entrances, nested worlds, actual shared viewers and side/large watching work together',async({browser})=>{
- const ca=await browser.newContext(),cb=await browser.newContext();const a=await ca.newPage(),b=await cb.newPage();const errors:string[]=[];for(const p of[a,b])p.on('pageerror',e=>errors.push(e.message));
+ const ca=await browser.newContext({locale:'ja-JP'}),cb=await browser.newContext({locale:'ja-JP'});const a=await ca.newPage(),b=await cb.newPage();const errors:string[]=[];for(const p of[a,b])p.on('pageerror',e=>errors.push(e.message));
  try{
   await onboard(a,'階層A');await onboard(b,'階層B');await expect(a.locator('.world-path')).toHaveText('不思議な駅');await a.screenshot({path:'artifacts/walk-station.png',fullPage:true});
   for(const p of[a,b]){await p.locator('.world-gates').getByRole('button',{name:'ゲームの世界',exact:true}).click();await expect(p.locator('.map-top')).toContainText('ゲームの世界');await p.locator('.world-gates').getByRole('button',{name:'RPGの世界',exact:true}).click();await expect(p.locator('.world-path')).toContainText('ゲームの世界 › RPGの世界');await p.locator('.world-gates').getByRole('button',{name:'オリジナルRPGの工房',exact:true}).click();await expect(p.locator('.map-top')).toContainText('オリジナルRPGの工房');}
@@ -18,7 +18,7 @@ test('station entrances, nested worlds, actual shared viewers and side/large wat
  }finally{await ca.close();await cb.close();}
 });
 test('activity survives closing WALK, stays separate from viewers, and its private journal can be edited and shared',async({browser})=>{
- const ca=await browser.newContext(),cb=await browser.newContext();let a=await ca.newPage();const b=await cb.newPage();const errors:string[]=[];a.on('pageerror',e=>errors.push(e.message));b.on('pageerror',e=>errors.push(e.message));
+ const ca=await browser.newContext({locale:'ja-JP'}),cb=await browser.newContext({locale:'ja-JP'});let a=await ca.newPage();const b=await cb.newPage();const errors:string[]=[];a.on('pageerror',e=>errors.push(e.message));b.on('pageerror',e=>errors.push(e.message));
  try{
   await onboard(a,'活動A');await onboard(b,'活動B');await a.getByRole('button',{name:'足あと・活動',exact:true}).click();await a.getByLabel('活動名',{exact:true}).fill('今日のジム');await a.getByLabel('終了時刻',{exact:true}).fill(local(Date.now()+3600000));expect(await a.getByLabel('この活動を共有する（名前・分身・記録・添付写真）').isChecked()).toBe(false);await a.getByRole('button',{name:'活動を開始',exact:true}).click();await expect(a.locator('.active-activity')).toContainText('自分だけに表示');
   await b.locator('.world-gates').getByRole('button',{name:'ジムルーム',exact:true}).click();await expect(b.locator('.map-top')).toContainText('ジムルーム');await expect(b.locator('.activity-ghosts')).not.toContainText('活動A');

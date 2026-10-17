@@ -27,9 +27,8 @@ function seedLandscapes(store:Store){
   if(sqlite.prepare('SELECT id FROM seed_state WHERE id=2').get())return;
   sqlite.transaction(()=>{
     for(const [i,film] of originalFilms.entries()){
-      const a=areas.find(a=>a.id===film.genre)!;
       const id='walk-film-'+film.genre;
-      db.insert(posts).values({id,type:'video',title:film.title,body:'WALKのために制作した風景イラストを、ゆっくり眺める12秒のオリジナル映像にしました。音声はありません。実写やアニメ作品の映像ではありません。気になった世界を歩いたり、友達を誘って同じ瞬間を眺めたりしてみてください。',authorName:'WALK STUDIO',genre:film.genre,mediaUrl:'/films/walk-'+film.genre+'.mp4',provider:'WALK ORIGINAL · 風景映像',origin:'editorial',isSample:false,mapX:Math.max(80,a.x+200),mapY:Math.min(1320,a.y+130),createdAt:Date.UTC(2026,9,16)}).onConflictDoNothing().run();
+      db.insert(posts).values({id,type:'video',title:film.title,body:'WALKのために制作した風景イラストを、ゆっくり眺める12秒のオリジナル映像にしました。音声はありません。実写やアニメ作品の映像ではありません。気になった世界を歩いたり、友達を誘って同じ瞬間を眺めたりしてみてください。',authorName:'WALK STUDIO',genre:film.genre,mediaUrl:'/films/walk-'+film.genre+'.mp4',provider:'WALK ORIGINAL · 風景映像',origin:'editorial',isSample:false,...postPosition(store,film.genre),createdAt:Date.UTC(2026,9,16)}).onConflictDoNothing().run();
       sqlite.prepare('INSERT OR IGNORE INTO discovery_picks(post_id,position) VALUES (?,?)').run(id,i+1);
     }
     sqlite.prepare('INSERT INTO seed_state(id) VALUES (2)').run();

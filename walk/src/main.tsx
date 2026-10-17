@@ -1,3 +1,4 @@
+import {getLocale,setLocale,t} from './i18n';
 import { createRoot } from 'react-dom/client';
 import {prepareNative} from './native';
 import App from './App';
@@ -12,6 +13,7 @@ import './watch-links.css';
 import './solo-time.css';
 import './youtube-import.css';
 import './short-video-sources.css';
+setLocale(getLocale());
 const root=createRoot(document.getElementById('root')!);
-root.render(<div className="loading"><h1>WALK</h1><p>次の寄り道を準備しています。</p></div>);
-void prepareNative().then(()=>root.render(<App />)).catch((e:Error)=>root.render(<div className="loading"><h1>WALK</h1><p>接続の準備を確認してください。</p><p>{e.message.includes('VITE_WALK_SERVER_URL')?'このバージョンは、接続先の準備中です。': '接続を確認して、もう一度お試しください。'}</p><button className="primary" onClick={()=>location.reload()}>もう一度試す</button></div>));
+root.render(<div className="loading"><h1>WALK</h1><p>{t("次の寄り道を準備しています。")}</p></div>);
+void prepareNative().then(()=>root.render(<App />)).catch((e:Error)=>root.render(<div className="loading"><h1>WALK</h1><p>{t("接続の準備を確認してください。")}</p><p>{e.message.includes('VITE_WALK_SERVER_URL')?t("このバージョンは、接続先の準備中です。"): t("接続を確認して、もう一度お試しください。")}</p><button className="primary" onClick={()=>location.reload()}>{t("もう一度試す")}</button></div>));

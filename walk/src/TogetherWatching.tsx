@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import {
   useCallback,
   useEffect,
@@ -8,7 +9,7 @@ import {
 import {createPortal} from 'react-dom';
 import type { Socket } from "socket.io-client";
 import { Link2, Pause, Play, Users, X } from "lucide-react";
-import type { Bootstrap, Post } from "../shared/model";
+import type { Bootstrap, Post } from "./model";
 import {canSynchronize} from '../shared/discovery';
 import {
   playbackPosition,
@@ -44,7 +45,7 @@ export function useTogetherWatching(
   const send = useCallback(
     async (event: string, data: object = {}) => {
       if (!socket?.connected)
-        throw new Error("接続が戻ってから操作してください");
+        throw new Error(t("接続が戻ってから操作してください"));
       const sent = Date.now(),
         result = (await socket
           .timeout(5000)
@@ -90,7 +91,7 @@ export function useTogetherWatching(
     const id = state.group?.id || null;
     if (previous.current && !id) {
       previousVideo.current?.pause();
-      notify("同期視聴を終了しました。ここからは自分のペースで見られます。");
+      notify(t("同期視聴を終了しました。ここからは自分のペースで見られます。"));
     }
     if (id) previousVideo.current = video.current;
     if (previous.current !== id) {
@@ -182,7 +183,7 @@ export function useTogetherWatching(
       setNeedsPlay(false);
       align();
     } catch {
-      notify("動画を再生できません。接続と端末の再生設定を確認してください。");
+      notify(t("動画を再生できません。接続と端末の再生設定を確認してください。"));
     }
   }
   return { state, send, publish, needsPlay, resume };
@@ -226,7 +227,7 @@ export function TogetherControls({
   }
   async function approveAndInvite(id:string,userId:string){
     setBusy(true);let approved=false;
-    try{await api('/friendships/'+id,'PATCH',{action:'accept'});approved=true;await session.send('invite',{targetId:userId});setSent(ids=>[...ids,userId]);notify('交流を承認し、同期視聴に招待しました');}
+    try{await api('/friendships/'+id,'PATCH',{action:'accept'});approved=true;await session.send('invite',{targetId:userId});setSent(ids=>[...ids,userId]);notify(t("交流を承認し、同期視聴に招待しました"));}
     catch(e){notify((approved?'交流は承認済みです。同期視聴の招待をもう一度お試しください。 ':'')+(e as Error).message);}
     finally{setBusy(false);}
   }
@@ -238,24 +239,24 @@ export function TogetherControls({
             <span className="together-symbol">
               <Link2 size={16} />
             </span>
-            <strong>同期視聴 · {group.members.length}人</strong>
+            <strong>{t("同期視聴 ·")}{" "}{group.members.length}{t("人")}</strong>
             <span className="together-status">
-              {group.playback.playing ? "再生中" : "一時停止"}
+              {group.playback.playing ? t("再生中") : t("一時停止")}
             </span>
           </div>
           <div className="together-members">
             {group.members.map((m) => (
               <span key={m.id}>
                 <Avatar color={m.color} style={m.style} size={23} />
-                {m.id === data.user.id ? "あなた" : m.displayName}
-                {m.id === group.hostId && <small>ホスト</small>}
+                {m.id === data.user.id ? t("あなた") : m.displayName}
+                {m.id === group.hostId && <small>{t("ホスト")}</small>}
               </span>
             ))}
           </div>
           <p>
             {host
-              ? "あなたの再生・停止・シークに合わせます。"
-              : "ホストの再生に合わせています。いつでも退出できます。"}
+              ? t("あなたの再生・停止・シークに合わせます。")
+              : t("ホストの再生に合わせています。いつでも退出できます。")}
           </p>
           <div className="together-actions">
             {host ? (
@@ -267,7 +268,7 @@ export function TogetherControls({
                   if (el.paused)
                     void el
                       .play()
-                      .catch(() => notify("動画の再生ボタンを押してください"));
+                      .catch(() => notify(t("動画の再生ボタンを押してください")));
                   else el.pause();
                 }}
               >
@@ -276,7 +277,7 @@ export function TogetherControls({
                 ) : (
                   <Play size={15} />
                 )}{" "}
-                {group.playback.playing ? "みんなで一時停止" : "みんなで再生"}
+                {group.playback.playing ? t("みんなで一時停止") : t("みんなで再生")}
               </button>
             ) : (
               session.needsPlay && (
@@ -284,9 +285,7 @@ export function TogetherControls({
                   className="primary"
                   onClick={() => void session.resume()}
                 >
-                  <Play size={15} />
-                  再生を許可して合わせる
-                </button>
+                  <Play size={15} />{t("再生を許可して合わせる")}</button>
               )
             )}
             {host && (
@@ -297,7 +296,7 @@ export function TogetherControls({
                   setOpen(true);
                 }}
               >
-                {pendingFriends.length?'交流の申込み '+pendingFriends.length+'件':'友達を招待'}
+                {pendingFriends.length?t('交流の申込み')+' '+pendingFriends.length+t("件"):t("友達を招待")}
               </button>
             )}
             <button
@@ -305,7 +304,7 @@ export function TogetherControls({
               disabled={busy}
               onClick={() => void act("leave", {})}
             >
-              {host ? "同期視聴を終了" : "退出して個別視聴"}
+              {host ? t("同期視聴を終了") : t("退出して個別視聴")}
             </button>
           </div>
         </>
@@ -319,37 +318,31 @@ export function TogetherControls({
           }}
         >
           <Users size={16} />
-          <span>友達と、同じ瞬間を。</span>
-          <b>一緒に見る</b>
+          <span>{t("友達と、同じ瞬間を。")}</span>
+          <b>{t("一緒に見る")}</b>
         </button>
       )}
       {open && (
         <Modal
-          title={host ? "同期視聴に友達を招待" : "一緒に見る"}
+          title={host ? t("同期視聴に友達を招待") : t("一緒に見る")}
           close={() => setOpen(false)}
         >
           <div className="together-setup">
             <span className="account-symbol">
               <Link2 size={26} />
             </span>
-            <h2>{host ? "この時間を、友達と。" : "好きな動画を、一緒に。"}</h2>
+            <h2>{host ? t("この時間を、友達と。") : t("好きな動画を、一緒に。")}</h2>
             <p>「{post.title}」</p>
             {!group ? (
               <>
-                <p>
-                  承認済みの友達と最大6人。あなたがホストになり、再生・停止・再生位置を合わせます。マイクは使いません。
-                </p>
+                <p>{t("承認済みの友達と最大6人。あなたがホストになり、再生・停止・再生位置を合わせます。マイクは使いません。")}</p>
                 <label className="together-consent">
                   <input
                     type="checkbox"
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
-                  />
-                  名前とアバターを参加者に表示し、動画を同期して見ることに同意する
-                </label>
-                <small>
-                  通常の閲覧公開設定は変わりません。ホストが退出・切断すると同期を終了し、各自の視聴に戻ります。
-                </small>
+                  />{t("名前とアバターを参加者に表示し、動画を同期して見ることに同意する")}</label>
+                <small>{t("通常の閲覧公開設定は変わりません。ホストが退出・切断すると同期を終了し、各自の視聴に戻ります。")}</small>
                 <button
                   className="primary full"
                   disabled={!consent || busy}
@@ -361,16 +354,12 @@ export function TogetherControls({
                       position: video.current?.currentTime || 0,
                     });
                   }}
-                >
-                  同期視聴を始める
-                </button>
+                >{t("同期視聴を始める")}</button>
               </>
             ) : (
               <>
-                <p>
-                  招待は2分間有効です。相手が参加を選ぶまで再生や移動は変えません。
-                </p>
-                {!!pendingFriends.length&&<section className="watch-link-requests"><h3>交流の申込み</h3><p>承認後に同期視聴へ招待します。相手の参加同意も必要です。</p>{pendingFriends.map(f=><div className="room-row" key={f.id}><Avatar color={f.user.color} style={f.user.style} size={30}/><span>{f.user.displayName}</span><button className="primary" disabled={busy} onClick={()=>void approveAndInvite(f.id,f.user.id)}>承認して同期視聴に招待</button><button className="text-button" disabled={busy} onClick={()=>{setBusy(true);void api('/friendships/'+f.id,'PATCH',{action:'decline'}).then(()=>notify('交流の申込みを見送りました')).catch(e=>notify(e.message)).finally(()=>setBusy(false));}}>今回は見送る</button></div>)}</section>}
+                <p>{t("招待は2分間有効です。相手が参加を選ぶまで再生や移動は変えません。")}</p>
+                {!!pendingFriends.length&&<section className="watch-link-requests"><h3>{t("交流の申込み")}</h3><p>{t("承認後に同期視聴へ招待します。相手の参加同意も必要です。")}</p>{pendingFriends.map(f=><div className="room-row" key={f.id}><Avatar color={f.user.color} style={f.user.style} size={30}/><span>{f.user.displayName}</span><button className="primary" disabled={busy} onClick={()=>void approveAndInvite(f.id,f.user.id)}>{t("承認して同期視聴に招待")}</button><button className="text-button" disabled={busy} onClick={()=>{setBusy(true);void api('/friendships/'+f.id,'PATCH',{action:'decline'}).then(()=>notify(t("交流の申込みを見送りました"))).catch(e=>notify(e.message)).finally(()=>setBusy(false));}}>{t("今回は見送る")}</button></div>)}</section>}
                 {data.friendships
                   .filter(
                     (f) =>
@@ -388,27 +377,23 @@ export function TogetherControls({
                             (ok) => {
                               if (ok) {
                                 setSent((ids) => [...ids, f.user.id]);
-                                notify("同期視聴の招待を送りました");
+                                notify(t("同期視聴の招待を送りました"));
                               }
                             },
                           )
                         }
                       >
                         {sent.includes(f.user.id)
-                          ? "招待済み"
-                          : "同期視聴に招待"}
+                          ? t("招待済み")
+                          : t("同期視聴に招待")}
                       </button>
                     </div>
                   ))}
                 {!data.friendships.some((f) => f.status === "accepted") && (
-                  <p>
-                    下のリンクなら、初めての友達からこの画面に交流の申込みが届きます。
-                  </p>
+                  <p>{t("下のリンクなら、初めての友達からこの画面に交流の申込みが届きます。")}</p>
                 )}
                 <HostWatchLink title={post.title} value={createdLink?.groupId===group.id?createdLink:null} change={link=>setCreatedLink(link?{...link,groupId:group.id}:null)}/>
-                <button className="primary full" onClick={() => setOpen(false)}>
-                  動画へ戻る
-                </button>
+                <button className="primary full" onClick={() => setOpen(false)}>{t("動画へ戻る")}</button>
               </>
             )}
           </div>
@@ -447,36 +432,30 @@ export function TogetherInvitations({
           }}
         >
           <Link2 size={17} />
-          <span>一緒に見る招待 · {session.state.invites.length}</span>
+          <span>{t("一緒に見る招待 ·")}{" "}{session.state.invites.length}</span>
         </button>
   ):null;
   return (
     <>
       {trigger&&(slot?createPortal(trigger,slot):trigger)}
       {chosen && (
-        <Modal title="同期視聴への招待" close={() => setChosen(null)}>
+        <Modal title={t("同期視聴への招待")} close={() => setChosen(null)}>
           <div className="together-setup">
             {invitation ? (
               <>
                 <span className="account-symbol">
                   <Users size={26} />
                 </span>
-                <h2>{invitation.from.displayName}と、一緒に。</h2>
+                <h2>{invitation.from.displayName}{t("と、一緒に。")}</h2>
                 <p className="together-video-title">{invitation.post.title}</p>
-                <p>
-                  参加すると、この動画の場所へ移動し、ホストの再生・停止・再生位置に合わせます。名前とアバターを参加者に表示します。通常の閲覧公開設定は変わりません。
-                </p>
+                <p>{t("参加すると、この動画の場所へ移動し、ホストの再生・停止・再生位置に合わせます。名前とアバターを参加者に表示します。通常の閲覧公開設定は変わりません。")}</p>
                 <label className="together-consent">
                   <input
                     type="checkbox"
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
-                  />
-                  内容を確認し、同期視聴への参加に同意する
-                </label>
-                <small>
-                  マイクは使いません。退出すると現在の位置で一時停止し、自分のペースで見られます。
-                </small>
+                  />{t("内容を確認し、同期視聴への参加に同意する")}</label>
+                <small>{t("マイクは使いません。退出すると現在の位置で一時停止し、自分のペースで見られます。")}</small>
                 <button
                   className="primary full"
                   disabled={!consent || busy || !!session.state.group}
@@ -498,9 +477,7 @@ export function TogetherInvitations({
                       }
                     })();
                   }}
-                >
-                  同意して一緒に見る
-                </button>
+                >{t("同意して一緒に見る")}</button>
                 <button
                   className="text-button"
                   disabled={busy}
@@ -510,25 +487,17 @@ export function TogetherInvitations({
                       .then(() => setChosen(null))
                       .catch((e) => notify(e.message));
                   }}
-                >
-                  今回は辞退する
-                </button>
+                >{t("今回は辞退する")}</button>
                 {session.state.group && (
-                  <p role="status">
-                    参加中の同期視聴から退出してから選んでください。
-                  </p>
+                  <p role="status">{t("参加中の同期視聴から退出してから選んでください。")}</p>
                 )}
               </>
             ) : (
               <>
-                <h2>この招待は終了しました</h2>
-                <p>
-                  時間切れ、ホストの退出、または別の端末での操作で終了しました。
-                </p>
+                <h2>{t("この招待は終了しました")}</h2>
+                <p>{t("時間切れ、ホストの退出、または別の端末での操作で終了しました。")}</p>
                 <button className="outline" onClick={() => setChosen(null)}>
-                  <X size={16} />
-                  閉じる
-                </button>
+                  <X size={16} />{t("閉じる")}</button>
               </>
             )}
           </div>

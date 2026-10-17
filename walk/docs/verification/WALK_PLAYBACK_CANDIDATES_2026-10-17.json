@@ -1,0 +1,978 @@
+{
+  "scope": "Real WALK API and official player; opening seconds only; no mocks",
+  "planned": 29,
+  "completed": 26,
+  "stoppedReason": "provider-or-network-503",
+  "unrun": [
+    "https://www.bilibili.com/video/BV1UXg66sEnS",
+    "https://www.bilibili.com/video/BV1r9p96LEEK",
+    "https://www.bilibili.com/video/BV17n8G6GEKE"
+  ],
+  "results": [
+    {
+      "url": "https://www.bilibili.com/video/BV1qPpo6jEdu",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:22:52.703Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.94841,
+          "duration": 149,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.96174,
+          "duration": 149,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.973272,
+          "duration": 149,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "鱿鱼花刀，鱿鱼这样打花刀，大家也能轻松学会。",
+      "authorName": "温柔雄鱼档"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1fHgw6wE2e",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:23:09.460Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 3.003282,
+          "duration": 479,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 5.014068,
+          "duration": 479,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 7.023445,
+          "duration": 479,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "【美食大作战】等这个教程等了10年",
+      "authorName": "戈登拉姆齐Gordon"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1idYL6dEKa",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:23:29.818Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.955662,
+          "duration": 48,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.964828,
+          "duration": 48,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.973409,
+          "duration": 48,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "最近很火的蔬菜面坨坨，不用揉面不用擀面，筷子刮一刮就能出锅，一口下去软滑劲道，好好吃哦～",
+      "authorName": "马小坏美食"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1SR8u6HEbw",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:23:48.127Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.95375,
+          "duration": 266,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.961765,
+          "duration": 266,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.969697,
+          "duration": 266,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "田东海鲜粥，比钦北防的还好吃？",
+      "authorName": "无所尉吃什么"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1jARQByEXU",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:24:02.455Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.938624,
+          "duration": 428,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.948366,
+          "duration": 428,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.955541,
+          "duration": 428,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "ASMR｜吃超火的迪拜软曲奇",
+      "authorName": "小葵喊你睡觉"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1StdrB6Ed5",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:24:18.444Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.964826,
+          "duration": 130,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.977968,
+          "duration": 130,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.993377,
+          "duration": 130,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "这六种大虾那种最值?那种是坑!大表哥一次说明白.",
+      "authorName": "海边大表哥"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1JfNv6EEpc",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:24:38.567Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.945692,
+          "duration": 290,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.956133,
+          "duration": 290,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.969073,
+          "duration": 290,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "上桌就空盘的江西辣鸡翅你快试试",
+      "authorName": "企鹅吃吃吃"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1Yn9fBHEcR",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:24:54.975Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.968346,
+          "duration": 622,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.978188,
+          "duration": 622,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.986186,
+          "duration": 622,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "波兰中国超市！波兰人试吃！",
+      "authorName": "Monika要吃中餐"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1aVK667ELv",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:25:09.860Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.950898,
+          "duration": 68,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.959308,
+          "duration": 68,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.971029,
+          "duration": 68,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "一摊小鸡萌",
+      "authorName": "我的达姆和奶黄包"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1rhNn63EYt",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:25:24.989Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.957545,
+          "duration": 142,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.965472,
+          "duration": 142,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.973416,
+          "duration": 142,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "工匠收获蚁近况，蚁后去哪儿了？这么重的身子还能攀岩呢？给我怕坏了。",
+      "authorName": "不得体的得体"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1vWLg6hEYR",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:25:44.119Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.956416,
+          "duration": 1008,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.96119,
+          "duration": 1008,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.973742,
+          "duration": 1008,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "落基山的野生动物也太多了！贾斯珀国家公园Safari之旅！",
+      "authorName": "崔崔与芃哥的环球旅行"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1bggQ69ENK",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:25:59.565Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.968022,
+          "duration": 175,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.987272,
+          "duration": 175,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.99855,
+          "duration": 175,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "带你沉浸式体验海洋王国vlog|海洋动物互动、水上乐园、夜宿海洋馆天花板",
+      "authorName": "绒绒星人包子"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1N6Y46iEVo",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:26:14.970Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.970712,
+          "duration": 85,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.980134,
+          "duration": 85,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.989523,
+          "duration": 85,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "世上最会享受之兔",
+      "authorName": "啾咪秋米"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1zn396mEhz",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:26:32.782Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.965447,
+          "duration": 280,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.980569,
+          "duration": 280,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.993996,
+          "duration": 280,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "你的狐狐小可爱探出了脑袋",
+      "authorName": "小蒙小黑"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1uA9xBREeg",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:26:50.944Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.944222,
+          "duration": 114,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.95417,
+          "duration": 114,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.962581,
+          "duration": 114,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "拼两个小猫咪房子",
+      "authorName": "二两茶茶喵"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1hATM6ZE3k",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:27:08.481Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.944913,
+          "duration": 183,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.957388,
+          "duration": 183,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.96673,
+          "duration": 183,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "帮红头蚂蚁拓展领土",
+      "authorName": "想养柯尔鸭的阿丁"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1KXhw6eEdv",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:27:24.481Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.942092,
+          "duration": 442,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.956007,
+          "duration": 442,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.963578,
+          "duration": 442,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "⚡我 是 养 花 仙 人⚡",
+      "authorName": "尾巴Mezd"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1G78B6gEus",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:27:39.289Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.944648,
+          "duration": 33,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 286
+        },
+        {
+          "currentTime": 4.952175,
+          "duration": 33,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 286
+        },
+        {
+          "currentTime": 6.962363,
+          "duration": 32.4,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 286
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "「你还记得永不凋零樱花的传说吗？」",
+      "authorName": "当我拥有了一切的美好"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1mgR1ByEjp",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:27:54.488Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.957847,
+          "duration": 66,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.967819,
+          "duration": 66,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.977122,
+          "duration": 66,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "蛋糕店里卖蛋糕(≧▽≦)",
+      "authorName": "雷银Silver"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1hKTg6eEAX",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:28:12.121Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 3.014697,
+          "duration": 120,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 5.025878,
+          "duration": 120,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 7.046651,
+          "duration": 120,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "【地平线6】S1樱花园径走赛 1:51.633 世界纪录 道奇Viper FE",
+      "authorName": "Batdca"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1g88M6SE1c",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:28:27.490Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.959181,
+          "duration": 575.8649375,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.970738,
+          "duration": 575.8649375,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.982887,
+          "duration": 575.8649375,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "如何用网络游戏让《经济学》变得有趣生动起来？",
+      "authorName": "瓜哥聊游戏"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV11n5d6TEe8",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:28:43.425Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.946076,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 4.957618,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 6.968021,
+          "duration": 35.874897,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "【Jyaibo|玉城裕规】小玉魅魔来的吧",
+      "authorName": "Mr-羌"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1BoL96ZESE",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:29:01.394Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.95805,
+          "duration": 332,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 4.965294,
+          "duration": 332,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 6.975149,
+          "duration": 332,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "德国兴登堡五马克银币无字版和有字版介绍：第三帝国的建立",
+      "authorName": "隐匿的心04"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1pJM26sEAR",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:29:22.714Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.962149,
+          "duration": 155,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 4.971863,
+          "duration": 155,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 6.980592,
+          "duration": 155,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "【舞萌】星界ちゃんと可不ちゃんのおつかい合騒曲 MASTER 13.8 AP 一落",
+      "authorName": "JustOff_"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV162hd6TEMt",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:29:38.256Z",
+      "status": "playback-confirmed",
+      "samples": [
+        {
+          "currentTime": 2.951294,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 4.96309,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 6.971609,
+          "duration": 35.03331,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        }
+      ],
+      "failures": [],
+      "sourceTitle": "莫名其妙打扰手势之铃工作半分钟……",
+      "authorName": "窓硝子"
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1rCeg6pEPi",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T08:29:54.301Z",
+      "status": "unconfirmed",
+      "samples": [],
+      "failures": [
+        {
+          "host": "player.bilibili.com",
+          "path": "/player.html",
+          "status": 503
+        }
+      ],
+      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video').first()\u001b[22m\n"
+    }
+  ]
+}

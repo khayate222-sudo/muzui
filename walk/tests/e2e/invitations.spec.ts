@@ -8,10 +8,10 @@ async function start(p: Page, name: string) {
 test("world and post links arrive at their real location after confirmation; previews do not count as views", async ({
   browser,
 }) => {
-  const ca = await browser.newContext({
+  const ca = await browser.newContext({locale:'ja-JP',
       permissions: ["clipboard-read", "clipboard-write"],
     }),
-    cb = await browser.newContext({
+    cb = await browser.newContext({locale:'ja-JP',
       viewport: { width: 390, height: 844 },
       isMobile: true,
       hasTouch: true,

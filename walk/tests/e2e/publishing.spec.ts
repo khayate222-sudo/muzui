@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 test("mobile creator posts a real uploaded video, plays it, finds WALK originals and manages own posts", async ({
   browser,
 }) => {
-  const context = await browser.newContext({
+  const context = await browser.newContext({locale:'ja-JP',
     viewport: { width: 390, height: 844 },
     isMobile: true,
     hasTouch: true,

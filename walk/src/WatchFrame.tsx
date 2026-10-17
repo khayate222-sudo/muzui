@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import {
   useEffect,
   useRef,
@@ -7,7 +8,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight, ChevronsDown, ChevronsUp, Armchair, X } from "lucide-react";
-import type { Post } from "../shared/model";
+import type { Post } from "./model";
 import { useDialogFocus } from "./useDialogFocus";
 export default function WatchFrame({
   large,
@@ -88,7 +89,7 @@ export default function WatchFrame({
         {!large && !inRoom && (
           <button
             className="watch-grab"
-            aria-label={peek ? "視聴パネルを広げる" : "箱庭を広く見る"}
+            aria-label={peek ? t("視聴パネルを広げる") : t("箱庭を広く見る")}
             aria-expanded={!peek}
             onPointerDown={(e) => {
               gesture.current = { y: e.clientY, id: e.pointerId };
@@ -115,27 +116,26 @@ export default function WatchFrame({
         )}
         <div className="watch-controls">
           <span>
-            {inRoom ? "窓辺で視聴" : large
-              ? "大画面で視聴"
+            {inRoom ? t("窓辺で視聴") : large
+              ? t("大画面で視聴")
               : peek
-                ? "箱庭を広く見る"
-                : "箱庭と一緒に視聴"}
+                ? t("箱庭を広く見る")
+                : t("箱庭と一緒に視聴")}
           </span>
           {next && hasPost && (
             <button
               className="primary watch-next"
-              aria-label="次の投稿・動画へ"
+              aria-label={t("次の投稿・動画へ")}
               disabled={next.disabled}
               onClick={next.go}
-            >
-              次へ <ArrowRight size={16} />
+            >{t("次へ")}{" "}<ArrowRight size={16} />
             </button>
           )}
-          {room && <button className="outline room-mode-button" aria-pressed={room.active} onClick={room.toggle}><Armchair size={15}/>{room.active ? "箱庭へ戻る" : "窓辺で見る"}</button>}
+          {room && <button className="outline room-mode-button" aria-pressed={room.active} onClick={room.toggle}><Armchair size={15}/>{room.active ? t("箱庭へ戻る") : t("窓辺で見る")}</button>}
           {hasPost && <button className="outline" onClick={toggle}>
-            {large ? room?.active ? "部屋と見る" : "箱庭と見る" : "大画面で見る"}
+            {large ? room?.active ? t("部屋と見る") : t("箱庭と見る") : t("大画面で見る")}
           </button>}
-          <button className="icon-button" aria-label="閉じる" onClick={close}>
+          <button data-close-dialog className="icon-button" aria-label={t("閉じる")} onClick={close}>
             <X size={18} />
           </button>
         </div>
@@ -148,7 +148,7 @@ export default function WatchFrame({
           >
             {children}
           </div>
-          {inRoom && room && <section className="room-shelf" aria-label="この部屋の投稿"><div><h3>今夜、何を見よう。</h3>{room.edit&&<button className="text-button" onClick={room.edit}>投稿の配置を編集</button>}</div><p>この部屋に置いた投稿から選べます。</p><div className="room-shelf-items">{room.posts.map(p => <button key={p.id} disabled={room.busy} aria-current={p.id === room.selected ? 'true' : undefined} onClick={() => room.open(p.id)}><span>{p.type === 'video' || p.type === 'youtube' || p.provider === 'TikTok' ? 'PLAY' : p.type === 'image' ? 'PHOTO' : 'READ'}</span><b>{p.title}</b><small>{p.authorName}</small></button>)}</div>{!room.posts.length && <p className="room-empty-hint">保存した投稿や、自分の動画をルームに配置すると、ここで選べます。</p>}</section>}
+          {inRoom && room && <section className="room-shelf" aria-label={t("この部屋の投稿")}><div><h3>{t("今夜、何を見よう。")}</h3>{room.edit&&<button className="text-button" onClick={room.edit}>{t("投稿の配置を編集")}</button>}</div><p>{t("この部屋に置いた投稿から選べます。")}</p><div className="room-shelf-items">{room.posts.map(p => <button key={p.id} disabled={room.busy} aria-current={p.id === room.selected ? 'true' : undefined} onClick={() => room.open(p.id)}><span>{p.type === 'video' || p.type === 'youtube' || p.provider === 'TikTok' ? 'PLAY' : p.type === 'image' ? 'PHOTO' : 'READ'}</span><b>{p.title}</b><small>{p.authorName}</small></button>)}</div>{!room.posts.length && <p className="room-empty-hint">{t("保存した投稿や、自分の動画をルームに配置すると、ここで選べます。")}</p>}</section>}
           {inRoom&&room?.after}
         </div>
       </section>
