@@ -5,9 +5,11 @@ import { areas, type PostInput } from '../shared/model.js';
 import {originalFilms} from '../shared/discovery.js';
 import {starterShorts} from '../shared/starter-shorts.js';
 import {postPosition} from './placement.js';
+import {seedCuratedVideos} from './curated-videos.js';
 export function seed(store:Store){
   seedSamples(store);
   seedLandscapes(store);
+  seedCuratedVideos(store);
   const {sqlite,db}=store;
   if(sqlite.prepare('SELECT id FROM seed_state WHERE id=3').get())return;
   sqlite.transaction(()=>{

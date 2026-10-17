@@ -3,8 +3,9 @@ import { safeExternal, youtubeId } from './model';
 export const shortVideoSources=[
   {provider:'抖音',label:'抖音 / Douyin',description:'中国の短い動画',example:'https://v.douyin.com/…'},
   {provider:'快手',label:'快手 / Kuaishou',description:'中国の日常・趣味の動画',example:'https://v.kuaishou.com/…'},
+  {provider:'bilibili',label:'bilibili',description:'絵・工作・日常の動画',example:'https://www.bilibili.com/video/BV…'},
 ] as const;
-export type SourceInfo={provider:string;url:string;videoId?:string;shortLink?:boolean};
+export type SourceInfo={provider:string;url:string;videoId?:string;shortLink?:boolean;page?:number};
 // Chinese apps copy a sentence and a public URL together. Never resolve redirects
 // or fetch pasted text; require exactly one HTTP(S) URL before checking its host.
 export function sharedPostUrl(value:string):string|null{
@@ -17,6 +18,12 @@ export function sourceInfo(value: string): SourceInfo | null {
   if (!safeExternal(value)) return null;
   const u = new URL(value), videoId = youtubeId(value);
   if(u.port)return null;
+  if(['www.bilibili.com','bilibili.com','m.bilibili.com'].includes(u.hostname)){
+    const id=/^\/video\/(BV[A-Za-z0-9]{10})\/?$/.exec(u.pathname)?.[1];
+    const raw=u.searchParams.get('p'),page=raw===null?1:/^[1-9]\d{0,2}$/.test(raw)?Number(raw):0;
+    if(!id||page<1||page>100||u.searchParams.getAll('p').length>1)return null;
+    return {provider:'bilibili',videoId:id,page,url:'https://www.bilibili.com/video/'+id+(page>1?'?p='+page:'')};
+  }
   if(['v.douyin.com','v.kuaishou.com'].includes(u.hostname)){
     const m=/^\/([A-Za-z0-9_-]{4,80})\/?$/.exec(u.pathname);
     if(m)return {provider:u.hostname==='v.douyin.com'?'抖音':'快手',url:'https://'+u.hostname+'/'+m[1]+'/',shortLink:true};

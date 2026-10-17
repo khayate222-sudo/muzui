@@ -1,0 +1,1 @@
+export function bilibiliPlayerUrl(id:string,page=1){return /^BV[A-Za-z0-9]{10}$/.test(id)&&Number.isInteger(page)&&page>=1&&page<=100?'https://player.bilibili.com/player.html?bvid='+id+'&p='+page+'&autoplay=0':'';}

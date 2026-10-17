@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createApp } from '../server/app';
+import {curatedVideos} from '../shared/curated-videos';
 import { openDatabase } from '../server/db';
 import { seed } from '../server/seed';
 import * as t from '../server/schema';
@@ -23,9 +24,9 @@ function ack(s:Socket,event:string,payload:unknown):Promise<{ok:boolean;error?:s
 beforeAll(async()=>{instance=await createApp({database:':memory:',adminKey:key});origin=await instance.app.listen({port:0,host:'127.0.0.1'});a=await guest();b=await guest();});
 afterAll(async()=>{clients.forEach(s=>s.disconnect());await instance.app.close();});
 describe('sessions, validation and authorization',()=>{
-  it('issues HttpOnly opaque cookie, keeps identity and seeds 25 labeled samples, seven landscapes and six original short films',async()=>{
+  it('issues HttpOnly opaque cookie, keeps identity and seeds labeled samples, original films and the measured external video library',async()=>{
     const r=await instance.app.inject({url:'/api/bootstrap'});expect(r.headers['set-cookie']).toContain('HttpOnly');expect(r.headers['set-cookie']).toContain('SameSite=Strict');
-    expect((await request(a,'/bootstrap')).json().user.id).toBe(a.data.user.id);expect(a.data.posts).toHaveLength(38);expect(a.data.posts.filter(p=>p.isSample)).toHaveLength(25);
+    expect((await request(a,'/bootstrap')).json().user.id).toBe(a.data.user.id);expect(a.data.posts).toHaveLength(38+curatedVideos.length);expect(a.data.posts.filter(p=>p.isSample)).toHaveLength(25);
     expect(a.data.user.shareActivity).toBe(false);
     expect((await instance.app.inject({url:'/api/profile',method:'PATCH',headers:{'x-walk-client':'1'},payload:{}})).statusCode).toBe(401);
   });
@@ -126,5 +127,5 @@ describe('consent, social features and moderation',()=>{
 });
 it('reopens persisted SQLite data and applies migration/seed repeatedly without resetting user data',()=>{
   const dir=mkdtempSync(join(tmpdir(),'walk-db-'));const file=join(dir,'data.sqlite');
-  try{let store=openDatabase(file);seed(store);store.db.insert(t.users).values({id:'persist',displayName:'保持',color:'#123456',style:'hair',shareActivity:false,createdAt:1}).run();store.sqlite.close();store=openDatabase(file);seed(store);expect(store.db.select().from(t.users).where(eq(t.users.id,'persist')).get()!.displayName).toBe('保持');expect(store.db.select({n:count()}).from(t.posts).get()!.n).toBe(38);store.sqlite.close();}finally{rmSync(dir,{recursive:true,force:true});}
+  try{let store=openDatabase(file);seed(store);store.db.insert(t.users).values({id:'persist',displayName:'保持',color:'#123456',style:'hair',shareActivity:false,createdAt:1}).run();store.sqlite.close();store=openDatabase(file);seed(store);expect(store.db.select().from(t.users).where(eq(t.users.id,'persist')).get()!.displayName).toBe('保持');expect(store.db.select({n:count()}).from(t.posts).get()!.n).toBe(38+curatedVideos.length);store.sqlite.close();}finally{rmSync(dir,{recursive:true,force:true});}
 });

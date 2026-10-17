@@ -25,7 +25,8 @@
     "release:check": "node --env-file-if-exists=.env --import tsx scripts/check-release.ts",
     "backup:create": "node --env-file-if-exists=.env --import tsx scripts/backup.ts create",
     "backup:verify": "node --env-file-if-exists=.env --import tsx scripts/backup.ts verify",
-    "backup:restore": "node --env-file-if-exists=.env --import tsx scripts/backup.ts restore"
+    "backup:restore": "node --env-file-if-exists=.env --import tsx scripts/backup.ts restore",
+    "videos:verify": "node --import tsx scripts/verify-videos.ts"
   },
   "dependencies": {
     "@aparajita/capacitor-secure-storage": "8.0.1",

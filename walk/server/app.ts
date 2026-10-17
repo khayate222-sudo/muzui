@@ -50,7 +50,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     defaultSrc: ["'self'"], scriptSrc: process.env.NODE_ENV === 'production' ? ["'self'"] : ["'self'", "'unsafe-inline'"],
     styleSrc: ["'self'", "'unsafe-inline'"], imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
     mediaSrc: ["'self'", 'https:'],
-    connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com','https://www.tiktok.com','https://open.douyin.com'],
+    connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com','https://www.tiktok.com','https://open.douyin.com','https://player.bilibili.com'],
     objectSrc: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"], upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
   } }, crossOriginEmbedderPolicy: false });
   await app.register(rateLimit, { max: 240, timeWindow: '1 minute', hook:'preHandler', allowList:req=>!req.url.startsWith('/api/')||req.url==='/api/health', keyGenerator:req=>req.session?.userId||req.ip });

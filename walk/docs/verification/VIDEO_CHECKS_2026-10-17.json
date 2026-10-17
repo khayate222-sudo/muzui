@@ -1,0 +1,1813 @@
+{
+  "checkedDateJapan": "2026-10-17",
+  "method": "Normal Chromium, no login, official player embedded on an internal HTTP page. Four samples 2 seconds apart; success requires actual video readiness, a decoded image, and at least 4 seconds of progress. Opening seconds only, not full-length viewing. No mocks, video downloads, or CAPTCHA bypass.",
+  "candidates": 30,
+  "confirmed": 16,
+  "results": [
+    {
+      "bvid": "BV1gtTF6zEfc",
+      "url": "https://www.bilibili.com/video/BV1gtTF6zEfc",
+      "discoveredOn": "https://www.bilibili.com/c/painting/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:10.072Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.075747,
+          "duration": 173,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.08539,
+          "duration": 173,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.092718,
+          "duration": 173,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.100415,
+          "duration": 173,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "《向海的轨迹》",
+      "authorName": "小食绘"
+    },
+    {
+      "bvid": "BV15ftU6NEya",
+      "url": "https://www.bilibili.com/video/BV15ftU6NEya",
+      "discoveredOn": "https://www.bilibili.com/c/painting/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:10.048Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.951579,
+          "duration": 210,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 358
+        },
+        {
+          "currentTime": 3.961352,
+          "duration": 210,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 358
+        },
+        {
+          "currentTime": 5.970531,
+          "duration": 210,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 358
+        },
+        {
+          "currentTime": 8.064482,
+          "duration": 210,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 358
+        }
+      ],
+      "title": "荷花植物绘画过程",
+      "authorName": "四叶是兔叽"
+    },
+    {
+      "bvid": "BV187MR6ZEYH",
+      "url": "https://www.bilibili.com/video/BV187MR6ZEYH",
+      "discoveredOn": "https://www.bilibili.com/c/painting/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:24.526Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.942893,
+          "duration": 174,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 346
+        },
+        {
+          "currentTime": 3.951932,
+          "duration": 174,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 346
+        },
+        {
+          "currentTime": 5.95827,
+          "duration": 174,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 346
+        },
+        {
+          "currentTime": 7.967424,
+          "duration": 174,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 346
+        }
+      ],
+      "title": "豹子不同角度头部速写",
+      "authorName": "奔跑的老林嚯"
+    },
+    {
+      "bvid": "BV1aWG96zE89",
+      "url": "https://www.bilibili.com/video/BV1aWG96zE89",
+      "discoveredOn": "https://www.bilibili.com/c/painting/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:24.737Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.427276,
+          "duration": 54,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 638,
+          "height": 360
+        },
+        {
+          "currentTime": 3.436679,
+          "duration": 54,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 638,
+          "height": 360
+        },
+        {
+          "currentTime": 5.445837,
+          "duration": 54,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 638,
+          "height": 360
+        },
+        {
+          "currentTime": 7.45522,
+          "duration": 54,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 638,
+          "height": 360
+        }
+      ],
+      "title": "DynBrushes油画软件开发进展",
+      "authorName": "colorfulapp"
+    },
+    {
+      "bvid": "BV1L6tJ6REQw",
+      "url": "https://www.bilibili.com/video/BV1L6tJ6REQw",
+      "discoveredOn": "https://www.bilibili.com/c/painting/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:37.639Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.956905,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.96587,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.975407,
+          "duration": 36,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.984652,
+          "duration": 35.29433,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "画个简笔画｜我和妹妹比赛画小喷菇",
+      "authorName": "米菲爱画画"
+    },
+    {
+      "bvid": "BV1GnVA6YEw7",
+      "url": "https://www.bilibili.com/video/BV1GnVA6YEw7",
+      "discoveredOn": "https://www.bilibili.com/c/painting/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:39.097Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 0.298379,
+          "duration": 415,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 2.307775,
+          "duration": 415,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 4.316526,
+          "duration": 415,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 6.325252,
+          "duration": 415,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        }
+      ],
+      "title": "抓特征，画狼，超简单！",
+      "authorName": "草沐童画"
+    },
+    {
+      "bvid": "BV1NfMj6jEG4",
+      "url": "https://www.bilibili.com/video/BV1NfMj6jEG4",
+      "discoveredOn": "https://www.bilibili.com/c/painting/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:50.749Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.916293,
+          "duration": 222,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 3.924385,
+          "duration": 222,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 5.931833,
+          "duration": 222,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        },
+        {
+          "currentTime": 7.940324,
+          "duration": 222,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 480
+        }
+      ],
+      "title": "当你不小心得到了亮晶晶上色的焚决",
+      "authorName": "不八岁"
+    },
+    {
+      "bvid": "BV1JnEk6eEUB",
+      "url": "https://www.bilibili.com/video/BV1JnEk6eEUB",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:47:53.853Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.121672,
+          "duration": 1436,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 359
+        },
+        {
+          "currentTime": 3.132554,
+          "duration": 1436,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 359
+        },
+        {
+          "currentTime": 5.142587,
+          "duration": 1436,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 359
+        },
+        {
+          "currentTime": 7.150873,
+          "duration": 1436,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 359
+        }
+      ],
+      "title": "编绳教程-贝壳编绳项链教程",
+      "authorName": "哪里的天空不一样"
+    },
+    {
+      "bvid": "BV1kM9hBdE2U",
+      "url": "https://www.bilibili.com/video/BV1kM9hBdE2U",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:04.549Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.960326,
+          "duration": 424,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.973031,
+          "duration": 424,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.982046,
+          "duration": 424,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.991042,
+          "duration": 424,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "手帐｜梦幻乐园 带制作过程云朵是棉花糖的模样，泡泡在苔藓上轻晃，乐园里藏着所有幻想，这里的梦，都闪着光。",
+      "authorName": "Xylia小曦子"
+    },
+    {
+      "bvid": "BV1xNokBuE9z",
+      "url": "https://www.bilibili.com/video/BV1xNokBuE9z",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:07.790Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 0,
+          "duration": 568,
+          "readyState": 1,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 1.902367,
+          "duration": 568,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 3.912343,
+          "duration": 568,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        },
+        {
+          "currentTime": 5.920112,
+          "duration": 568,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 640,
+          "height": 360
+        }
+      ],
+      "title": "翻翻乐——我和温莎牛顿官方出的水彩本",
+      "authorName": "炒饼写生"
+    },
+    {
+      "bvid": "BV1CF5F6VEHQ",
+      "url": "https://www.bilibili.com/video/BV1CF5F6VEHQ",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:18.554Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.96312,
+          "duration": 37,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.970751,
+          "duration": 37,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.979527,
+          "duration": 37,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.988191,
+          "duration": 36.78956,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "花枝轻颤，陋室里漾开清甜涟漪",
+      "authorName": "野生花艺师Fiona"
+    },
+    {
+      "bvid": "BV1RfhA6EEYZ",
+      "url": "https://www.bilibili.com/video/BV1RfhA6EEYZ",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:21.949Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.951243,
+          "duration": 51,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.960248,
+          "duration": 51,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.968155,
+          "duration": 51,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.976341,
+          "duration": 50.3,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "挑战用粘土在桌子上做一个五彩脆皮…居然……",
+      "authorName": "肚肚小盆友"
+    },
+    {
+      "bvid": "BV1B7Lk6RER6",
+      "url": "https://www.bilibili.com/video/BV1B7Lk6RER6",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:32.016Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.933993,
+          "duration": 315,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.948545,
+          "duration": 315,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.95604,
+          "duration": 315,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.964706,
+          "duration": 315,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "像孔子一样写手帐（？",
+      "authorName": "所长鸦"
+    },
+    {
+      "bvid": "BV1Cx3x66EEM",
+      "url": "https://www.bilibili.com/video/BV1Cx3x66EEM",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:37.009Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.946581,
+          "duration": 118,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.9578,
+          "duration": 118,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.966615,
+          "duration": 118,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.976161,
+          "duration": 118,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "这项快要消失的非遗，只剩一位78岁的奶奶还在做",
+      "authorName": "丰安琪"
+    },
+    {
+      "bvid": "BV1oVJH6rErk",
+      "url": "https://www.bilibili.com/video/BV1oVJH6rErk",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:45.353Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.971134,
+          "duration": 420,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.979042,
+          "duration": 420,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.986394,
+          "duration": 420,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.993215,
+          "duration": 420,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "印泥",
+      "authorName": "四姑_"
+    },
+    {
+      "bvid": "BV15T7Z6vEag",
+      "url": "https://www.bilibili.com/video/BV15T7Z6vEag",
+      "discoveredOn": "https://www.bilibili.com/c/handmake/",
+      "genre": "art",
+      "checkedAt": "2026-10-17T06:48:50.147Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 0,
+          "duration": 48,
+          "readyState": 1,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 0,
+          "duration": 48,
+          "readyState": 1,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 1.755443,
+          "duration": 48,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.778244,
+          "duration": 48,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "鱼鱼约的包本（未完成版",
+      "authorName": "渋谷金魚"
+    },
+    {
+      "bvid": "BV1Pdtw6DEsR",
+      "url": "https://www.bilibili.com/video/BV1Pdtw6DEsR",
+      "discoveredOn": "https://www.bilibili.com/c/life_joy/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:48:58.473Z",
+      "status": "playback-confirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 1.945913,
+          "duration": 40,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 3.955978,
+          "duration": 40,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 5.962182,
+          "duration": 40,
+          "readyState": 4,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        },
+        {
+          "currentTime": 7.780753,
+          "duration": 40,
+          "readyState": 2,
+          "paused": false,
+          "error": null,
+          "width": 360,
+          "height": 640
+        }
+      ],
+      "title": "今天朋友写东西出钩的时候，总爱犯几个毛病——尤其是第三个，离谱到不行，简直是跟书写规律对着干#书法教学#书法入门#零基础学书法#自学书法",
+      "authorName": "照无眠书法"
+    },
+    {
+      "bvid": "BV1r9p96LEEK",
+      "url": "https://www.bilibili.com/video/BV1r9p96LEEK",
+      "discoveredOn": "https://www.bilibili.com/c/life_joy/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:49:04.093Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1fHgw6wE2e",
+      "url": "https://www.bilibili.com/video/BV1fHgw6wE2e",
+      "discoveredOn": "https://www.bilibili.com/c/food/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:50:44.498Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        }
+      ],
+      "title": null,
+      "authorName": null
+    },
+    {
+      "bvid": "BV178JX6wE29",
+      "url": "https://www.bilibili.com/video/BV178JX6wE29",
+      "discoveredOn": "https://www.bilibili.com/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:50:44.479Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "currentTime": 0,
+          "duration": null,
+          "readyState": 0,
+          "paused": true,
+          "error": null,
+          "width": 0,
+          "height": 0
+        }
+      ],
+      "title": null,
+      "authorName": null
+    },
+    {
+      "bvid": "BV1idYL6dEKa",
+      "url": "https://www.bilibili.com/video/BV1idYL6dEKa",
+      "discoveredOn": "https://www.bilibili.com/c/food/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:51:55.770Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1JfNv6EEpc",
+      "url": "https://www.bilibili.com/video/BV1JfNv6EEpc",
+      "discoveredOn": "https://www.bilibili.com/c/food/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:51:55.979Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1aVK667ELv",
+      "url": "https://www.bilibili.com/video/BV1aVK667ELv",
+      "discoveredOn": "https://www.bilibili.com/c/animal/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:52:16.480Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1N6Y46iEVo",
+      "url": "https://www.bilibili.com/video/BV1N6Y46iEVo",
+      "discoveredOn": "https://www.bilibili.com/c/animal/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:52:17.036Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1zn396mEhz",
+      "url": "https://www.bilibili.com/video/BV1zn396mEhz",
+      "discoveredOn": "https://www.bilibili.com/c/animal/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:52:36.967Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1uA9xBREeg",
+      "url": "https://www.bilibili.com/video/BV1uA9xBREeg",
+      "discoveredOn": "https://www.bilibili.com/c/animal/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:52:37.566Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1mgR1ByEjp",
+      "url": "https://www.bilibili.com/video/BV1mgR1ByEjp",
+      "discoveredOn": "https://www.bilibili.com/c/game/",
+      "genre": "game",
+      "checkedAt": "2026-10-17T06:52:57.569Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1vWLg6hEYR",
+      "url": "https://www.bilibili.com/video/BV1vWLg6hEYR",
+      "discoveredOn": "https://www.bilibili.com/c/animal/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:52:57.904Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1bggQ69ENK",
+      "url": "https://www.bilibili.com/video/BV1bggQ69ENK",
+      "discoveredOn": "https://www.bilibili.com/c/animal/",
+      "genre": "discovery",
+      "checkedAt": "2026-10-17T06:53:18.044Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    },
+    {
+      "bvid": "BV1KXhw6eEdv",
+      "url": "https://www.bilibili.com/video/BV1KXhw6eEdv",
+      "discoveredOn": "https://www.bilibili.com/c/game/",
+      "genre": "game",
+      "checkedAt": "2026-10-17T06:53:18.239Z",
+      "status": "unconfirmed",
+      "environment": "Linux Chromium; official iframe in internal WALK playback harness",
+      "samples": [],
+      "error": "locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video')\u001b[22m\n"
+    }
+  ],
+  "walkRecheck": {
+    "scope": "Real WALK API and official player; opening seconds only; no mocks",
+    "results": [
+      {
+        "url": "https://www.bilibili.com/video/BV15ftU6NEya",
+        "provider": "bilibili",
+        "checkedAt": "2026-10-17T06:55:16.336Z",
+        "status": "unconfirmed",
+        "samples": [],
+        "failures": [
+          {
+            "host": "player.bilibili.com",
+            "path": "/player.html",
+            "status": 503
+          }
+        ],
+        "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video').first()\u001b[22m\n"
+      },
+      {
+        "url": "https://www.bilibili.com/video/BV15T7Z6vEag",
+        "provider": "bilibili",
+        "checkedAt": "2026-10-17T06:55:38.922Z",
+        "status": "unconfirmed",
+        "samples": [],
+        "failures": [],
+        "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video').first()\u001b[22m\n"
+      },
+      {
+        "url": "https://www.bilibili.com/video/BV1r9p96LEEK",
+        "provider": "bilibili",
+        "checkedAt": "2026-10-17T06:56:00.891Z",
+        "status": "unconfirmed",
+        "samples": [],
+        "failures": [
+          {
+            "host": "player.bilibili.com",
+            "path": "/player.html",
+            "status": 503
+          }
+        ],
+        "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video').first()\u001b[22m\n"
+      }
+    ]
+  },
+  "additionalWalkAttempts": [
+    {
+      "attempt": "bilibili-walk-recovered",
+      "requested": 30,
+      "interrupted": true,
+      "scope": "Real WALK API and official player; opening seconds only; no mocks",
+      "results": [
+        {
+          "url": "https://www.bilibili.com/video/BV1gtTF6zEfc",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:02:34.356Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 173,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            }
+          ],
+          "failures": [],
+          "sourceTitle": "《向海的轨迹》",
+          "authorName": "小食绘"
+        },
+        {
+          "url": "https://www.bilibili.com/video/BV15ftU6NEya",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:02:57.865Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            }
+          ],
+          "failures": [],
+          "sourceTitle": "荷花植物绘画过程",
+          "authorName": "四叶是兔叽"
+        },
+        {
+          "url": "https://www.bilibili.com/video/BV187MR6ZEYH",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:03:18.273Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 0,
+              "paused": true,
+              "error": null,
+              "width": 0,
+              "height": 0
+            },
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 346
+            },
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 346
+            },
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 346
+            },
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 346
+            },
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 346
+            },
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 346
+            },
+            {
+              "currentTime": 0,
+              "duration": 174,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 346
+            }
+          ],
+          "failures": [],
+          "sourceTitle": "豹子不同角度头部速写",
+          "authorName": "奔跑的老林嚯"
+        },
+        {
+          "url": "https://www.bilibili.com/video/BV1aWG96zE89",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:03:38.818Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            },
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            },
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            },
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            },
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            },
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            },
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            },
+            {
+              "currentTime": 0,
+              "duration": 54,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 638,
+              "height": 360
+            }
+          ],
+          "failures": [],
+          "sourceTitle": "DynBrushes油画软件开发进展",
+          "authorName": "colorfulapp"
+        },
+        {
+          "url": "https://www.bilibili.com/video/BV1L6tJ6REQw",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:04:00.367Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 36,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            }
+          ],
+          "failures": [],
+          "error": "page.waitForTimeout: Target page, context or browser has been closed"
+        }
+      ]
+    },
+    {
+      "attempt": "bilibili-walk-ready-check",
+      "requested": 3,
+      "interrupted": false,
+      "scope": "Real WALK API and official player; opening seconds only; no mocks",
+      "results": [
+        {
+          "url": "https://www.bilibili.com/video/BV15ftU6NEya",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:04:15.269Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            }
+          ],
+          "failures": [],
+          "sourceTitle": "荷花植物绘画过程",
+          "authorName": "四叶是兔叽"
+        },
+        {
+          "url": "https://www.bilibili.com/video/BV15T7Z6vEag",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:04:35.265Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 48,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            }
+          ],
+          "failures": [],
+          "sourceTitle": "鱼鱼约的包本（未完成版",
+          "authorName": "渋谷金魚"
+        },
+        {
+          "url": "https://www.bilibili.com/video/BV1r9p96LEEK",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:04:56.565Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            },
+            {
+              "currentTime": 0,
+              "duration": 360,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 360,
+              "height": 640
+            }
+          ],
+          "failures": [],
+          "sourceTitle": "看这里能捡到什么石头，没想到有惊喜！",
+          "authorName": "Noveltyhunter猎奇者"
+        }
+      ]
+    },
+    {
+      "attempt": "bilibili-walk-control-check",
+      "requested": 1,
+      "interrupted": false,
+      "scope": "Real WALK API and official player; opening seconds only; no mocks",
+      "results": [
+        {
+          "url": "https://www.bilibili.com/video/BV15ftU6NEya",
+          "provider": "bilibili",
+          "checkedAt": "2026-10-17T07:05:28.741Z",
+          "status": "unconfirmed",
+          "samples": [
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            },
+            {
+              "currentTime": 0,
+              "duration": 210,
+              "readyState": 4,
+              "paused": true,
+              "error": null,
+              "width": 640,
+              "height": 358
+            }
+          ],
+          "failures": [],
+          "sourceTitle": null,
+          "authorName": null
+        }
+      ]
+    }
+  ]
+}
