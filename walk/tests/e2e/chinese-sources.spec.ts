@@ -27,7 +27,7 @@ test('a phone imports copied Douyin sharing text as a clearly marked source link
   for(const width of [320,390]){await p.setViewportSize({width,height:844});expect(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
   await f.locator('.short-video-sources').scrollIntoViewIfNeeded();await p.screenshot({path:'artifacts/chinese-import-390.png',animations:'disabled'});
   await f.getByRole('button',{name:'確認して世界に置く',exact:true}).click();await expect(p.locator('.post-detail h2')).toHaveText('検証用：抖音の小さな発見');await expect(p.locator('.map-top')).toContainText('RPGの世界');
-  await expect(p.locator('.short-video-link')).toContainText('WALK内の動画再生・同期にはまだ対応していません');await expect(p.locator('.post-detail iframe,.post-detail video')).toHaveCount(0);await expect(p.getByTestId('together-controls')).toHaveCount(0);
+  await expect(p.locator('.short-video-link')).toContainText('同期視聴にはまだ対応していません');await expect(p.locator('.post-detail iframe,.post-detail video')).toHaveCount(0);await expect(p.getByTestId('together-controls')).toHaveCount(0);
   await expect(p.locator('.short-video-link')).toContainText('外部動画の再生人数ではありません');await expect(p.getByRole('button',{name:'この投稿の世界を歩く',exact:true})).toBeVisible();
   await expect(p.getByRole('link',{name:'抖音 を開く',exact:true})).toHaveAttribute('href','https://v.douyin.com/Test123/');
   const boot=await request(p,'/bootstrap'),post=boot.posts.find((v:{title:string})=>v.title==='検証用：抖音の小さな発見');expect(post.worldId).toBe('world:game-rpg');expect(boot.favorites).toContain(post.id);expect(boot.user.shareActivity).toBe(false);expect(lookups).toBe(0);expect(externalCalls).toEqual([]);

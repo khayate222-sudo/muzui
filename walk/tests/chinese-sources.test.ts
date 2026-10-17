@@ -49,7 +49,7 @@ it('publishes a source link to a nested world and preserves destination, attribu
   const r=await req(a,'/imports',payload);expect(r.statusCode).toBe(200);const id=r.json().id;
   const post=((await req(a,'/bootstrap')).json() as Bootstrap).posts.find(p=>p.id===id)!;
   expect(post).toMatchObject({type:'external',origin:'external',provider:'抖音',externalUrl:douyin,worldId:'world:game-rpg',authorName:payload.authorName});
-  expect(discoverableVideo(post)).toBe(false);expect(canSynchronize(post)).toBe(false);
+  expect(discoverableVideo(post)).toBe(true);expect(canSynchronize(post)).toBe(false);
   const again=await req(b,'/imports',{...payload,url:'https://www.iesdouyin.com/share/video/7123456789012345678/',title:'上書きしない',authorName:'別の人',worldId:null});expect(again.json()).toMatchObject({id,existing:true,worldId:'world:game-rpg'});
   const boot=(await req(b,'/bootstrap')).json() as Bootstrap;expect(boot.favorites).toContain(id);expect(boot.posts.find(p=>p.id===id)).toMatchObject({title:payload.title,worldId:payload.worldId,authorName:payload.authorName});
   expect((await instance.app.inject({url:'/api/imports/'+id,method:'DELETE',headers:{cookie:b,'x-walk-client':'1'}})).statusCode).toBe(403);

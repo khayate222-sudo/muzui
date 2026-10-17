@@ -29,6 +29,7 @@ import {watchLinks} from './watch-links.js';
 import {videoDiscovery} from './discovery.js';
 import {soloRoom} from './solo-room.js';
 import {youtubePreviews,type YouTubeLoader} from './youtube.js';
+import {douyinPreviews,type DouyinLoader,type DouyinResolver} from './douyin.js';
 import {canSynchronize,discoverableVideo} from '../shared/discovery.js';
 import * as t from './schema.js';
 import { areaAt, moveSchema, makePostSchema, profileSchema, type Peer, type WorldState } from '../shared/model.js';
@@ -37,7 +38,7 @@ declare module 'fastify' { interface FastifyRequest { session: Session | null } 
 type Ack = (result: { ok: boolean; error?: string }) => void;
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
 const pub = (u: typeof t.users.$inferSelect) => ({ id: u.id, displayName: u.displayName, color: u.color, style: u.style });
-export async function createApp(options: { database?: string; adminKey: string; logger?: boolean; origin?: string; secureCookie?: boolean;mediaDirectory?:string;collectionFeed?:FeedLoader;youtubeLoader?:YouTubeLoader } ) {
+export async function createApp(options: { database?: string; adminKey: string; logger?: boolean; origin?: string; secureCookie?: boolean;mediaDirectory?:string;collectionFeed?:FeedLoader;youtubeLoader?:YouTubeLoader;douyinLoader?:DouyinLoader;douyinResolver?:DouyinResolver } ) {
   if(process.env.WALK_PUBLIC_RELEASE==='true'){const problems=releaseProblems(process.env);if(problems.length)throw new Error(problems.join(' / '));}
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 32 * 1024, trustProxy: false });
   const store = openDatabase(options.database);
@@ -49,7 +50,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     defaultSrc: ["'self'"], scriptSrc: process.env.NODE_ENV === 'production' ? ["'self'"] : ["'self'", "'unsafe-inline'"],
     styleSrc: ["'self'", "'unsafe-inline'"], imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
     mediaSrc: ["'self'", 'https:'],
-    connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com','https://www.tiktok.com'],
+    connectSrc: ["'self'", 'ws:', 'wss:'], frameSrc: ['https://www.youtube-nocookie.com','https://www.tiktok.com','https://open.douyin.com'],
     objectSrc: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"], upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
   } }, crossOriginEmbedderPolicy: false });
   await app.register(rateLimit, { max: 240, timeWindow: '1 minute', hook:'preHandler', allowList:req=>!req.url.startsWith('/api/')||req.url==='/api/health', keyGenerator:req=>req.session?.userId||req.ip });
@@ -261,6 +262,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
   let activitySignature=activityFeatures.signature();
   const activityTimer=setInterval(()=>{activityFeatures.settle();const next=activityFeatures.signature();if(next!==activitySignature){activitySignature=next;io.emit('activities');broadcast();}},1000);activityTimer.unref();
   const youtube=youtubePreviews(app,options.youtubeLoader);
+  const douyin=douyinPreviews(app,options.douyinLoader,options.douyinResolver);
   const collections=collector({app,store,changed:changedPosts,loadFeed:options.collectionFeed,catalog:worldFeatures.catalog});
   app.get('/api/health',async()=>{sqlite.prepare('SELECT 1').get();return {ok:true};});
   function createGuest(req:FastifyRequest,reply:import('fastify').FastifyReply){
@@ -346,6 +348,6 @@ export async function createApp(options: { database?: string; adminKey: string; 
   app.post('/api/admin/posts',async req=>{const p=makePostSchema(worldFeatures.catalog()).parse(req.body); const id=randomUUID();db.insert(t.posts).values({id,...p,origin:p.isSample?'sample':p.externalUrl?'external':'editorial',createdAt:Date.now()}).run();io.emit('posts');return {id};});
   app.put('/api/admin/posts/:id',async(req,reply)=>{const p=makePostSchema(worldFeatures.catalog()).parse(req.body); const id=(req.params as {id:string}).id;if(!db.select().from(t.posts).where(eq(t.posts.id,id)).get())return reply.code(404).send({error:'投稿が見つかりません'});db.update(t.posts).set(p).where(eq(t.posts.id,id)).run();io.emit('posts');return {ok:true};});
   app.delete('/api/admin/posts/:id',async req=>{const id=(req.params as {id:string}).id;db.delete(t.posts).where(eq(t.posts.id,id)).run();for(const s of sockets.values())if(s.postId===id)s.postId=null;broadcast();io.emit('posts');io.emit('rooms');return {ok:true};});
-  app.addHook('onClose',async()=>{meetupFeatures.close();watchLinkFeatures.close();watchingFeatures.close();playFeatures.close();clearInterval(expiryTimer);clearInterval(activityTimer);clearInterval(cleanupTimer);await youtube.close();await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
+  app.addHook('onClose',async()=>{meetupFeatures.close();watchLinkFeatures.close();watchingFeatures.close();playFeatures.close();clearInterval(expiryTimer);clearInterval(activityTimer);clearInterval(cleanupTimer);await youtube.close();await douyin.close();await collections.close();await new Promise<void>(resolve=>io.close(()=>resolve()));sqlite.close();if(temporaryMedia)rmSync(temporaryMedia,{recursive:true,force:true});});
   return {app,io,store};
 }

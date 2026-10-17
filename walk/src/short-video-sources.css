@@ -8,4 +8,5 @@
 .source-link-notice>a{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline;color:#52624d;margin-top:8px}
 .short-video-link>small{font-size:10px;letter-spacing:.15em;margin-top:12px}.short-video-link>p{max-width:380px;line-height:1.9}
 .youtube-import textarea[spellcheck=false]{font-size:14px;line-height:1.9;overflow-wrap:anywhere;resize:vertical}
+.douyin-media>button{min-height:44px;margin:12px 0}.douyin-media .short-video-link{padding:20px 16px;margin-bottom:12px}.douyin-player-stage{width:100%;max-width:640px;max-height:68dvh;margin:16px auto;background:#151c17;overflow:hidden;border-radius:12px}.douyin-player{display:block;width:100%;height:100%;border:0}.douyin-preview-info{margin-top:12px;padding-top:12px;border-top:1px solid #d8cdb7}.douyin-preview-info h3{font-size:14px;line-height:1.8}.source-link-notice>button{min-height:44px;margin-top:14px}
 @media(max-width:360px){.short-video-sources{padding:12px}.short-video-sources>div{grid-template-columns:minmax(0,1fr)}.short-video-sources article{gap:4px;padding:10px 12px}}

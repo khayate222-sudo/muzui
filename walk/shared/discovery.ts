@@ -23,7 +23,8 @@ export function discoverableVideo(post:Pick<Post,'id'|'origin'|'type'|'isSample'
   if(post.isSample)return false;
   if(post.type==='video')return /^\/media\/[a-f0-9-]{36}\.(mp4|webm)$/.test(post.mediaUrl)||!!originalFilm(post)||!!starterShort(post)||safeExternal(post.mediaUrl);
   if(post.type==='youtube')return !!youtubeId(post.externalUrl);
-  return post.type==='external'&&post.provider==='TikTok'&&!!sourceInfo(post.externalUrl)?.videoId;
+  const source=sourceInfo(post.externalUrl);
+  return post.type==='external'&&((post.provider==='TikTok'&&source?.provider==='TikTok')||(post.provider==='抖音'&&source?.provider==='抖音'))&&!!source?.videoId;
 }
 export function discoveryVideos(posts:Post[],picks:DiscoveryPick[],interests:Genre[],favorites:string[]){
   const selected=new Set(interests),saved=new Set(favorites),positions=new Map(picks.map(p=>[p.postId,p.position]));
