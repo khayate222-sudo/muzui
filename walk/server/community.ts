@@ -6,10 +6,11 @@ import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 import * as t from './schema';
 import { postPosition } from './placement';
-import { genres } from '../shared/model';
+import { genres,type Post } from '../shared/model';
+import {acceptsPost,postWorld,type Place} from '../shared/worlds';
 import { roomSchema, sourceInfo, type Room, type Party, type PartyState, type PublicUser } from '../shared/community';
 
-type Context={app:FastifyInstance;io:Server;store:Store;blocked:(a:string,b:string)=>boolean;connected:(a:string,b:string)=>boolean;notify:(id:string,event?:string)=>void;broadcast:()=>void;exitRoom:(id:string)=>void};
+type Context={app:FastifyInstance;io:Server;store:Store;blocked:(a:string,b:string)=>boolean;connected:(a:string,b:string)=>boolean;notify:(id:string,event?:string)=>void;broadcast:()=>void;catalog:()=>Place[];readablePost:(id:string)=>Pick<Post,'id'>|undefined;exitRoom:(id:string)=>void};
 type RoomRow={id:string;owner_id:string;title:string;description:string;is_public:number;theme:Room['theme'];layout:string;updated_at:number;ownerName:string;revision:number};
 export function community(c:Context){
   const {app,io,store:{sqlite,db},blocked,connected,notify}=c;
@@ -48,16 +49,17 @@ export function community(c:Context){
     sqlite.prepare('DELETE FROM rooms WHERE id=?').run(id);c.exitRoom(id);io.emit('rooms');c.broadcast();return {ok:true};
   });
   app.post('/api/imports',{config:{rateLimit:{max:8,timeWindow:'1 minute'}}},async(req,reply)=>{
-    const p=z.object({url:z.string().max(2048),title:z.string().trim().min(1).max(120),authorName:z.string().trim().min(1).max(60),body:z.string().max(1000).default(''),genre:z.enum(genres)}).parse(req.body),source=sourceInfo(p.url);
+    const p=z.object({url:z.string().max(2048),title:z.string().trim().min(1).max(120),authorName:z.string().trim().min(1).max(60),body:z.string().max(1000).default(''),genre:z.enum(genres),worldId:z.string().max(80).nullable().optional()}).parse(req.body),source=sourceInfo(p.url);
     if(!source)return reply.code(400).send({error:'YouTubeの動画URL、Xの投稿URL、TikTokの @ユーザー名/video/番号 のURLを入力してください。短縮URLは元の投稿URLに開いてから貼り付けてください。'});
+    if(!acceptsPost(p.worldId,p.genre,c.catalog()))return reply.code(400).send({error:'ジャンルに合う世界を選んでください'});
     const existing=db.select().from(t.posts).where(and(eq(t.posts.externalUrl,source.url),eq(t.posts.isSample,false))).get();
-    if(existing){db.insert(t.favorites).values({userId:req.session!.userId,postId:existing.id,createdAt:Date.now()}).onConflictDoNothing().run();notify(req.session!.userId);return {id:existing.id,existing:true};}
+    if(existing){if(!c.readablePost(existing.id))return reply.code(409).send({error:'この投稿は現在登録できません'});db.insert(t.favorites).values({userId:req.session!.userId,postId:existing.id,createdAt:Date.now()}).onConflictDoNothing().run();notify(req.session!.userId);return {id:existing.id,existing:true,worldId:postWorld(existing,c.catalog())};}
     const owner=req.session!.userId;
     if((sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE owner_id=?').get(owner) as {n:number}).n>=200)return reply.code(409).send({error:'登録は1人200件までです'});
     const id=randomUUID(),position=postPosition(c.store,p.genre);
-    db.insert(t.posts).values({id,type:source.provider==='YouTube'?'youtube':'external',title:p.title,body:p.body,mediaUrl:'',externalUrl:source.url,origin:'external',provider:source.provider,authorName:p.authorName,genre:p.genre,mapX:position.mapX,mapY:position.mapY,isSample:false,createdAt:Date.now()}).run();
+    db.insert(t.posts).values({id,worldId:p.worldId,type:source.provider==='YouTube'?'youtube':'external',title:p.title,body:p.body,mediaUrl:'',externalUrl:source.url,origin:'external',provider:source.provider,authorName:p.authorName,genre:p.genre,mapX:position.mapX,mapY:position.mapY,isSample:false,createdAt:Date.now()}).run();
     sqlite.prepare('UPDATE posts SET owner_id=? WHERE id=?').run(owner,id);
-    db.insert(t.favorites).values({userId:owner,postId:id,createdAt:Date.now()}).run();notify(owner);io.emit('posts');return {id,existing:false};
+    db.insert(t.favorites).values({userId:owner,postId:id,createdAt:Date.now()}).run();notify(owner);io.emit('posts');return {id,existing:false,worldId:p.worldId||'world:'+p.genre};
   });
   app.delete('/api/imports/:id',async(req,reply)=>{
     const id=(req.params as {id:string}).id;

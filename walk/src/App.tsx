@@ -196,7 +196,7 @@ export default function App(){
     {roomDialog&&<Rooms data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setRoomDialog(false)} rooms={rooms} reload={reloadRooms} enter={enterRoom} watch={async id=>{await travelRoom(id);setLargeWatch(false);setLoungeRoomId(id);setRoomDialog(false);}} share={room=>setSharing({target:{kind:'room',id:room.id},title:room.title})}/>}
     {compose&&<ComposePost worldId={worldId} refresh={refresh} notify={notify} openPost={openPost} close={()=>setCompose(false)}/>}
     {ownPosts&&<OwnPosts data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setOwnPosts(false)}/>}
-    {importDialog&&<ImportPosts data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setImportDialog(false)}/>}
+    {importDialog&&<ImportPosts worldId={worldId} data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setImportDialog(false)}/>}
     {admin&&<Modal title="WALK STUDIO / 管理" close={()=>setAdmin(false)} wide><Admin data={data} refresh={refresh} notify={notify}/></Modal>}
     {account&&<Account initialScreen={accountRoute||(welcome?'login':undefined)} close={()=>{setAccount(false);setAccountRoute(undefined);if(['#/account','#/delete-account'].includes(location.hash))history.replaceState(null,'',location.pathname+location.search);if(!socket.current?.connected)void refresh().catch(sessionError);}}/>}{legal&&<Legal close={()=>setLegal(false)}/>}
 

@@ -8,6 +8,7 @@ import { eq } from 'drizzle-orm';
 import { genres } from '../shared/model';
 import * as t from './schema';
 import { postPosition } from './placement';
+import {acceptsPost,type Place} from '../shared/worlds';
 export type CollectionSource={id:string;channel_id:string;label:string;genre:typeof genres[number];enabled:number;auto_publish:number;last_checked:number|null;next_check:number;last_error:string|null};
 export type Candidate={id:string;source_id:string;video_id:string;title:string;author_name:string;published_at:number;state:string;post_id:string|null};
 export type FeedVideo={id:string;title:string;author:string;publishedAt:number};
@@ -23,7 +24,7 @@ export function parseFeed(xml:string,expectedChannel:string):FeedVideo[]{
     return typeof id==='string'&&/^[\w-]{11}$/.test(id)&&typeof title==='string'&&title.trim()&&typeof author?.name==='string'&&Number.isFinite(time)?[{id,title:title.trim().slice(0,120),author:author.name.slice(0,60)||'YouTube',publishedAt:time}]:[];
   });
 }
-export function collector({app,store,changed,loadFeed}:{app:FastifyInstance;store:Store;changed:()=>void;loadFeed?:FeedLoader}){
+export function collector({app,store,changed,loadFeed,catalog}:{app:FastifyInstance;store:Store;changed:()=>void;loadFeed?:FeedLoader;catalog:()=>Place[]}){
   const {sqlite,db}=store,agent=new EnvHttpProxyAgent(),abort=new AbortController(),running=new Map<string,Promise<{added:number;published:number}>>();
   const load:FeedLoader=loadFeed||(async(channel,signal)=>{
     const r=await proxyFetch('https://www.youtube.com/feeds/videos.xml?channel_id='+channel,{dispatcher:agent,redirect:'manual',signal:AbortSignal.any([signal,AbortSignal.timeout(10000)]),headers:{Accept:'application/atom+xml'}});
@@ -34,12 +35,12 @@ export function collector({app,store,changed,loadFeed}:{app:FastifyInstance;stor
     return Buffer.concat(parts).toString('utf8');
   });
   const sources=()=>sqlite.prepare('SELECT * FROM collection_sources ORDER BY label').all() as CollectionSource[];
-  function publish(item:Candidate,source:CollectionSource){
+  function publish(item:Candidate,source:CollectionSource,worldId?:string|null){
     if(item.state!=='pending')return false;
     const url='https://www.youtube.com/watch?v='+item.video_id;
     const existing=db.select().from(t.posts).where(eq(t.posts.externalUrl,url)).all().find(p=>!p.isSample);
     const id=existing?.id||randomUUID();
-    if(!existing)db.insert(t.posts).values({id,origin:'external',type:'youtube',title:item.title,body:'',provider:'YouTube',authorName:item.author_name,genre:source.genre,externalUrl:url,mediaUrl:'',...postPosition(store,source.genre),isSample:false,createdAt:item.published_at}).run();
+    if(!existing)db.insert(t.posts).values({id,worldId,origin:'external',type:'youtube',title:item.title,body:'',provider:'YouTube',authorName:item.author_name,genre:source.genre,externalUrl:url,mediaUrl:'',...postPosition(store,source.genre),isSample:false,createdAt:item.published_at}).run();
     sqlite.prepare("UPDATE collection_items SET state='published',post_id=? WHERE id=?").run(id,item.id);return !existing;
   }
   async function sync(source:CollectionSource){
@@ -75,9 +76,10 @@ export function collector({app,store,changed,loadFeed}:{app:FastifyInstance;stor
     try{return await sync(s);}catch(e){return reply.code(502).send({error:e instanceof Error?e.message:'取得できませんでした'});}
   });
   app.post('/api/admin/collection-items/:id',async(req,reply)=>{
-    const p=z.object({action:z.enum(['publish','dismiss'])}).parse(req.body),item=sqlite.prepare('SELECT * FROM collection_items WHERE id=?').get((req.params as {id:string}).id) as Candidate|undefined;
+    const p=z.object({action:z.enum(['publish','dismiss']),worldId:z.string().max(80).nullable().optional()}).parse(req.body),item=sqlite.prepare('SELECT * FROM collection_items WHERE id=?').get((req.params as {id:string}).id) as Candidate|undefined;
     if(!item||item.state!=='pending')return reply.code(409).send({error:'未確認の候補を選んでください'});
-    if(p.action==='dismiss')sqlite.prepare("UPDATE collection_items SET state='dismissed' WHERE id=?").run(item.id);else{sqlite.transaction(()=>publish(item,sources().find(s=>s.id===item.source_id)!))();changed();}return {ok:true};
+    if(p.action==='publish'&&!acceptsPost(p.worldId,sources().find(s=>s.id===item.source_id)!.genre,catalog()))return reply.code(400).send({error:'ジャンルに合う世界を選んでください'});
+    if(p.action==='dismiss')sqlite.prepare("UPDATE collection_items SET state='dismissed' WHERE id=?").run(item.id);else{sqlite.transaction(()=>publish(item,sources().find(s=>s.id===item.source_id)!,p.worldId))();changed();}return {ok:true};
   });
   let ticking=false;
   const timer=setInterval(()=>{if(ticking||abort.signal.aborted)return;ticking=true;void (async()=>{for(const s of sources().filter(s=>s.enabled&&s.next_check<=Date.now())){if(abort.signal.aborted)break;try{await sync(s);}catch{/* Status is persisted for the administrator. */}}})().finally(()=>ticking=false);},60000);timer.unref();

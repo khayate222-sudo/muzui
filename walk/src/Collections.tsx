@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type PointerEvent } from 'react';
-import { areas, type Bootstrap } from '../shared/model';
-import { sourceInfo, type Room, type RoomInput } from '../shared/community';
+import { type Bootstrap } from '../shared/model';
+import { type Room, type RoomInput } from '../shared/community';
 import { api } from './api';
 import Modal from './Modal';
 import {findPlace} from './worlds';
 
 type Props={data:Bootstrap;notify:(s:string)=>void;refresh:()=>Promise<unknown>;openPost:(id:string)=>void};
-export function ImportPosts({data,notify,refresh,openPost,close}:Props&{close:()=>void}){
-  const [busy,setBusy]=useState(false),[url,setUrl]=useState('');
-  async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const form=new FormData(e.currentTarget);setBusy(true);try{const r=await api<{id:string}>('/imports','POST',{url,title:form.get('title'),authorName:form.get('author'),genre:form.get('genre'),body:form.get('body')});await refresh();notify('出典付きで登録し、保存しました');close();openPost(r.id);}catch(e){notify((e as Error).message);}finally{setBusy(false);}}
-  return <Modal title="外部の投稿を集める" close={close}><form className="collection-form" onSubmit={e=>void submit(e)}><h2>見つけた「好き」を、WALKへ。</h2><p>YouTube・X・TikTokの投稿URLを貼り付けて登録します。登録した投稿は広場に公開され、お気に入りにも保存されます。</p><label>投稿のURL<input type="url" required maxLength={2048} value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=…"/></label><small>{sourceInfo(url)?.provider||'TikTokの短縮URLは、ブラウザで開いた後の動画URLを使ってください。'}</small><label>タイトル<input name="title" maxLength={120} required/></label><label>元の投稿者名<input name="author" maxLength={60} required placeholder="出典のチャンネル名・アカウント名"/></label><label>ジャンル<select name="genre" defaultValue="video">{areas.map(a=><option key={a.id} value={a.id}>{a.label}</option>)}</select></label><label>あなたの紹介文<textarea name="body" maxLength={1000}/></label><p className="fineprint">元のサービスの公開設定や埋め込み制限によって再生できない場合は、出典リンクから開けます。本文や動画ファイルを転載する機能ではありません。</p><button className="primary" disabled={busy||!sourceInfo(url)}>{busy?'登録中…':'登録して保存する'}</button><h3>自分が登録した投稿</h3>{data.posts.filter(p=>p.ownerId===data.user.id&&p.origin==='external').map(p=><div key={p.id} className="room-row"><span>{p.title}</span><button type="button" className="text-button" onClick={()=>void api('/imports/'+p.id,'DELETE').then(refresh).catch(e=>notify(e.message))}>登録を削除</button></div>)}</form></Modal>;
-}
+export {default as ImportPosts} from './ImportPosts';
 const blank:RoomInput={title:'わたしの寄り道',description:'',isPublic:false,theme:'garden',items:[],decorations:[]};
 export function Rooms({data,notify,close,enter,rooms,reload,share,watch}:Props&{close:()=>void;enter:(id:string)=>void;rooms:Room[];reload:()=>Promise<unknown>;share:(room:Room)=>void;watch:(id:string)=>Promise<void>}){
   const [draft,setDraft]=useState<(RoomInput&{id?:string;revision?:number})|null>(null),[busy,setBusy]=useState(false),[active,setActive]=useState<string|null>(null);
