@@ -5,6 +5,8 @@ import {bilibiliPlayerUrl} from '../shared/bilibili';
 import {curatedVideo,curatedVideos} from '../shared/curated-videos';
 import {canSynchronize,discoverableVideo} from '../shared/discovery';
 import {seed} from '../server/seed';
+import {seedCuratedVideos} from '../server/curated-videos';
+import {readFileSync} from 'node:fs';
 import type {Bootstrap} from '../shared/model';
 
 const bvid='BV15ftU6NEya',url='https://www.bilibili.com/video/'+bvid;
@@ -34,9 +36,20 @@ it('adds the library once and preserves edits, favorites, publication choices an
   const boot=(await req('/bootstrap')).json() as Bootstrap;expect(boot.posts.find(p=>p.id===id)?.title).toBe('運営が編集した題名');expect(boot.posts.some(p=>p.id===other)).toBe(false);expect(boot.favorites).toContain(id);expect(boot.discoveryPicks).toContainEqual({postId:id,position:99});
 });
 it('does not overwrite an existing user import when adding the curated library to an existing database',async()=>{
-  const sql=instance.store.sqlite;sql.prepare('DELETE FROM posts WHERE id LIKE ?').run('walk-curated-%');sql.prepare('DELETE FROM seed_state WHERE id=4').run();
+  const sql=instance.store.sqlite;sql.prepare('DELETE FROM posts WHERE id LIKE ?').run('walk-curated-%');sql.prepare('DELETE FROM seed_state WHERE id=4').run();sql.prepare('DELETE FROM curated_video_seeds').run();
   const imported=await req('/imports','POST',{url,title:'利用者の紹介',authorName:'入力した元投稿者',genre:'game',worldId:'world:game-rpg'});expect(imported.statusCode).toBe(200);seed(instance.store);
   const boot=(await req('/bootstrap')).json() as Bootstrap;expect(boot.posts.filter(p=>p.externalUrl===url)).toHaveLength(1);expect(boot.posts.find(p=>p.id===imported.json().id)).toMatchObject({title:'利用者の紹介',authorName:'入力した元投稿者',worldId:'world:game-rpg'});expect(boot.favorites).toContain(imported.json().id);
+});
+it('upgrades the original one-time library and adds only new entries without restoring deleted posts or resetting edits and selections',async()=>{
+  const sql=instance.store.sqlite,removed='walk-curated-'+curatedVideos[0].bvid,kept='walk-curated-'+curatedVideos[1].bvid;
+  await req('/favorites/'+kept,'PUT',{saved:true});await req('/admin/login','POST',{key:'bilibili-curation-unit-admin-key'});await req('/admin/discovery/'+kept,'PUT',{position:95});
+  await req('/admin/posts/'+removed,'DELETE');sql.prepare('UPDATE posts SET title=? WHERE id=?').run('編集済みの紹介',kept);
+  // Reproduce the database that shipped before entry-level seed history.
+  sql.exec('DROP TABLE curated_video_seeds');sql.exec(readFileSync(new URL('../server/migrations/0010.sql',import.meta.url),'utf8'));
+  const added={...curatedVideos[0],bvid:'BV1o2J46sEqf',url:'https://www.bilibili.com/video/BV1o2J46sEqf'};
+  seedCuratedVideos(instance.store,[...curatedVideos,added]);seedCuratedVideos(instance.store,[...curatedVideos,added]);
+  const boot=(await req('/bootstrap')).json() as Bootstrap;expect(boot.posts.some(p=>p.id===removed)).toBe(false);expect(boot.posts.find(p=>p.id===kept)?.title).toBe('編集済みの紹介');expect(boot.favorites).toContain(kept);expect(boot.discoveryPicks).toContainEqual({postId:kept,position:95});expect(boot.posts.filter(p=>p.externalUrl===added.url)).toHaveLength(1);
+  await req('/admin/posts/walk-curated-'+added.bvid,'DELETE');seedCuratedVideos(instance.store,[...curatedVideos,added]);expect(((await req('/bootstrap')).json() as Bootstrap).posts.some(p=>p.externalUrl===added.url)).toBe(false);
 });
 it('deduplicates repeated canonical links without moving posts, but keeps a different episode distinct',async()=>{
   const r=await req('/imports','POST',{url,title:'上書きしない',authorName:'別の人',genre:'game'});expect(r.json()).toMatchObject({existing:true,id:'walk-curated-'+bvid});

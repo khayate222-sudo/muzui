@@ -1,0 +1,57 @@
+{
+  "scope": "Real WALK API and official player; opening seconds only; no mocks",
+  "results": [
+    {
+      "url": "https://www.bilibili.com/video/BV1qPpo6jEdu",
+      "provider": "bilibili",
+      "checkedAt": "2026-10-17T07:19:59.368Z",
+      "status": "unconfirmed",
+      "samples": [],
+      "failures": [
+        {
+          "host": "player.bilibili.com",
+          "path": "/player.html",
+          "status": 503
+        }
+      ],
+      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('video').first()\u001b[22m\n"
+    }
+  ],
+  "planned": 29,
+  "completed": 1,
+  "unrun": [
+    "https://www.bilibili.com/video/BV1fHgw6wE2e",
+    "https://www.bilibili.com/video/BV1idYL6dEKa",
+    "https://www.bilibili.com/video/BV1SR8u6HEbw",
+    "https://www.bilibili.com/video/BV1jARQByEXU",
+    "https://www.bilibili.com/video/BV1StdrB6Ed5",
+    "https://www.bilibili.com/video/BV1JfNv6EEpc",
+    "https://www.bilibili.com/video/BV1Yn9fBHEcR",
+    "https://www.bilibili.com/video/BV1aVK667ELv",
+    "https://www.bilibili.com/video/BV1rhNn63EYt",
+    "https://www.bilibili.com/video/BV1vWLg6hEYR",
+    "https://www.bilibili.com/video/BV1bggQ69ENK",
+    "https://www.bilibili.com/video/BV1N6Y46iEVo",
+    "https://www.bilibili.com/video/BV1zn396mEhz",
+    "https://www.bilibili.com/video/BV1uA9xBREeg",
+    "https://www.bilibili.com/video/BV1hATM6ZE3k",
+    "https://www.bilibili.com/video/BV1KXhw6eEdv",
+    "https://www.bilibili.com/video/BV1G78B6gEus",
+    "https://www.bilibili.com/video/BV1mgR1ByEjp",
+    "https://www.bilibili.com/video/BV1hKTg6eEAX",
+    "https://www.bilibili.com/video/BV1g88M6SE1c",
+    "https://www.bilibili.com/video/BV11n5d6TEe8",
+    "https://www.bilibili.com/video/BV1BoL96ZESE",
+    "https://www.bilibili.com/video/BV1pJM26sEAR",
+    "https://www.bilibili.com/video/BV162hd6TEMt",
+    "https://www.bilibili.com/video/BV1rCeg6pEPi",
+    "https://www.bilibili.com/video/BV1UXg66sEnS",
+    "https://www.bilibili.com/video/BV1r9p96LEEK",
+    "https://www.bilibili.com/video/BV17n8G6GEKE"
+  ],
+  "stoppedReason": "player.bilibili.com/player.html returned HTTP 503 from cloud network transport",
+  "finalConnectionProbe": {
+    "status": 503,
+    "response": "upstream connect error; remote connection failure; envoy cloudflare_https_tunnel"
+  }
+}

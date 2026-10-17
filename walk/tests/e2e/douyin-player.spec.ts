@@ -53,3 +53,12 @@ test('closing a post while its confirmed player response is delayed does not reo
     await p.locator('.watch-controls').getByRole('button',{name:'閉じる',exact:true}).click();release();await expect(p.locator('.post-detail')).toHaveCount(0);await expect(p.locator('.douyin-player')).toHaveCount(0);await expect(p.locator('.watch-frame')).toHaveCount(0);
   }finally{release();}
 });
+test('a private phone room shows the Douyin consent button and fits its confirmed iframe without hiding it below the introduction',async({page:p})=>{
+  await p.setViewportSize({width:320,height:844});await start(p);const f=await imports(p);await f.getByLabel('投稿のURL').fill('https://www.douyin.com/video/'+id);await f.getByLabel('タイトル',{exact:true}).fill(title);await f.getByLabel('元の投稿者名').fill('検証用の作者');await f.getByRole('button',{name:'確認して世界に置く',exact:true}).click();
+  await p.getByRole('button',{name:'自分の窓辺に置く',exact:true}).click();await p.getByRole('dialog',{name:'自分の窓辺に置く',exact:true}).getByRole('button',{name:'保存して窓辺で開く',exact:true}).click();await expect(p.getByTestId('room-interior')).toBeVisible();
+  const screen=p.locator('.in-room .room-player-content'),opener=p.getByRole('button',{name:'公式プレーヤーを開く',exact:true}),bounds=(await screen.boundingBox())!,button=(await opener.boundingBox())!;
+  expect(button.y).toBeGreaterThanOrEqual(bounds.y);expect(button.y+button.height).toBeLessThanOrEqual(bounds.y+bounds.height);await expect(p.getByText('操作すると抖音へ接続します。個別再生です。',{exact:true})).toBeVisible();await opener.click();
+  const player=p.locator('.douyin-player');await expect(player).toHaveAttribute('src','https://open.douyin.com/player/video?vid='+id+'&autoplay=0');await player.evaluate(el=>el.setAttribute('data-room-player','same'));
+  for(const width of [320,390]){await p.setViewportSize({width,height:844});const room=(await screen.boundingBox())!,frame=(await player.boundingBox())!;expect(frame.y).toBeGreaterThanOrEqual(room.y);expect(frame.y+frame.height).toBeLessThanOrEqual(room.y+room.height+1);expect(frame.height).toBeGreaterThan(room.height-12);}
+  await p.getByRole('button',{name:'大画面で見る',exact:true}).click();await expect(player).toHaveAttribute('data-room-player','same');await p.getByText('再生できないとき',{exact:true}).click();await p.getByRole('button',{name:'プレーヤーを読み直す',exact:true}).click();await expect(player).not.toHaveAttribute('data-room-player','same');expect(calls).toEqual([id]);await p.getByRole('button',{name:'部屋と見る',exact:true}).click();await expect(player).toBeVisible();
+});
