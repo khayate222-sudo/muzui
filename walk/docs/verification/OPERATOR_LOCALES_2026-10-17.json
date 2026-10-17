@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-10-17",
+  "baselineCommit": "0870de100cb03a8d52a9bcf7753a40ca0262be8d",
+  "translationsAdded": 147,
+  "translationKeys": 1272,
+  "unitTests": {
+    "passed": 147,
+    "files": 28
+  },
+  "browserTests": {
+    "newAdminWorkflows": {
+      "passed": 3,
+      "failed": 0,
+      "locales": [
+        "en-US",
+        "zh-CN",
+        "zh-TW"
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 844
+      }
+    },
+    "existingRegressionWorkflows": {
+      "passed": 9,
+      "failed": 0
+    },
+    "upstreamFeedsAndPlayerBoundary": "fixtures; not proof of real playback"
+  },
+  "native": {
+    "webAssets": 61,
+    "androidAssetsMatch": true,
+    "iosAssetsMatch": true,
+    "apkAssetsMatch": true,
+    "apkCrcVerified": true,
+    "apkSha256": "063df79448adb58ae7b278a5a14674c87fa7f9b5d3ab6cc06c7ff073faf99934",
+    "androidBuild": "debug",
+    "signedStoreRelease": false,
+    "iosCompilation": false,
+    "physicalDeviceTest": false
+  },
+  "typecheck": true,
+  "lint": true,
+  "viteBuild": true,
+  "dockerImageRebuilt": false,
+  "publicDeployment": false,
+  "environmentConfigurationChanged": false
+}

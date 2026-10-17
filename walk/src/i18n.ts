@@ -23,7 +23,7 @@ export function t(source:string,language:Locale=locale):string{
   if(language==='ja')return source;
   const entry=messages[source];return entry?.[language]??source;
 }
-export function tr(source:string,values:Record<string,string|number>){
-  return t(source).replace(/\{(\w+)\}/g,(token,key)=>Object.hasOwn(values,key)?String(values[key]):token);
+export function tr(source:string,values:Record<string,string|number>,language:Locale=locale){
+  return t(source,language).replace(/\{(\w+)\}/g,(token,key)=>Object.hasOwn(values,key)?String(values[key]):token);
 }
 export const localeTag=(language:Locale=locale)=>({en:'en-US','zh-Hans':'zh-CN','zh-Hant':'zh-TW',ja:'ja-JP'})[language];

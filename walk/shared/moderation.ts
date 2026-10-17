@@ -9,6 +9,7 @@ export type ModerationReport = {
   moderationNote: string;
   resolvedAt: number | null;
   targetLabel: string;
+  targetDeleted: boolean;
   targetUserId: string | null;
   suspended: boolean;
 };

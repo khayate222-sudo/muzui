@@ -1,4 +1,4 @@
-import {localeTag,t} from './i18n';
+import {localeTag,t,tr} from './i18n';
 import {WalkLogo} from "./StationIdentity";
 import { useEffect, useState, type FormEvent } from "react";
 import { ShieldAlert, Check, Undo2 } from "lucide-react";
@@ -73,24 +73,23 @@ export default function ModerationQueue({
       await load();
       await refresh();
       setEditing(null);
-      notify("対応を記録しました");
+      notify(t("対応を記録しました"));
     } catch (e) {
-      notify(e instanceof Error ? e.message : "処理に失敗しました");
+      notify(e instanceof Error ? e.message : t("処理に失敗しました"));
     } finally {
       setBusy(false);
     }
   }
   return (
     <section className="admin-reports moderation-queue">
-      <h3>
-        通報と対応{" "}
+      <h3>{t("通報と対応")}{" "}
         <span>
-          {reports.filter((r) => r.status === "open").length}件 未対応
+          {tr('{count}件 未対応',{count:reports.filter((r) => r.status === 'open').length})}
         </span>
       </h3>
       <div className="filter-tabs">
         {[
-          ["open", "未対応"],
+          ["open", t("未対応")],
           ["all", t("すべて")],
         ].map(([v, label]) => (
           <button
@@ -101,9 +100,7 @@ export default function ModerationQueue({
             {label}
           </button>
         ))}
-        <button onClick={() => void load().catch((e) => notify(e.message))}>
-          更新する
-        </button>
+        <button onClick={() => void load().catch((e) => notify(e.message))}>{t("更新する")}</button>
       </div>
       {reports
         .filter((r) => filter === "all" || r.status === "open")
@@ -111,20 +108,19 @@ export default function ModerationQueue({
           <article key={r.id}>
             <span className="moderation-status">
               {r.status === "open"
-                ? "未対応"
+                ? t("未対応")
                 : r.status === "resolved"
-                  ? "対応済み"
-                  : "対応不要"}{" "}
-              · {r.targetType === "post" ? t("投稿") : "ユーザー"}
+                  ? t("対応済み")
+                  : t("対応不要")}{" "}
+              · {r.targetType === "post" ? t("投稿") : t("ユーザー")}
             </span>
-            <h4>{r.targetLabel}</h4>
+            <h4>{r.targetDeleted ? t("削除済み") : r.targetLabel}</h4>
             <p>{r.reason}</p>
             <small>
-              {new Date(r.createdAt).toLocaleString(localeTag())} · 通報者{" "}
-              {r.reporterId.slice(0, 8)}
+              {new Date(r.createdAt).toLocaleString(localeTag())} · {tr('通報者 {id}',{id:r.reporterId.slice(0,8)})}
             </small>
             {r.moderationNote && (
-              <p className="moderation-note">対応メモ：{r.moderationNote}</p>
+              <p className="moderation-note">{tr('対応メモ：{note}',{note:r.moderationNote})}</p>
             )}
             <div className="moderation-actions">
               {r.status === "open" ? (
@@ -133,24 +129,18 @@ export default function ModerationQueue({
                     className="outline"
                     onClick={() => setEditing({ report: r, action: "resolve" })}
                   >
-                    <Check size={15} />
-                    対応済みにする
-                  </button>
+                    <Check size={15} />{t("対応済みにする")}</button>
                   <button
                     className="outline"
                     onClick={() => setEditing({ report: r, action: "dismiss" })}
-                  >
-                    対応不要
-                  </button>
+                  >{t("対応不要")}</button>
                 </>
               ) : (
                 <button
                   className="outline"
                   onClick={() => setEditing({ report: r, action: "reopen" })}
                 >
-                  <Undo2 size={15} />
-                  再確認する
-                </button>
+                  <Undo2 size={15} />{t("再確認する")}</button>
               )}
               {r.targetUserId && (
                 <button
@@ -163,33 +153,31 @@ export default function ModerationQueue({
                   }
                 >
                   <ShieldAlert size={15} />
-                  {r.suspended ? "利用停止を解除" : "対象ユーザーを利用停止"}
+                  {r.suspended ? t("利用停止を解除") : t("対象ユーザーを利用停止")}
                 </button>
               )}
             </div>
           </article>
         ))}
       {!reports.filter((r) => filter === "all" || r.status === "open")
-        .length && <p className="muted">該当する通報はありません。</p>}
+        .length && <p className="muted">{t("該当する通報はありません。")}</p>}
       {editing && (
         <form className="moderation-edit" onSubmit={(e) => void submit(e)}>
           <h4>
             {editing.action === "suspend"
-              ? "利用を停止する"
+              ? t("利用を停止する")
               : editing.action === "restore"
-                ? "利用停止を解除する"
-                : "通報への対応を記録する"}
+                ? t("利用停止を解除する")
+                : t("通報への対応を記録する")}
           </h4>
-          <p>{editing.report.targetLabel}</p>
+          <p>{editing.report.targetDeleted ? t("削除済み") : editing.report.targetLabel}</p>
           {editing.action === "suspend" && (
-            <p>
-              このユーザーの接続を切断し、投稿・ルームを非表示にして、閲覧・投稿・交流を停止します。データは削除せず、後で解除できます。
-            </p>
+            <p>{t("このユーザーの接続を切断し、投稿・ルームを非表示にして、閲覧・投稿・交流を停止します。データは削除せず、後で解除できます。")}</p>
           )}
           <label>
             {editing.action === "suspend" || editing.action === "restore"
-              ? "本人に示す理由"
-              : "対応メモ"}
+              ? t("本人に示す理由")
+              : t("対応メモ")}
             <textarea name="note" minLength={3} maxLength={1000} required />
           </label>
           <div className="form-row">
@@ -198,12 +186,8 @@ export default function ModerationQueue({
               className="outline"
               disabled={busy}
               onClick={() => setEditing(null)}
-            >
-              取消
-            </button>
-            <button className="primary" disabled={busy}>
-              対応を確定する
-            </button>
+            >{t("取消")}</button>
+            <button className="primary" disabled={busy}>{t("対応を確定する")}</button>
           </div>
         </form>
       )}

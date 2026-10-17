@@ -201,7 +201,7 @@ export default function App(){
     {compose&&<ComposePost worldId={worldId} refresh={refresh} notify={notify} openPost={openPost} close={()=>setCompose(false)}/>}
     {ownPosts&&<OwnPosts data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setOwnPosts(false)}/>}
     {importDialog&&<ImportPosts worldId={worldId} data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setImportDialog(false)}/>}
-    {admin&&<Modal title="WALK STUDIO / 管理" close={()=>setAdmin(false)} wide><Admin data={data} refresh={refresh} notify={notify}/></Modal>}
+    {admin&&<Modal title={t("WALK STUDIO / 管理")} close={()=>setAdmin(false)} wide><Admin data={data} refresh={refresh} notify={notify}/></Modal>}
     {account&&<Account initialScreen={accountRoute||(welcome?'login':undefined)} close={()=>{setAccount(false);setAccountRoute(undefined);if(['#/account','#/delete-account'].includes(location.hash))history.replaceState(null,'',location.pathname+location.search);if(!socket.current?.connected)void refresh().catch(sessionError);}}/>}{legal&&<Legal close={()=>setLegal(false)}/>}
 
   </>;

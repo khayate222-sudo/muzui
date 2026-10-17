@@ -25,10 +25,11 @@ export function moderation({
       )
       .all()
       .map((row) => {
-        const r = row as Omit<ModerationReport, "suspended">;
+        const r = row as Omit<ModerationReport, "suspended" | "targetDeleted">;
         return {
           ...r,
           targetLabel: r.targetLabel || "削除済み",
+          targetDeleted: !r.targetLabel,
           suspended: !!r.targetUserId && suspended(r.targetUserId),
         };
       }),
