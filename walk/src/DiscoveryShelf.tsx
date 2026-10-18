@@ -14,11 +14,11 @@ const labels:Record<Genre,string>={discovery:'寄り道',music:'音楽',video:'�
 export function DiscoveryEntry({open}:{open:()=>void}){
   return <button className="discovery-entry" onClick={open}><span className="discovery-entry-icon"><Play size={18}/></span><span><small>THE FIRST LITTLE FILM</small><b>{t("今日は、何を見よう。")}</b></span><span className="discovery-entry-action">{t("動画の棚")}<ArrowRight size={16}/></span></button>;
 }
-export default function DiscoveryShelf({data,busy,close,open,save,upload}:{data:Bootstrap;busy:boolean;close:()=>void;open:(post:Post,sequence:string[])=>Promise<void>;save:(id:string)=>Promise<void>;upload:()=>void}){
+export default function DiscoveryShelf({data,busy,close,open,save,upload,initialOrigin='all'}:{data:Bootstrap;initialOrigin?:'all'|'walk';busy:boolean;close:()=>void;open:(post:Post,sequence:string[])=>Promise<void>;save:(id:string)=>Promise<void>;upload:()=>void}){
   const key='walk-interests-v1:'+data.user.id;
   const [interests,setInterests]=useState<Genre[]>(()=>{try{return readInterests(localStorage.getItem(key));}catch{return [];}}),[error,setError]=useState(''),[opening,setOpening]=useState<string|null>(null);
   const videos=discoveryVideos(data.posts,data.discoveryPicks||[],interests,data.favorites);
-  const [origin,setOrigin]=useState<'all'|'overseas'|'walk'>('all');
+  const [origin,setOrigin]=useState<'all'|'overseas'|'walk'>(initialOrigin);
   const results=videos.filter(v=>(!interests.length||interests.includes(v.post.genre))&&(origin==='all'||(origin==='overseas'?v.post.origin==='external':v.post.origin!=='external')));
   function choose(genre:Genre){const next=interests.includes(genre)?interests.filter(g=>g!==genre):[...interests,genre];setInterests(next);try{localStorage.setItem(key,JSON.stringify(next));}catch{setError(t("この端末に「好き」を保存できませんでした。今回の表示には反映しています。"));}}
   function clear(){setInterests([]);try{localStorage.removeItem(key);}catch{setError(t("この端末の保存を変更できませんでした。今回の絞り込みは解除しました。"));}}

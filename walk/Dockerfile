@@ -16,6 +16,7 @@ COPY --from=builder --chown=node:node /app/server ./server
 COPY --from=builder --chown=node:node /app/shared ./shared
 COPY --from=builder --chown=node:node /app/package.json ./package.json
 COPY --from=builder --chown=node:node /app/scripts/start-production.mjs ./scripts/start-production.mjs
+COPY --from=builder --chown=node:node /app/scripts/backup.ts /app/scripts/check-release.ts /app/scripts/release-report.ts ./scripts/
 RUN mkdir -p /app/data && chown node:node /app/data
 USER node
 EXPOSE 3001

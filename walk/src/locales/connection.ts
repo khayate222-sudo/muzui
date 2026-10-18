@@ -1,4 +1,12 @@
 export const connectionRows:readonly (readonly [string,string,string,string])[]=[
+['端末の設定で自動再生が止まっています。タップして始められます。','Autoplay was blocked by your device. Tap to start watching.','设备阻止了自动播放，点击即可开始观看。','裝置阻止了自動播放，點一下即可開始觀看。'],
+['動画の読み込みに時間がかかっています。待つか、別の一本を選べます。','This video is taking a while to load. You can wait or choose another one.','视频加载较慢。可以继续等待，也可以选择其他视频。','影片載入較慢。可以繼續等待，也可以選擇其他影片。'],
+['続きを読み込んでいます…','Buffering…','正在缓冲…','正在緩衝…'],
+['動画を準備しています…','Preparing your video…','正在准备视频…','正在準備影片…'],
+['タップして再生','Tap to play','点击播放','點一下播放'],
+['別の一本へ','Try another video','换一个视频','換一部影片'],
+['WALKの動画から選ぶ','Choose a WALK video','选择 WALK 视频','選擇 WALK 影片'],
+['読み直すと再生位置が最初に戻ります。','Reloading starts the video from the beginning.','重新加载后，视频将从头开始。','重新載入後，影片將從頭開始。'],
 ['再試行する投稿の内容が変わっています。下書きを作り直してください。','This retry has different content. Discard the draft before starting a new post.','重试内容发生了变化。请丢弃草稿后重新创建帖子。','重試內容發生了變化。請捨棄草稿後重新建立貼文。'],
 ['この投稿は削除済みです。再試行しても再公開されません。','This post was deleted. Retrying will not publish it again.','此帖子已删除，重试不会重新发布。','此貼文已刪除，重試不會重新發布。'],
 ['下書きはこの端末に保存します。ログアウトやアカウントの切り替えで消去されます。共有端末では使い終わったら下書きを破棄してください。','Drafts are saved on this device and cleared when you sign out or switch accounts. Discard your draft after using a shared device.','草稿保存在此设备上，退出登录或切换账号时会清除。使用共享设备后，请丢弃草稿。','草稿儲存在此裝置上，登出或切換帳號時會清除。使用共用裝置後，請捨棄草稿。'],

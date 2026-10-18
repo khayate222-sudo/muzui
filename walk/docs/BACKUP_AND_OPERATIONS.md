@@ -27,6 +27,19 @@ npm run backup:restore -- --source /private/storage/walk-backup-new --target /pr
 
 本番で使う前に別の環境で、アカウントログイン・投稿・足あと写真が復元できるか確認してください。復元したDBにはバックアップ作成時のセッション情報も含まれるため、事故や不正アクセスからの復旧時は、切替前に全セッションを無効化して再ログインさせる運用が必要です。
 
+## Dockerでの実行
+
+2026-10-19以降の更新イメージには `backup.ts`、`check-release.ts`、`release-report.ts` も含む。実際の配備時は同じ更新ソースからビルドする。`/app/data` の永続領域内へ、既存でない新しい保存先を指定する。
+
+```sh
+docker compose --env-file /secure/path/walk.env -f compose.production.yaml exec walk npm run backup:create -- --output /app/data/backups/pre-update-001
+docker compose --env-file /secure/path/walk.env -f compose.production.yaml exec walk npm run backup:verify -- --source /app/data/backups/pre-update-001
+```
+
+上のenvファイルは運営者の実際のものへ置き換え、保存先名は毎回新しくする。コンテナ内だけのバックアップは同じディスク障害への備えにならない。確認後に、アクセス制御・暗号化した別の運営用ストレージへ保管する。利用者への公開フォルダーには置かない。保持期間が未確定のまま古い世代を自動削除しない。
+
+復元時には、バックアップ以降に削除された利用者や投稿を再公開しないための照合も必要。全セッションの失効と合わせて、実際の保持・削除方針に従って確認してから切り替える。
+
 ## 提供を始める前に決めるもの
 
 - 定期実行のスケジュール、容量監視、保管先と権限、復元訓練。

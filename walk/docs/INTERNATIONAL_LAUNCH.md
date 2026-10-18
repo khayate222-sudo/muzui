@@ -2,6 +2,8 @@
 
 2026-10-17: The owner chose Asia outside mainland China and English-speaking markets first, with English, Simplified Chinese and Traditional Chinese. Mainland China needs a separate distribution and operating plan. This is a launch work list for the existing social/video MVP, not a promise to ship construction, a paid economy, dating or a casino at the same time.
 
+2026-10-19: [Release runbook](RELEASE_RUNBOOK.md), [policy review packet](POLICY_REVIEW_PACKET.md) and [three-language listing drafts](STORE_LISTING_DRAFTS.md) now connect the remaining operator, infrastructure, device and store work. `npm run release:report` gives a shareable status report without environment values; `-- --probe` explicitly checks configured public JSON endpoints. Neither command certifies device tests or store readiness. Native-video recovery distinguishes blocked autoplay, buffering, slow loading and failure, with explicit play/retry/report and a WALK-video fallback. Official-player help also offers a different video without claiming cross-origin playback detection.
+
 ## Implementation and evidence
 
 - Existing core: worlds and station, post viewers with consent, next-post movement, favorites, accounts and recovery, private rooms, reporting/blocking and moderation, private activity journal, consent-based synchronization for WALK-hosted videos, voice and a small cooperative game.

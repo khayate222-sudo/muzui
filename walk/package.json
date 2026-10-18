@@ -23,6 +23,7 @@
     "native:ios": "cap open ios",
     "native:release:sync": "node --env-file-if-exists=.env scripts/check-native-release.mjs",
     "release:check": "node --env-file-if-exists=.env --import tsx scripts/check-release.ts",
+    "release:report": "node --env-file-if-exists=.env --import tsx scripts/release-report.ts",
     "backup:create": "node --env-file-if-exists=.env --import tsx scripts/backup.ts create",
     "backup:verify": "node --env-file-if-exists=.env --import tsx scripts/backup.ts verify",
     "backup:restore": "node --env-file-if-exists=.env --import tsx scripts/backup.ts restore",
