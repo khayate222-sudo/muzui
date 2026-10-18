@@ -11,9 +11,13 @@ import type { AuthResult } from "../shared/accounts";
 export default function AuthGate({
   message,
   expired,
+  retry,
+  retrying,
 }: {
   message: string;
   expired: boolean;
+  retry: () => Promise<void>;
+  retrying: boolean;
 }) {
   const [account, setAccount] = useState(false),
     [legal, setLegal] = useState(false),
@@ -51,7 +55,7 @@ export default function AuthGate({
             </button>
           </>
         )}
-        <button className="outline full" onClick={() => location.reload()}>{t("もう一度接続する")}</button>
+        <button className="outline full" disabled={retrying} onClick={() => void retry()}>{retrying?t("接続を確認中…"):t("もう一度接続する")}</button>
         {expired && (
           <button className="text-button" onClick={() => setGuest(true)}>{t("新しいゲストとして始める")}</button>
         )}

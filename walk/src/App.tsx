@@ -1,3 +1,4 @@
+import ConnectionNotice from './ConnectionNotice';
 import {t,tr,useLocale} from './i18n';
 import LanguagePicker from './LanguagePicker';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
@@ -53,6 +54,9 @@ export default function App(){
   const [accountRoute,setAccountRoute]=useState<'delete'|undefined>(location.hash==='#/delete-account'?'delete':undefined);
   const accountOpen=useRef(account);accountOpen.current=account;
   const [data,setData]=useState<Bootstrap|null>(null),[world,setWorld]=useState<WorldState>(emptyWorld),[connected,setConnected]=useState(false),[fatal,setFatal]=useState('');
+  const [connectionIssue,setConnectionIssue]=useState(''),[retrying,setRetrying]=useState(false),retryPending=useRef(false);
+  const dataRef=useRef(data);dataRef.current=data;
+  const refreshSequence=useRef(0),refreshApplied=useRef(0);
   const [area,setArea]=useState<Genre>('discovery'),[near,setNear]=useState<string|null>(null),[selected,setSelected]=useState<string|null>(null),[query,setQuery]=useState(''),[explore,setExplore]=useState(false),[filter,setFilter]=useState<Filter>('all');
   const [settings,setSettings]=useState(false),[welcome,setWelcome]=useState(!localStorage.getItem('walk-welcomed')),[profile,setProfile]=useState<Profile|null>(null),[social,setSocial]=useState(false),[chat,setChat]=useState<string|null>(null),[messages,setMessages]=useState<Message[]>([]),[text,setText]=useState('');
   const [toast,setToast]=useState(''),[admin,setAdmin]=useState(false),[report,setReport]=useState<{type:'post'|'user';id:string;playback?:boolean}|null>(null),[reason,setReason]=useState(''),[sending,setSending]=useState(false);
@@ -80,9 +84,19 @@ export default function App(){
   const toastTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);
   const notify=useCallback((message:string)=>{setToast(t(message));clearTimeout(toastTimer.current);toastTimer.current=setTimeout(()=>setToast(''),4500);},[]);
   function inviteWorld(){if(place)setSharing({target:{kind:'world',id:place.id},title:place.title});else if(room?.isPublic)setSharing({target:{kind:'room',id:room.id},title:room.title});else notify(t("このルームは非公開です。招待するにはルームの公開設定を変更してください。"));}
-  const refresh=useCallback(async()=>{const next=await api<Bootstrap>('/bootstrap');setWorldCatalog(next.worlds);setData(next);return next;},[]);
+  const refresh=useCallback(async()=>{
+    const sequence=++refreshSequence.current;
+    try{
+      const next=await api<Bootstrap>('/bootstrap');
+      if(!next?.user?.id||!Array.isArray(next.posts)||!Array.isArray(next.favorites)||!Array.isArray(next.friendships)||!Array.isArray(next.blocks)||!next.reactions)throw new ApiError(t('応答を読み取れませんでした。接続を確認して、もう一度お試しください。'),200);
+      if(sequence>=refreshApplied.current){refreshApplied.current=sequence;setWorldCatalog(next.worlds);dataRef.current=next;setData(next);setFatal('');setAuthExpired(false);setConnectionIssue('');}
+      return dataRef.current||next;
+    }catch(e){if(sequence<refreshApplied.current&&dataRef.current)return dataRef.current;throw e;}
+  },[]);
   const act=useCallback(async(fn:()=>Promise<unknown>)=>{try{return await fn();}catch(e){notify(e instanceof Error?e.message:t("操作に失敗しました"));return undefined;}},[notify]);
-  const sessionError=useCallback((e:Error)=>{if(e instanceof ApiError&&e.status===401)setAuthExpired(true);setFatal(e.message);},[]);
+  const sessionError=useCallback((e:Error)=>{if(e instanceof ApiError&&e.status===401){setAuthExpired(true);setFatal(e.message);}else if(dataRef.current)setConnectionIssue(e.message);else setFatal(e.message);},[]);
+  const retryConnection=useCallback(async()=>{if(retryPending.current)return;retryPending.current=true;setRetrying(true);try{await refresh();}catch(e){sessionError(e as Error);}finally{retryPending.current=false;setRetrying(false);}},[refresh,sessionError]);
+  useEffect(()=>{const offline=()=>{if(dataRef.current)setConnectionIssue(t('接続できませんでした。通信環境を確認して、もう一度お試しください。'));},online=()=>{void retryConnection();};window.addEventListener('offline',offline);window.addEventListener('online',online);return()=>{window.removeEventListener('offline',offline);window.removeEventListener('online',online);};},[retryConnection]);
   useEffect(()=>{const changed=(e:StorageEvent)=>{if(e.key==='walk-session-revision')location.reload();};window.addEventListener('storage',changed);return()=>window.removeEventListener('storage',changed);},[]);
   useEffect(()=>{void refresh().catch(sessionError);return()=>{clearTimeout(toastTimer.current);clearTimeout(travelTimer.current);};},[refresh,sessionError]);
   const userId=data?.user.id,suspended=!!data?.account?.suspension;
@@ -93,7 +107,7 @@ export default function App(){
   useEffect(()=>{
     if(!userId||suspended)return;const native=nativeSocketOptions();const s=io(native?.server||undefined,{reconnectionDelay:500,reconnectionDelayMax:3000,...native?.options});socket.current=s;
     const background=()=>s.disconnect(),foreground=()=>s.connect();window.addEventListener('walk:background',background);window.addEventListener('walk:foreground',foreground);
-    s.on('connect',()=>{setConnected(true);void refresh().catch(()=>{});});
+    s.on('connect',()=>{setConnected(true);void refresh().catch(sessionError);});
     s.on('disconnect',(reason)=>{setConnected(false);setWorld(emptyWorld);if(reason==='io server disconnect'&&!accountOpen.current)void refresh().catch(sessionError);});
     s.on('connect_error',(e)=>{setConnected(false);if(e.message.includes('セッション')&&!accountOpen.current)void refresh().catch(sessionError);});
     s.on('context',(c:{worldId:string;reset?:boolean})=>{if(c.reset||c.worldId!==worldRef.current){setSelected(null);setLoungeRoomId(null);}else if(selectedRef.current)s.emit('view',{postId:selectedRef.current});worldRef.current=c.worldId;setWorldId(c.worldId);setNear(null);void reloadRooms(c.worldId).catch(()=>{});});
@@ -141,7 +155,7 @@ export default function App(){
   async function answerFriend(id:string,action:'accept'|'decline'){await act(async()=>{await api('/friendships/'+id,'PATCH',{action});await refresh();notify(action==='accept'?t("交流リクエストを承認しました"):t("リクエストを辞退しました"));});}
   async function block(id:string,enable=true){await act(async()=>{await api('/blocks/'+id,'PUT',{blocked:enable});await refresh();if(enable){setProfile(null);if(chat===id)setChat(null);}notify(enable?t("ブロックしました。メッセージと交流を停止しました"):t("ブロックを解除しました"));});}
   async function sendMessage(e:FormEvent){e.preventDefault();if(!chat||!text.trim()||sending)return;if(!socket.current?.connected){notify(t("接続が戻ってから送信してください"));return;}setSending(true);socket.current.timeout(5000).emit('chat',{to:chat,content:text,clientId:crypto.randomUUID()},(error:Error|null,result:{ok:boolean;error?:string})=>{setSending(false);if(error||!result?.ok)notify(result?.error||'送信を確認できませんでした');else setText('');});}
-  if(fatal)return <AuthGate message={fatal} expired={authExpired}/>;
+  if(fatal)return <AuthGate message={fatal} expired={authExpired} retry={retryConnection} retrying={retrying}/>;
   if(!data)return <div className="loading"><Logo/><span className="loading-orbit"/><p>{t("新しい寄り道を、準備しています。")}</p></div>;
   if(data.account?.suspension)return <SuspendedGate account={data.account}/>;
   const currentArea=areas.find(a=>a.id===area)!;
@@ -167,6 +181,7 @@ export default function App(){
   return <>
     <div className={'app-shell '+(post&&!largeWatch?'watching':'')}>
       <header className="topbar"><a href="/" aria-label={t("WALK ホーム")}><Logo/></a><div className="header-divider"/><span className="tagline">Don't scroll. <b>Explore.</b></span><form className="search-box" onSubmit={e=>{e.preventDefault();openExplore();}}><Search size={18}/><input aria-label={t("投稿検索")} value={query} onChange={e=>setQuery(e.target.value)} placeholder={t("気になることを、探してみよう")}/><kbd>↵</kbd></form><span className={'connection '+(connected?'is-live':'')}><i/>{connected?tr("{count}人が散歩中",{count:world.online}):t("再接続しています")}</span><button className="icon-button notification" aria-label={t("通知")} onClick={openSocial}><Bell size={20}/>{noticeCount>0&&<b>{noticeCount}</b>}</button><button className="user-menu" onClick={()=>setSettings(true)} aria-label={t("プロフィール設定")}><Avatar color={data.user.color} style={data.user.style} size={36}/><span>{data.user.displayName}</span><Settings2 size={15}/></button></header>
+      {connectionIssue&&<ConnectionNotice message={connectionIssue} busy={retrying} retry={retryConnection}/>}
       <div className="workspace">
         <aside className="left-sidebar"><div className="nav-label">EXPLORE YOUR WORLD</div><nav><button className={!explore?'nav-link active':'nav-link'} onClick={()=>{setExplore(false);enterRoom('public');}}><Home size={20}/>{t("ホーム")}<span className="nav-dot"/></button><button className="nav-link" onClick={()=>openExplore('trending')}><TrendingUp size={20}/>{t("トレンド")}</button><button className="nav-link" onClick={()=>setDiscoveryOpen(true)}><Sparkles size={20}/>{t("あなたへのおすすめ")}</button><button className="nav-link" onClick={()=>openExplore('saved')}><Bookmark size={20}/>{t("保存した投稿")}<span className="nav-count">{data.favorites.length}</span></button></nav><button className="nav-link" onClick={()=>setRoomDialog(true)}><Home size={20}/>{t("みんなのルーム")}</button><button className="nav-link" onClick={beginCompose}><Plus size={20}/>{t("WALKに投稿する")}</button><button className="nav-link" onClick={()=>setOwnPosts(true)}><ImageIcon size={20}/>{t("自分の投稿")}</button><button className="nav-link" onClick={beginImport}><Plus size={20}/>{t("外部投稿を集める")}</button><div className="nav-section"><div className="nav-label">TAKE A LITTLE DETOUR <span>↗</span></div>{areas.map(a=><button key={a.id} onClick={()=>{goArea(a.id);setExplore(false);}} className={'area-nav '+(place?.genre===a.id?'current':'')}><span className="area-dot" style={{background:a.color}}/>{a.label}<ChevronRight size={13}/></button>)}</div><button className="sidebar-chat" onClick={openSocial}><MessageCircle size={20}/><span>{t("つながりとチャット")}</span>{noticeCount>0&&<b>{noticeCount}</b>}</button><div className="detour-card"><div className="detour-drawing">↝ <span>✿</span></div><h3>{t("寄り道に、いい出会い。")}</h3><p>{t("目的地を決めなくてもいい。")}<br/>{t("気になる「好き」が、道しるべ。")}</p><button onClick={()=>{const p=data.posts[Math.floor(Math.random()*data.posts.length)];if(p){openPost(p.id);notify(t("新しい寄り道へ案内しました"));}}}>{t("気ままに歩く")}{" "}<ArrowRight size={15}/></button></div><div className="sidebar-bottom"><span><span className="tiny-leaf">✦</span> A little more serendipity.</span><button aria-label={t("管理画面")} onClick={()=>setAdmin(true)}><Shield size={14}/>{t("管理")}</button></div></aside>
         <main className="main-content"><div className="mobile-world-header"><div><span className="station-heading-kicker"><TrailIcon kind="station" size={13}/>{" "}{t("今日の、寄り道。")}</span><h1>{room?.title||place?.title||'WALK'}</h1></div><div className="mobile-world-actions"><button className="icon-button" aria-label={room?t("このルームに招待"):t("この世界に招待")} onClick={inviteWorld}><Share2 size={19}/></button><button className="icon-button" aria-label={t("投稿を探す")} onClick={()=>openExplore()}><Search size={19}/></button><button onClick={()=>setDestinations(true)} className="route-ticket"><TrailIcon kind="gate" size={18}/>{t("行き先")}{" "}<ChevronRight size={13}/></button></div></div><section className="intro-row"><div><div className="eyebrow"><span className="edition-mark"/> {identity.edition}</div><h1>{room?.title||place?.title||'WALK'}</h1><p>{identity.subtitle}</p></div><button className="outline explore-button" onClick={()=>openExplore()}><Compass size={17}/>{t("投稿を探す")}{" "}<ArrowRight size={16}/></button></section>
@@ -198,7 +213,7 @@ export default function App(){
     <PartyVoice socket={socket.current} data={data} notify={notify}/>
     <TogetherInvitations session={together} visit={visitPost} notify={notify}/>
     {roomDialog&&<Rooms data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setRoomDialog(false)} rooms={rooms} reload={reloadRooms} enter={enterRoom} watch={async id=>{await travelRoom(id);setLargeWatch(false);setLoungeRoomId(id);setRoomDialog(false);}} share={room=>setSharing({target:{kind:'room',id:room.id},title:room.title})}/>}
-    {compose&&<ComposePost worldId={worldId} refresh={refresh} notify={notify} openPost={openPost} close={()=>setCompose(false)}/>}
+    {compose&&<ComposePost worldId={worldId} refresh={refresh} notify={notify} openPost={async id=>{setDiscoveryQueue([]);await visitPost(id);}} close={()=>setCompose(false)}/>}
     {ownPosts&&<OwnPosts data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setOwnPosts(false)}/>}
     {importDialog&&<ImportPosts worldId={worldId} data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setImportDialog(false)}/>}
     {admin&&<Modal title={t("WALK STUDIO / 管理")} close={()=>setAdmin(false)} wide><Admin data={data} refresh={refresh} notify={notify}/></Modal>}

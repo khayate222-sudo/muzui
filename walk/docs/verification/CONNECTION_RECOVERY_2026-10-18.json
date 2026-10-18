@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-18",
+  "timezone": "Asia/Tokyo",
+  "baselineCommit": "0e0d0c6f81cbd4176dc9e13d44fbf9b0b6fcb154",
+  "typecheck": true,
+  "lint": true,
+  "viteBuild": true,
+  "unitTests": {
+    "files": 30,
+    "passed": 160,
+    "newApiClientCases": 9
+  },
+  "browserTests": {
+    "passed": 23,
+    "failed": 0,
+    "singleAllPassingRun": true,
+    "newConnectionCases": 11,
+    "existingRegressionCases": 12,
+    "locales": [
+      "en-US",
+      "zh-CN",
+      "zh-TW"
+    ],
+    "mobileViewport": {
+      "width": 320,
+      "height": 844
+    },
+    "cases": [
+      "mobile account keeps the guest data, signs in on a second device, revokes it, recovers and deletes only its own data",
+      "admin resolves reports and suspends and restores a user while preserving the user data controls",
+      "initial connection retry keeps the existing identity and document in en-US",
+      "offline publishing preserves the draft and waits for an explicit retry in en-US",
+      "initial connection retry keeps the existing identity and document in zh-CN",
+      "offline publishing preserves the draft and waits for an explicit retry in zh-CN",
+      "initial connection retry keeps the existing identity and document in zh-TW",
+      "offline publishing preserves the draft and waits for an explicit retry in zh-TW",
+      "a confirmed post whose refresh fails is reopened without a second publication",
+      "an HTML 401 still requires session recovery and never creates a replacement guest",
+      "a failed image upload can select the same file again without losing the draft",
+      "a post saved before realtime reconnect stays recoverable until its visit succeeds",
+      "a delayed old bootstrap cannot hide a newly published post",
+      "first video and private window in en-US",
+      "first video and private window in zh-CN",
+      "first video and private window in zh-TW",
+      "language choice persists without changing the account at 320px",
+      "English account deletion requires an explicit DELETE and only removes the current guest",
+      "changing language keeps the selected video element, position and privacy settings",
+      "mobile creator posts a real uploaded video, plays it, finds WALK originals and manages own posts",
+      "two guests: movement, deduplicated viewers, persistence, approval, realtime chat, report and block",
+      "mobile onboarding, tap movement, area shortcut, search, saving and private profile persist",
+      "administrator creates, edits and removes posts; reports are restricted; video samples are explicit"
+    ],
+    "initialNewRun": {
+      "passed": 7,
+      "failed": 2,
+      "cause": "Confirmed publication closed before the realtime visit succeeded after reconnect; corrected and covered with a deterministic disconnected-socket workflow."
+    },
+    "finalNarrowLayoutRerun": {
+      "passed": 11,
+      "failed": 0,
+      "documentAndDialogOverflowChecked": true,
+      "dialogScrollLeftZero": true
+    }
+  },
+  "native": {
+    "webAssets": 61,
+    "androidAssetsMatch": true,
+    "iosAssetsMatch": true,
+    "apkAssetsMatch": true,
+    "apkCrcVerified": true,
+    "apkSha256": "afd08c0c55e4834cc32ecac5c7b3020795b7d5b1d1feb392d93a6574de3e6a87",
+    "androidBuild": "debug",
+    "iosCompilation": false,
+    "signedStoreRelease": false,
+    "physicalDeviceTest": false
+  },
+  "requestTimeoutMs": 20000,
+  "multipartTimeoutMs": 120000,
+  "automaticWriteReplay": false,
+  "draftPersistence": "open UI memory only; not across reload or OS termination",
+  "lostWriteAcknowledgement": "outcome uncertain; global server idempotency is not implemented",
+  "environmentConfigurationChanged": false,
+  "dockerImageRebuilt": false,
+  "publicDeployment": false,
+  "translationsAdded": 11,
+  "translationKeys": 1330
+}
