@@ -1,4 +1,13 @@
 export const connectionRows:readonly (readonly [string,string,string,string])[]=[
+['再試行する投稿の内容が変わっています。下書きを作り直してください。','This retry has different content. Discard the draft before starting a new post.','重试内容发生了变化。请丢弃草稿后重新创建帖子。','重試內容發生了變化。請捨棄草稿後重新建立貼文。'],
+['この投稿は削除済みです。再試行しても再公開されません。','This post was deleted. Retrying will not publish it again.','此帖子已删除，重试不会重新发布。','此貼文已刪除，重試不會重新發布。'],
+['下書きはこの端末に保存します。ログアウトやアカウントの切り替えで消去されます。共有端末では使い終わったら下書きを破棄してください。','Drafts are saved on this device and cleared when you sign out or switch accounts. Discard your draft after using a shared device.','草稿保存在此设备上，退出登录或切换账号时会清除。使用共享设备后，请丢弃草稿。','草稿儲存在此裝置上，登出或切換帳號時會清除。使用共用裝置後，請捨棄草稿。'],
+['この端末に下書きを保存できません。画面を閉じると入力が失われる可能性があります。','Could not save the draft on this device. Your input may be lost if you close the screen.','无法在此设备上保存草稿，关闭页面后可能丢失输入内容。','無法在此裝置上儲存草稿，關閉頁面後可能遺失輸入內容。'],
+['添付ファイルも下書きに保存されています。','Your attachment is also saved with the draft.','附件也已保存在草稿中。','附件也已儲存在草稿中。'],
+['同じ内容で再試行できます。保存済みならその投稿を開きます。内容を変える場合は下書きを破棄してください。','Retry with the same content. If it was already saved, that post will open. To change the content, discard this draft first.','可使用相同内容重试。如果已保存，将打开原帖。如需修改内容，请先丢弃此草稿。','可使用相同內容重試。如果已儲存，將開啟原貼文。如需修改內容，請先捨棄此草稿。'],
+['下書きだけを破棄します。すでに公開された投稿は削除されません。','Only the draft will be discarded. Any published post will remain.','仅丢弃草稿，已发布的帖子将保留。','僅捨棄草稿，已發布的貼文將保留。'],
+['下書きの破棄を確定','Confirm discard draft','确认丢弃草稿','確認捨棄草稿'],
+['下書きを破棄','Discard draft','丢弃草稿','捨棄草稿'],
 ['結果を確認できませんでした。保存されている可能性があります。接続が戻ったら状態を確認してから操作してください。','The result could not be confirmed. Your changes may have been saved. Check their status after reconnecting before trying again.','无法确认操作结果，内容可能已保存。连接恢复后，请先检查状态再操作。','無法確認操作結果，內容可能已儲存。連線恢復後，請先檢查狀態再操作。'],
 ['接続できませんでした。通信環境を確認して、もう一度お試しください。','Could not connect. Check your connection and try again.','无法连接，请检查网络后重试。','無法連線，請檢查網路後重試。'],
 ['この操作は許可されていません。','This action is not allowed.','不允许执行此操作。','不允許執行此操作。'],

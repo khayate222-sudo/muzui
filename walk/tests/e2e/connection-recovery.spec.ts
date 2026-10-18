@@ -102,3 +102,106 @@ test('a delayed old bootstrap cannot hide a newly published post',async({browser
   await expect(p.locator('.post-detail h2')).toHaveText(title);expect(instance.store.sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE title=?').get(title)).toEqual({n:1});
  }finally{release();await context.close();}
 });
+for(const [device,locale] of cases){
+ test('a lost publish acknowledgement survives reload and retries exactly once in '+device,async({browser})=>{
+  const context=await browser.newContext({baseURL:origin,locale:device,viewport:{width:320,height:844},isMobile:true,hasTouch:true}),p=await context.newPage();
+  const requests:Record<string,unknown>[]=[];let lose=true;
+  try{
+   await onboard(p,locale);let form=await compose(p,locale);const title='Lost acknowledgement '+device;
+   await form.getByLabel(t('投稿タイトル',locale),{exact:true}).fill(title);
+   await form.getByLabel(t('本文',locale),{exact:true}).fill('Do not change $& {count} · 私密草稿');
+   await p.route('**/api/posts',async route=>{
+    if(route.request().method()!=='POST')return route.continue();requests.push(route.request().postDataJSON());
+    if(!lose)return route.continue();lose=false;
+    const response=await route.fetch();expect(response.status()).toBe(200);await route.abort('connectionreset');
+   });
+   await form.getByRole('button',{name:t('広場に公開する',locale),exact:true}).click();
+   await expect(form.getByRole('alert')).toBeVisible();await expect(form.getByLabel(t('投稿タイトル',locale),{exact:true})).toBeDisabled();
+   expect(instance.store.sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE title=?').get(title)).toEqual({n:1});
+   await p.reload();await expect(p.getByRole('application')).toHaveAttribute('data-ready','true');form=await compose(p,locale);
+   await expect(form.getByLabel(t('投稿タイトル',locale),{exact:true})).toHaveValue(title);
+   await expect(form.getByLabel(t('本文',locale),{exact:true})).toHaveValue('Do not change $& {count} · 私密草稿');
+   await expect(form.getByLabel(t('投稿タイトル',locale),{exact:true})).toBeDisabled();expect(requests).toHaveLength(1);await fit(p);
+   await form.getByRole('button',{name:t('広場に公開する',locale),exact:true}).click();await expect(form).toHaveCount(0);
+   await expect(p.locator('.post-detail h2')).toHaveText(title);expect(requests).toHaveLength(2);expect(requests[1]).toEqual(requests[0]);
+   expect(instance.store.sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE title=?').get(title)).toEqual({n:1});
+   expect(await p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('walk-post-draft-v1:')))).toEqual([]);
+  }finally{await context.close();}
+ });
+}
+test('a private text and image draft survives close and reload, then publishes its original attachment',async({browser})=>{
+ const context=await browser.newContext({baseURL:origin,locale:'en-US',viewport:{width:320,height:844},isMobile:true,hasTouch:true}),p=await context.newPage();
+ try{
+  await onboard(p,'en');let form=await compose(p,'en');await form.getByLabel('Post title',{exact:true}).fill('Not public yet');await form.getByLabel(t('本文','en'),{exact:true}).fill('Only on my device');
+  await form.locator('input[type=file]').setInputFiles({name:'draft.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aN1cAAAAASUVORK5CYII=','base64')});
+  await expect(form.getByRole('img',{name:t('添付プレビュー','en'),exact:true})).toBeVisible();const url=await form.getByRole('img',{name:t('添付プレビュー','en'),exact:true}).getAttribute('src');
+  await form.getByRole('button',{name:'Close',exact:true}).click();form=await compose(p,'en');await expect(form.getByLabel('Post title',{exact:true})).toHaveValue('Not public yet');
+  await p.reload();await expect(p.getByRole('application')).toHaveAttribute('data-ready','true');form=await compose(p,'en');
+  await expect(form.getByRole('img',{name:t('添付プレビュー','en'),exact:true})).toHaveAttribute('src',url!);await expect(form.getByLabel(t('本文','en'),{exact:true})).toHaveValue('Only on my device');
+  const outsider=await browser.newContext({baseURL:origin});try{expect((await outsider.request.get(url!)).status()).toBe(404);}finally{await outsider.close();}
+  expect(instance.store.sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE title=?').get('Not public yet')).toEqual({n:0});
+  await fit(p);await p.screenshot({path:'artifacts/private-draft-restored-320.png',animations:'disabled'});
+  await form.getByRole('button',{name:t('広場に公開する','en'),exact:true}).click();await expect(p.locator('.post-detail h2')).toHaveText('Not public yet');await expect(p.locator('.post-detail .detail-image')).toHaveAttribute('src',url!);
+ }finally{await context.close();}
+});
+test('discard is confirmed and clears the draft without deleting a post whose acknowledgement was lost',async({browser})=>{
+ const context=await browser.newContext({baseURL:origin,locale:'en-US',viewport:{width:320,height:844}}),p=await context.newPage();
+ try{
+  await onboard(p,'en');const form=await compose(p,'en');await form.getByLabel('Post title',{exact:true}).fill('Keep the published post');
+  await p.route('**/api/posts',async route=>{const response=await route.fetch();expect(response.status()).toBe(200);await route.abort('connectionreset');});
+  await form.getByRole('button',{name:t('広場に公開する','en'),exact:true}).click();await expect(form.getByRole('alert')).toBeVisible();
+  await form.getByRole('button',{name:'Discard draft',exact:true}).click();await expect(form).toBeVisible();await fit(p);
+  await form.getByRole('button',{name:'Confirm discard draft',exact:true}).click();await expect(form).toHaveCount(0);
+  expect(instance.store.sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE title=?').get('Keep the published post')).toEqual({n:1});
+  const fresh=await compose(p,'en');await expect(fresh.getByLabel('Post title',{exact:true})).toHaveValue('');await expect(fresh.getByLabel('Post title',{exact:true})).toBeEnabled();
+ }finally{await context.close();}
+});
+test('signing out clears local drafts before the next identity starts',async({browser})=>{
+ const context=await browser.newContext({baseURL:origin,locale:'en-US',viewport:{width:390,height:844}}),p=await context.newPage();
+ try{
+  await onboard(p,'en');
+  const registered=await p.request.post('/api/account/register',{headers:{'X-Walk-Client':'1'},data:{handle:'draft_owner',password:'draft owner passphrase',accepted:true,policyVersion:'development-2026-10'}});expect(registered.status()).toBe(200);
+  await p.reload();await expect(p.getByRole('application')).toHaveAttribute('data-ready','true');
+  const form=await compose(p,'en');await form.getByLabel('Post title',{exact:true}).fill('Do not show the next person');
+  await expect.poll(()=>p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('walk-post-draft-v1:')).length)).toBe(1);
+  await form.getByRole('button',{name:'Close',exact:true}).click();
+  await p.locator('.mobile-nav').getByRole('button',{name:t('あなた','en'),exact:true}).click();await p.getByRole('button',{name:t('アカウントとデータ','en'),exact:true}).click();
+  await p.getByRole('button',{name:t('この端末からログアウト','en'),exact:true}).click();
+  await expect.poll(()=>p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('walk-post-draft-v1:')).length)).toBe(0);
+ }finally{await context.close();}
+});
+test('blocked draft storage warns the author and still allows a deliberate publication',async({browser})=>{
+ const context=await browser.newContext({baseURL:origin,locale:'en-US',viewport:{width:320,height:844}}),p=await context.newPage();
+ try{
+  await onboard(p,'en');await p.evaluate(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.startsWith('walk-post-draft-v1:'))throw new DOMException('Storage full','QuotaExceededError');return original.call(this,key,value);};});
+  const form=await compose(p,'en');await form.getByLabel('Post title',{exact:true}).fill('Storage is unavailable');
+  await expect(form.getByRole('alert')).toHaveText(t('この端末に下書きを保存できません。画面を閉じると入力が失われる可能性があります。','en'));await fit(p);
+  await form.getByRole('button',{name:t('広場に公開する','en'),exact:true}).click();await expect(p.locator('.post-detail h2')).toHaveText('Storage is unavailable');
+ }finally{await context.close();}
+});
+test('a rate-limited retry preserves the original uncertain request identifier',async({browser})=>{
+ const context=await browser.newContext({baseURL:origin,locale:'en-US',viewport:{width:320,height:844}}),p=await context.newPage();let calls=0;const keys:string[]=[];
+ try{
+  await onboard(p,'en');const form=await compose(p,'en');await form.getByLabel('Post title',{exact:true}).fill('Still one after rate limiting');
+  await p.route('**/api/posts',async route=>{
+   keys.push(route.request().postDataJSON().requestId);calls++;
+   if(calls===1){await route.fetch();return route.abort('connectionreset');}
+   if(calls===2)return route.fulfill({status:429,json:{error:'Please wait'}});
+   return route.continue();
+  });
+  const publish=form.getByRole('button',{name:t('広場に公開する','en'),exact:true});
+  await publish.click();await expect(form.getByRole('alert')).toBeVisible();
+  await publish.click();await expect(form.getByRole('alert')).toHaveText('Please wait');await expect(form.getByLabel('Post title',{exact:true})).toBeDisabled();
+  await publish.click();await expect(form).toHaveCount(0);expect(keys).toHaveLength(3);expect(new Set(keys).size).toBe(1);
+  expect(instance.store.sqlite.prepare('SELECT COUNT(*) AS n FROM posts WHERE title=?').get('Still one after rate limiting')).toEqual({n:1});
+ }finally{await context.close();}
+});
+test('erasing all text does not resurrect an older draft on reopen',async({browser})=>{
+ const context=await browser.newContext({baseURL:origin,locale:'en-US'}),p=await context.newPage();
+ try{
+  await onboard(p,'en');let form=await compose(p,'en');const input=form.getByLabel('Post title',{exact:true});await input.fill('Erase me');
+  await expect.poll(()=>p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('walk-post-draft-v1:')).length)).toBe(1);
+  await input.fill('');await expect.poll(()=>p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('walk-post-draft-v1:')).length)).toBe(0);
+  await form.getByRole('button',{name:'Close',exact:true}).click();form=await compose(p,'en');await expect(form.getByLabel('Post title',{exact:true})).toHaveValue('');
+ }finally{await context.close();}
+});

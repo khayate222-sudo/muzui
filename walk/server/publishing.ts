@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import multipart from '@fastify/multipart';
-import { randomUUID } from 'node:crypto';
+import { createHash,randomUUID } from 'node:crypto';
 import { mkdir,readFile,writeFile,unlink } from 'node:fs/promises';
 import { join,resolve } from 'node:path';
 import { eq } from 'drizzle-orm';
@@ -11,7 +11,7 @@ import * as t from './schema';
 import { postPosition } from './placement';
 import { acceptsPost,places,type Place } from '../shared/worlds';
 import { genres } from '../shared/model';
-export const makeNativePostSchema=(catalog:readonly Place[]=places)=>z.object({worldId:z.string().max(80).nullable().optional(),title:z.string().trim().min(1).max(120),body:z.string().trim().max(4000),genre:z.enum(genres),attachmentId:z.string().uuid().nullable().default(null)}).refine(p=>acceptsPost(p.worldId,p.genre,catalog),'ジャンルに合う世界を選んでください');
+export const makeNativePostSchema=(catalog:readonly Place[]=places)=>z.object({requestId:z.string().uuid().optional(),worldId:z.string().max(80).nullable().optional(),title:z.string().trim().min(1).max(120),body:z.string().trim().max(4000),genre:z.enum(genres),attachmentId:z.string().uuid().nullable().default(null)}).refine(p=>acceptsPost(p.worldId,p.genre,catalog),'ジャンルに合う世界を選んでください');
 export const nativePostSchema=makeNativePostSchema();
 type Upload={id:string;owner_id:string;filename:string;mime:string;bytes:number;created_at:number};
 export function identifyMedia(b:Buffer):{mime:string;ext:string}|null{
@@ -63,11 +63,27 @@ export async function publishing({app,store,changed,mediaDirectory,catalog=()=>p
   });
   app.post('/api/posts',{config:{rateLimit:{max:6,timeWindow:'1 minute'}}},async(req,reply)=>{
     const p=makeNativePostSchema(catalog()).parse(req.body),owner=req.session!.userId;
-    if((sqlite.prepare("SELECT COUNT(*) AS n FROM posts WHERE owner_id=? AND origin='walk'").get(owner) as {n:number}).n>=100)return reply.code(409).send({error:'直接投稿は1人100件までです'});
-    const attachment=p.attachmentId?sqlite.prepare('SELECT * FROM media_uploads WHERE id=? AND owner_id=?').get(p.attachmentId,owner) as Upload|undefined:null;
-    if(p.attachmentId&&!attachment)return reply.code(403).send({error:'自分がアップロードしたファイルを選んでください'});
-    const author=db.select().from(t.users).where(eq(t.users.id,owner)).get()!,id=randomUUID();
-    db.insert(t.posts).values({id,worldId:p.worldId,ownerId:owner,origin:'walk',type:attachment?(attachment.mime.startsWith('video/')?'video':'image'):'text',title:p.title,body:p.body,genre:p.genre,mediaUrl:attachment?'/media/'+attachment.filename:'',externalUrl:'',provider:'WALK',authorName:author.displayName,...postPosition(store,p.genre,p.worldId),isSample:false,createdAt:Date.now()}).run();changed();return {id};
+    const hash=createHash('sha256').update(JSON.stringify([p.title,p.body,p.genre,p.worldId||null,p.attachmentId])).digest('hex');
+    // The ledger and post commit together, including across separate server processes.
+    const result=sqlite.transaction(()=>{
+      if(p.requestId){
+        const previous=sqlite.prepare('SELECT payload_hash,post_id FROM post_requests WHERE owner_id=? AND request_id=?').get(owner,p.requestId) as {payload_hash:string;post_id:string|null}|undefined;
+        if(previous){
+          if(previous.payload_hash!==hash)return {status:409,error:'再試行する投稿の内容が変わっています。下書きを作り直してください。'};
+          if(!previous.post_id)return {status:410,error:'この投稿は削除済みです。再試行しても再公開されません。'};
+          return {id:previous.post_id,created:false};
+        }
+      }
+      if((sqlite.prepare("SELECT COUNT(*) AS n FROM posts WHERE owner_id=? AND origin='walk'").get(owner) as {n:number}).n>=100)return {status:409,error:'直接投稿は1人100件までです'};
+      const attachment=p.attachmentId?sqlite.prepare('SELECT * FROM media_uploads WHERE id=? AND owner_id=?').get(p.attachmentId,owner) as Upload|undefined:null;
+      if(p.attachmentId&&!attachment)return {status:403,error:'自分がアップロードしたファイルを選んでください'};
+      const author=db.select().from(t.users).where(eq(t.users.id,owner)).get()!,id=randomUUID();
+      db.insert(t.posts).values({id,worldId:p.worldId,ownerId:owner,origin:'walk',type:attachment?(attachment.mime.startsWith('video/')?'video':'image'):'text',title:p.title,body:p.body,genre:p.genre,mediaUrl:attachment?'/media/'+attachment.filename:'',externalUrl:'',provider:'WALK',authorName:author.displayName,...postPosition(store,p.genre,p.worldId),isSample:false,createdAt:Date.now()}).run();
+      if(p.requestId)sqlite.prepare('INSERT INTO post_requests VALUES (?,?,?,?,?)').run(owner,p.requestId,hash,id,Date.now());
+      return {id,created:true};
+    }).immediate();
+    if(result.status!==undefined)return reply.code(result.status).send({error:result.error});
+    if(result.created)changed();return {id:result.id};
   });
   app.delete('/api/posts/:id',async(req,reply)=>{
     const id=(req.params as {id:string}).id,row=db.select().from(t.posts).where(eq(t.posts.id,id)).get();

@@ -49,6 +49,7 @@ it("backs up SQLite and its exact media, restores to a new folder, and starts wi
         "INSERT INTO activities (id,user_id,kind,title,starts_at,ends_at,note,photo,photo_mime) VALUES ('record','owner','study','勉強',?,?,'私的なメモ',?,'image/png')",
       )
       .run(Date.now(), Date.now() + 10000, Buffer.from("private-photo"));
+    store.sqlite.prepare("INSERT INTO post_requests VALUES ('owner','retry-key','payload-hash',NULL,?)").run(Date.now());
     const backup = join(root, "snapshot");
     await createBackup(database, backup, uploads);
     const manifest = await verifyBackup(backup);
@@ -68,6 +69,7 @@ it("backs up SQLite and its exact media, restores to a new folder, and starts wi
             .get() as { note: string; photo: Buffer }
         ).note,
       ).toBe("私的なメモ");
+      expect(app.store.sqlite.prepare("SELECT payload_hash,post_id FROM post_requests WHERE request_id='retry-key'").get()).toEqual({payload_hash:'payload-hash',post_id:null});
       expect((await app.app.inject({ url: "/api/health" })).statusCode).toBe(
         200,
       );

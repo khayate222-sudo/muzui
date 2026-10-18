@@ -1,4 +1,5 @@
 import {t} from './i18n';
+import {clearPostDrafts} from './post-draft';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { nativeServerUrl } from '../shared/native';
 export const isNative=()=>Capacitor.isNativePlatform();
@@ -44,6 +45,7 @@ export async function replaceNativeSession(next?:string){
  if(next){await SecureStorage.setItem(key,next);token=next;}else {await SecureStorage.removeItem(key);token='';}
 }
 export function announceSessionChange(welcomed=true){
+ clearPostDrafts();
  window.dispatchEvent(new CustomEvent('walk:background'));
  if(welcomed)localStorage.setItem('walk-welcomed','1');else {localStorage.removeItem('walk-welcomed');history.replaceState(null,'',location.pathname+location.search);}
  localStorage.setItem('walk-session-revision',crypto.randomUUID());location.reload();

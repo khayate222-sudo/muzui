@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-19",
+  "timezone": "Asia/Tokyo",
+  "baselineCommit": "cc8d093b4ca6f9dac2a4862dc32640ec56213f68",
+  "typecheck": true,
+  "lint": true,
+  "viteBuild": true,
+  "unitTests": {
+    "passed": 170,
+    "files": 32,
+    "newCases": 10,
+    "finalFocusedRerun": {
+      "passed": 21,
+      "files": 4
+    }
+  },
+  "browserTests": {
+    "passed": 32,
+    "failed": 0,
+    "singleAllPassingRun": true,
+    "connectionAndDraftCases": 20,
+    "newDraftCases": 9,
+    "existingRegressionCases": 12,
+    "locales": [
+      "en-US",
+      "zh-CN",
+      "zh-TW"
+    ],
+    "minimumViewportWidth": 320,
+    "documentAndDialogOverflowChecked": true,
+    "cases": [
+      "mobile account keeps the guest data, signs in on a second device, revokes it, recovers and deletes only its own data",
+      "admin resolves reports and suspends and restores a user while preserving the user data controls",
+      "initial connection retry keeps the existing identity and document in en-US",
+      "offline publishing preserves the draft and waits for an explicit retry in en-US",
+      "initial connection retry keeps the existing identity and document in zh-CN",
+      "offline publishing preserves the draft and waits for an explicit retry in zh-CN",
+      "initial connection retry keeps the existing identity and document in zh-TW",
+      "offline publishing preserves the draft and waits for an explicit retry in zh-TW",
+      "a confirmed post whose refresh fails is reopened without a second publication",
+      "an HTML 401 still requires session recovery and never creates a replacement guest",
+      "a failed image upload can select the same file again without losing the draft",
+      "a post saved before realtime reconnect stays recoverable until its visit succeeds",
+      "a delayed old bootstrap cannot hide a newly published post",
+      "a lost publish acknowledgement survives reload and retries exactly once in en-US",
+      "a lost publish acknowledgement survives reload and retries exactly once in zh-CN",
+      "a lost publish acknowledgement survives reload and retries exactly once in zh-TW",
+      "a private text and image draft survives close and reload, then publishes its original attachment",
+      "discard is confirmed and clears the draft without deleting a post whose acknowledgement was lost",
+      "signing out clears local drafts before the next identity starts",
+      "blocked draft storage warns the author and still allows a deliberate publication",
+      "a rate-limited retry preserves the original uncertain request identifier",
+      "erasing all text does not resurrect an older draft on reopen",
+      "first video and private window in en-US",
+      "first video and private window in zh-CN",
+      "first video and private window in zh-TW",
+      "language choice persists without changing the account at 320px",
+      "English account deletion requires an explicit DELETE and only removes the current guest",
+      "changing language keeps the selected video element, position and privacy settings",
+      "mobile creator posts a real uploaded video, plays it, finds WALK originals and manages own posts",
+      "two guests: movement, deduplicated viewers, persistence, approval, realtime chat, report and block",
+      "mobile onboarding, tap movement, area shortcut, search, saving and private profile persist",
+      "administrator creates, edits and removes posts; reports are restricted; video samples are explicit"
+    ],
+    "initialRun": {
+      "passed": 23,
+      "failed": 7,
+      "causes": [
+        "Controlled textarea changed its implicit accessible name after input; fixed with an explicit localized aria-label.",
+        "New image test matched the close icon as well as the preview; scoped the locator to its accessible name."
+      ]
+    }
+  },
+  "native": {
+    "webAssets": 61,
+    "androidAssetsMatch": true,
+    "iosAssetsMatch": true,
+    "apkAssetsMatch": true,
+    "apkCrcVerified": true,
+    "apkSha256": "8b346c53e89bb2da7f6c16a09149d619296e97e6f2a3eccd18a4a349852289a0",
+    "androidBuild": "debug",
+    "iosCompilation": false,
+    "signedStoreRelease": false,
+    "physicalDeviceTest": false
+  },
+  "translationsAdded": 9,
+  "translationKeys": 1339,
+  "migrationVersion": 11,
+  "postIdempotency": "Owner-scoped UUID plus normalized payload hash; receipt and direct post in one SQLite IMMEDIATE transaction; deleted post tombstones; receipts cascade on account deletion.",
+  "draftPersistence": "One localStorage draft per owner; text, destination, uploaded attachment metadata, exact request ID and submission state. Plain device-local storage, not encrypted or synchronized.",
+  "automaticWriteReplay": false,
+  "backgroundPublishing": false,
+  "idempotencyForOtherEndpoints": false,
+  "environmentConfigurationChanged": false,
+  "dockerImageRebuilt": false,
+  "publicDeployment": false,
+  "videoLibraryChanged": false
+}

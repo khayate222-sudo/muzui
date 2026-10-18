@@ -213,7 +213,7 @@ export default function App(){
     <PartyVoice socket={socket.current} data={data} notify={notify}/>
     <TogetherInvitations session={together} visit={visitPost} notify={notify}/>
     {roomDialog&&<Rooms data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setRoomDialog(false)} rooms={rooms} reload={reloadRooms} enter={enterRoom} watch={async id=>{await travelRoom(id);setLargeWatch(false);setLoungeRoomId(id);setRoomDialog(false);}} share={room=>setSharing({target:{kind:'room',id:room.id},title:room.title})}/>}
-    {compose&&<ComposePost worldId={worldId} refresh={refresh} notify={notify} openPost={async id=>{setDiscoveryQueue([]);await visitPost(id);}} close={()=>setCompose(false)}/>}
+    {compose&&<ComposePost key={data.user.id} ownerId={data.user.id} worldId={worldId} refresh={refresh} notify={notify} openPost={async id=>{setDiscoveryQueue([]);await visitPost(id);}} close={()=>setCompose(false)}/>}
     {ownPosts&&<OwnPosts data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setOwnPosts(false)}/>}
     {importDialog&&<ImportPosts worldId={worldId} data={data} refresh={refresh} notify={notify} openPost={openPost} close={()=>setImportDialog(false)}/>}
     {admin&&<Modal title={t("WALK STUDIO / 管理")} close={()=>setAdmin(false)} wide><Admin data={data} refresh={refresh} notify={notify}/></Modal>}
