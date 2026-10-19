@@ -1,3 +1,4 @@
+import {readBuilding} from './building';
 import type { FastifyInstance } from 'fastify';
 import type { Server, Socket } from 'socket.io';
 import type { Store } from './db';
@@ -17,7 +18,7 @@ export function community(c:Context){
   const person=(id:string):PublicUser=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get()!;return {id:u.id,displayName:u.displayName,color:u.color,style:u.style};};
   const readRoom=(id:string):Room|null=>{
     const r=sqlite.prepare('SELECT r.*, u.display_name AS ownerName FROM rooms r JOIN users u ON r.owner_id=u.id WHERE r.id=?').get(id) as RoomRow|undefined;
-    return r?{id:r.id,ownerId:r.owner_id,ownerName:r.ownerName,title:r.title,description:r.description,isPublic:!!r.is_public,theme:r.theme,updatedAt:r.updated_at,revision:r.revision,...JSON.parse(r.layout),items:(JSON.parse(r.layout).items as Room['items']).filter(i=>!!db.select({id:t.posts.id}).from(t.posts).where(eq(t.posts.id,i.postId)).get())}:null;
+    return r?{id:r.id,ownerId:r.owner_id,ownerName:r.ownerName,title:r.title,description:r.description,isPublic:!!r.is_public,theme:r.theme,updatedAt:r.updated_at,revision:r.revision,...JSON.parse(r.layout),build:readBuilding(c.store,id),items:(JSON.parse(r.layout).items as Room['items']).filter(i=>!!db.select({id:t.posts.id}).from(t.posts).where(eq(t.posts.id,i.postId)).get())}:null;
   };
   const accessible=(r:Room|null,id:string):r is Room=>!!r&&(r.ownerId===id||r.isPublic)&&!blocked(r.ownerId,id);
   app.get('/api/rooms',async req=>{

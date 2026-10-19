@@ -45,6 +45,7 @@ export function dataManagement({
   async function removeUser(id: string) {
     sqlite.transaction(() => {
       leaveCommunity(id);
+      sqlite.prepare("UPDATE game_jobs SET state=CASE WHEN state='completed' THEN 'completed' ELSE 'open' END,worker_id=NULL,delivery=NULL,updated_at=? WHERE worker_id=? AND owner_id<>?").run(Date.now(),id,id);
       const files = sqlite
         .prepare("SELECT filename FROM media_uploads WHERE owner_id=?")
         .all(id) as { filename: string }[];

@@ -50,6 +50,13 @@ it("backs up SQLite and its exact media, restores to a new folder, and starts wi
       )
       .run(Date.now(), Date.now() + 10000, Buffer.from("private-photo"));
     store.sqlite.prepare("INSERT INTO post_requests VALUES ('owner','retry-key','payload-hash',NULL,?)").run(Date.now());
+    store.sqlite.prepare("INSERT INTO rooms (id,owner_id,title,description,is_public,theme,layout,updated_at) VALUES ('room','owner','Workshop','',1,'garden',?,1)").run(JSON.stringify({items:[],decorations:[]}));
+    const pieces=JSON.stringify([{x:2,y:2,z:0,kind:'wall',color:'cream',rotation:0}]);
+    store.sqlite.prepare("INSERT INTO room_builds VALUES ('room',1,?,'build-request','save:hash',1)").run(pieces);
+    store.sqlite.prepare("INSERT INTO room_build_history VALUES ('snapshot','room',0,'[]',1)").run();
+    store.sqlite.prepare("INSERT INTO game_coin_entries VALUES ('coin','owner',200,'daily:backup',1)").run();
+    store.sqlite.prepare("INSERT INTO play_chip_entries VALUES ('chip','owner',100,'daily:backup',1)").run();
+    store.sqlite.prepare("INSERT INTO game_cosmetics VALUES ('owner','sakura',1)").run();
     const backup = join(root, "snapshot");
     await createBackup(database, backup, uploads);
     const manifest = await verifyBackup(backup);
@@ -80,6 +87,10 @@ it("backs up SQLite and its exact media, restores to a new folder, and starts wi
         payload: { handle: "backup_owner", password: "backup long passphrase" },
       });
       expect(login.statusCode, login.body).toBe(200);
+      const cookie=login.headers['set-cookie']!.toString().split(';')[0];
+      const economy=(await app.app.inject({url:'/api/economy',headers:{cookie}})).json();expect(economy).toMatchObject({coins:200,chips:100,owned:['sakura']});
+      const room=(await app.app.inject({url:'/api/rooms/room',headers:{cookie}})).json();expect(room.build).toMatchObject({revision:1,pieces:JSON.parse(pieces)});
+      expect(app.store.sqlite.prepare("SELECT COUNT(*) AS n FROM room_build_history WHERE room_id='room'").get()).toEqual({n:1});
       expect(await readFile(join(restored, "uploads", filename), "utf8")).toBe(
         "test-image",
       );

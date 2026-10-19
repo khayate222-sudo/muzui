@@ -35,6 +35,7 @@ export async function releaseReport(env:Environment,probe=false,fetcher:typeof f
   checks.push(remote);
   const manual=[
     {id:'audience_age',status:'pending',action:'Owner must decide the audience age and complete the corresponding safeguards and store declarations.'},
+    {id:'simulated_casino',status:'pending',action:'Public free-chip play defaults off. Review audience age, safeguards and simulated-gambling store declarations before enabling WALK_ARCADE_ENABLED. Chips cannot be purchased, transferred or redeemed.'},
     {id:'content_and_markets',status:'pending',action:'Review content permissions and test actual provider playback from the intended Asian and English-speaking markets. Douyin/Kuaishou collection needs real registrations and permissions.'},
     {id:'devices',status:'pending',action:'Compile iOS and test iPhone and Android: first playback, next video, recovery, accounts, uploads, backgrounding, voice and sharing.'},
     {id:'operations',status:'pending',action:'Deploy HTTPS, verify backups and restore, monitoring, moderation access and support procedures.'},

@@ -1,4 +1,4 @@
-import {useLocale,t} from './i18n';
+import {useLocale,t,tr} from './i18n';
 import { useEffect, useRef } from 'react';
 import type { Place } from '../shared/worlds';
 import type { Room } from '../shared/community';
@@ -15,6 +15,6 @@ export default function World(props: WorldProps) {
     void import('./world-scene').then(({createWorld})=>{if(!cancelled && host.current)game=createWorld(host.current,()=>current.current);});
     return()=>{cancelled=true;game?.destroy(true);props.actions.current=null;};
   },[props.actions,locale]);
-  return <div className="world-canvas" ref={host} role="application" aria-label={t("WALK マップ。矢印キー・WASD・タップで移動、ドラッグで見渡せます。建物全体を選ぶと世界へ入ります。投稿の近くでEキーを押すと開きます。")} tabIndex={0}><span className="sr-only">{t("地図操作が難しい場合は「投稿を探す」からすべての投稿を閲覧できます。")}</span></div>;
+  return <div className="world-canvas" ref={host} role="application" aria-label={t("WALK マップ。矢印キー・WASD・タップで移動、ドラッグで見渡せます。建物全体を選ぶと世界へ入ります。投稿の近くでEキーを押すと開きます。")} tabIndex={0}><span className="sr-only" data-testid="building-pieces">{props.room?tr("このルームの建築は {count} パーツです",{count:props.room.build?.pieces.length||0}):''}</span><span className="sr-only">{t("地図操作が難しい場合は「投稿を探す」からすべての投稿を閲覧できます。")}</span></div>;
 }
 export type { Peer };

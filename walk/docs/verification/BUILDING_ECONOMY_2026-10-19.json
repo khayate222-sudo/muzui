@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-19",
+  "branch": "delivery/walk-local-download",
+  "baseCommit": "62158dcd89a11b81a318e67f11482a197854c68a",
+  "scope": "game-only; no real-world jobs, goods, transfers or cash-out",
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "unitFiles": 35,
+    "unitTests": 190,
+    "browserWorkflows": 14,
+    "newBrowserWorkflows": 7,
+    "mobileWidth": 320,
+    "browserLocales": [
+      "en-US",
+      "zh-CN",
+      "zh-TW"
+    ],
+    "build": "passed"
+  },
+  "native": {
+    "webFiles": 61,
+    "androidMatch": true,
+    "iosCopyMatch": true,
+    "apkAssetsMatch": true,
+    "apkCrcValid": true,
+    "apkBytes": 32515280,
+    "apkSha256": "3576ad4d4181724f0d3812024ad9e34eece6b0056f21725d2972d758fb687919",
+    "physicalDevicesTested": false,
+    "iosCompiled": false,
+    "storePublished": false
+  },
+  "paymentsEnabled": false,
+  "publicArcadeDefault": false,
+  "deployed": false,
+  "dockerImageRebuilt": false,
+  "limitations": [
+    "Store purchase verification, restoration and actual products not connected",
+    "No physical device testing or iOS compilation",
+    "Public backend, operator information, target age, signatures and store submission remain external",
+    "Custom asset authoring and shared building plots not implemented"
+  ]
+}

@@ -43,4 +43,6 @@ The owner asked for deployable artifacts and instructions first. Existing `.env`
 
 Deployment configuration and source preparation can be completed without these credentials. Actual public launch and store release cannot be marked complete until their checks are performed.
 
+The game-only building, coin shop, resident requests and free-chip game are described in [BUILDING_AND_GAME_ECONOMY.md](BUILDING_AND_GAME_ECONOMY.md). No real-world commerce or cash-out is included. Store purchases remain disabled. Public simulated play defaults off; review audience safeguards and store declarations before setting `WALK_ARCADE_ENABLED=true`. No additional runtime dependency is required; rebuild the server and native assets to include migrations 0012–0013. Existing deployments do not change merely because the source branch is updated.
+
 [海外向けの実装検証（2026-10-17）](VALIDATION_INTERNATIONAL_2026-10-17.md)に、成功した検証と未確認の範囲を記録しています。

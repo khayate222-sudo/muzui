@@ -91,6 +91,10 @@ export function accounts({
       "SELECT 1 FROM messages WHERE sender_id=?",
       "SELECT 1 FROM friendships WHERE requester_id=? OR receiver_id=?",
       "SELECT 1 FROM media_uploads WHERE owner_id=?",
+      "SELECT 1 FROM game_coin_entries WHERE user_id=?",
+      "SELECT 1 FROM play_chip_entries WHERE user_id=?",
+      "SELECT 1 FROM game_cosmetics WHERE user_id=?",
+      "SELECT 1 FROM game_jobs WHERE owner_id=? OR worker_id=?",
     ];
     return {
       suspension: suspension || null,
@@ -425,6 +429,13 @@ export function accounts({
         : null,
       worlds: all("SELECT id,parent_id,title,description,landscape,created_at FROM user_worlds WHERE owner_id=?"),
       posts: all("SELECT * FROM posts WHERE owner_id=?"),
+      gameCoins: all("SELECT delta,reference,created_at FROM game_coin_entries WHERE user_id=?"),
+      playChips: all("SELECT delta,reference,created_at FROM play_chip_entries WHERE user_id=?"),
+      cosmetics: all("SELECT item_id,created_at FROM game_cosmetics WHERE user_id=?"),
+      arcadeRounds: all("SELECT request_id,choice,outcome,bet,net,created_at FROM arcade_rounds WHERE user_id=?"),
+      gameJobs: sqlite.prepare("SELECT id,owner_id,worker_id,title,description,reward,state,delivery,created_at,updated_at FROM game_jobs WHERE owner_id=? OR worker_id=?").all(id,id),
+      builds: all("SELECT b.room_id,b.revision,b.pieces,b.updated_at FROM room_builds b JOIN rooms r ON r.id=b.room_id WHERE r.owner_id=?"),
+      buildingHistory: all("SELECT b.id,b.room_id,b.revision,b.pieces,b.created_at FROM room_build_history b JOIN rooms r ON r.id=b.room_id WHERE r.owner_id=?"),
       favorites: all("SELECT * FROM favorites WHERE user_id=?"),
       reactions: all("SELECT * FROM reactions WHERE user_id=?"),
       sentMessages: all(

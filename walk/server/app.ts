@@ -1,3 +1,5 @@
+import {economy} from './economy';
+import {building} from './building';
 import { mkdtempSync,rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname,join } from 'node:path';
@@ -78,7 +80,7 @@ export async function createApp(options: { database?: string; adminKey: string; 
     if(req.session&&req.cookies.walk_session&&sqlite.prepare('SELECT user_id FROM accounts WHERE user_id=?').get(req.session.userId))reply.setCookie('walk_session',req.cookies.walk_session,{httpOnly:true,sameSite:'strict',secure:options.secureCookie??false,path:'/',maxAge:30*86400});
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && (req.headers['x-walk-client'] !== '1' || !(validOrigin(req.headers.origin,req.headers.host)||(!!bearer&&!!req.session||publicAccount)&&nativeOrigins.includes(req.headers.origin||'')))) return reply.code(403).send({ error: 'リクエスト元を確認できません。ページを再読み込みしてください。' });
     if(req.session&&!publicAccount&&path!=='/api/bootstrap'&&path!=='/api/health'&&!path.startsWith('/api/account')&&sqlite.prepare('SELECT user_id FROM user_moderation WHERE user_id=?').get(req.session.userId))return reply.code(403).send({error:'このアカウントは利用停止中です。アカウント設定からデータの取得・削除や問い合わせ先を確認できます。'});
-    if(process.env.WALK_PUBLIC_RELEASE==='true'&&req.session&&req.method==='POST'&&['/api/uploads','/api/posts','/api/imports'].includes(path)&&!sqlite.prepare('SELECT user_id FROM accounts WHERE user_id=?').get(req.session.userId))return reply.code(403).send({error:'投稿するには、今のゲストを無料でアカウント登録してください'});
+    if(process.env.WALK_PUBLIC_RELEASE==='true'&&req.session&&req.method==='POST'&&['/api/uploads','/api/posts','/api/imports','/api/economy/jobs'].includes(path)&&!sqlite.prepare('SELECT user_id FROM accounts WHERE user_id=?').get(req.session.userId))return reply.code(403).send({error:'投稿するには、今のゲストを無料でアカウント登録してください'});
     // Native sessions use a capability token stored in the device's secure storage.
     if (!['/api/bootstrap','/api/native/session'].includes(req.url.split('?')[0]) && req.url !== '/api/health' && !publicAccount && !req.session) return reply.code(401).send({ error: 'セッションの有効期限が切れました。再読み込みしてください。' });
     if (req.url.startsWith('/api/admin/') && req.url !== '/api/admin/login' && !req.session?.isAdmin) return reply.code(403).send({ error: '管理者の認証が必要です' });
@@ -151,6 +153,8 @@ export async function createApp(options: { database?: string; adminKey: string; 
       const r=features.readRoom(p.worldId);if(!features.accessible(r,userId))changeWorld(userId,'public');
     }
   }});
+  economy({app,store,blocked,changed:()=>io.emit('economy')});
+  building({app,store,changed:()=>{io.emit('rooms');broadcast();}});
   const discovery=videoDiscovery(app,store,postList,()=>io.emit('posts'));
   soloRoom({app,store,readRoom:features.readRoom,eligible:id=>{const p=readablePost(id);return !!p&&discoverableVideo(p);},changed:id=>{notify(id);io.emit('posts');io.emit('rooms');broadcast();}});
   const watchingFeatures=synchronizedWatching({io,connected,blocked,person:id=>{const u=db.select().from(t.users).where(eq(t.users.id,id)).get();return u?pub(u):null;},video:id=>{const p=readablePost(id);return p&&canSynchronize(p)?{id:p.id,title:p.title,source:p.mediaUrl}:null;},viewer:id=>{const s=sockets.get(id);if(!s)return null;const session=db.select().from(t.sessions).where(eq(t.sessions.tokenHash,s.tokenHash)).get();return session&&session.expiresAt>Date.now()&&!isSuspended(s.userId)?{userId:s.userId,postId:s.postId}:null;}});
