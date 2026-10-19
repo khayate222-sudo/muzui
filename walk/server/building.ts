@@ -2,6 +2,7 @@ import type {FastifyInstance} from 'fastify';
 import {createHash,randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import type {Store} from './db';
+import {cosmeticCatalog} from '../shared/economy';
 import {buildingPiecesSchema,canonicalPieces,emptyBuilding,type Building,type BuildingSnapshot} from '../shared/building';
 type Row={revision:number;pieces:string;last_request_id:string;last_hash:string;updated_at:number};
 export function readBuilding(store:Store,roomId:string):Building{
@@ -19,7 +20,7 @@ export function building({app,store,changed}:{app:FastifyInstance;store:Store;ch
  function save(room:string,user:string,revision:number,requestId:string,pieces:Building['pieces'],operation='save'){
   return sql.transaction(()=>{
    if(!owned(room,user))return {status:403,error:'自分のルームだけ編集できます'};
-   for(const color of ['sakura','midnight','copper'])if(pieces.some(p=>p.color===color)&&!sql.prepare('SELECT 1 FROM game_cosmetics WHERE user_id=? AND item_id=?').get(user,color))return {status:403,error:'この素材はコインのお店で入手してください'};
+   for(const item of cosmeticCatalog){const uses=pieces.some(p=>'color' in item?p.color===item.color:p.kind===item.kind);if(uses&&!sql.prepare('SELECT 1 FROM game_cosmetics WHERE user_id=? AND item_id=?').get(user,item.id))return {status:403,error:'この素材はコインのお店で入手してください'};}
    const current=readBuilding(store,room),data=JSON.stringify(canonicalPieces(pieces)),hash=operation+':'+createHash('sha256').update(data).digest('hex');
    const row=sql.prepare('SELECT * FROM room_builds WHERE room_id=?').get(room) as Row|undefined;
    if(row?.last_request_id===requestId){if(row.last_hash!==hash)return {status:409,error:'同じ保存操作の内容が変わっています'};return {build:current};}

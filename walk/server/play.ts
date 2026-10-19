@@ -69,5 +69,5 @@ export function cooperativePlay(c:Context){
     });
     event('leave',()=>leave(socket.id));socket.on('disconnect',()=>leave(socket.id));
   }
-  return {attach,refresh,close:()=>{for(const t of tables.values())clearTimeout(t.timer);tables.clear();lastFlip.clear();}};
+  return {attach,refresh,leave,close:()=>{for(const t of tables.values())clearTimeout(t.timer);tables.clear();lastFlip.clear();}};
 }

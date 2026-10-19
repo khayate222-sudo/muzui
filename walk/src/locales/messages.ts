@@ -1,3 +1,4 @@
+import {lanternRows} from './lantern';
 import {economyRows} from './economy';
 import {buildingRows} from './building';
 import {connectionRows} from './connection';
@@ -211,4 +212,4 @@ const rows:readonly (readonly [string,string,string,string])[]=[
 ['放課後','Afternoon','午后','午後'],
 ['夕暮れ','Evening','傍晚','傍晚'],
 ];
-export const messages:Record<string,Translation>=Object.fromEntries([...rows,...economyRows,...buildingRows,...connectionRows,...runtimeRows,...providerErrorRows,...operatorRows,...errorRows,...sceneryRows,...journeyRows,...togetherRows,...lifeRows,...accountRows,...navigationRows,...legalRows,...socialRows,...worldRows].map(([source,en,hans,hant])=>[source,{en,'zh-Hans':hans,'zh-Hant':hant}]));
+export const messages:Record<string,Translation>=Object.fromEntries([...rows,...economyRows,...buildingRows,...connectionRows,...runtimeRows,...providerErrorRows,...operatorRows,...errorRows,...sceneryRows,...journeyRows,...togetherRows,...lifeRows,...accountRows,...navigationRows,...legalRows,...socialRows,...worldRows,...lanternRows].map(([source,en,hans,hant])=>[source,{en,'zh-Hans':hans,'zh-Hant':hant}]));

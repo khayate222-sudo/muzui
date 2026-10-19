@@ -114,7 +114,7 @@ export function createWorld(host:HTMLElement, get:()=>WorldProps) {
       c.on('pointerout',()=>{(c.getData('halo') as Phaser.GameObjects.Graphics|undefined)?.setVisible(false);});
     }
     drawPlace(){
-      const place=get().place!;const painted=drawCourtyard(this,place);if(painted){for(const entrance of painted)this.bindAction(entrance.container,entrance.regions,()=>entrance.destination?get().onEnter(entrance.destination):get().onGuide());return;}const hall=drawPlaceArt(this,place,(x,y,s)=>this.tree(x,y,s));if(hall)this.bindAction(hall,(hall.getData('hitRegions') as HitRegion[]|undefined)||[polygon([-208,-131,-55,-252,209,-165,209,-155,180,-34,78,34,-190,15]),rectangle(-170,40,330,43)],()=>get().onGuide());
+      const place=get().place!;const painted=drawCourtyard(this,place);if(painted){for(const entrance of painted)this.bindAction(entrance.container,entrance.regions,()=>entrance.action?get().onVenueAction?.(entrance.action):entrance.destination?get().onEnter(entrance.destination):get().onGuide());return;}const hall=drawPlaceArt(this,place,(x,y,s)=>this.tree(x,y,s));if(hall)this.bindAction(hall,(hall.getData('hitRegions') as HitRegion[]|undefined)||[polygon([-208,-131,-55,-252,209,-165,209,-155,180,-34,78,34,-190,15]),rectangle(-170,40,330,43)],()=>get().onGuide());
       for(const gate of gatePoints(place.id)){
         const c=this.add.container(gate.x,gate.y).setDepth(gate.y).setSize(270,300);
         const regions=drawBuilding(this,c,gate.place,gate.place.id===place.parentId);

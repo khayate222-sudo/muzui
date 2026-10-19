@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-19",
+  "branch": "delivery/walk-local-download",
+  "baseCommit": "a3f8af48842a561ee507b241c20acaee246a5618",
+  "scope": [
+    "Station-side lantern lodge",
+    "Consented shared free-chip tables",
+    "Ten permanent coin ornaments",
+    "Private coin journal"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "unitFiles": 36,
+    "unitTests": 201,
+    "newBrowserWorkflows": 6,
+    "existingBrowserWorkflows": 15,
+    "mobilePolishWorkflow": 1,
+    "mobileShopLocales": [
+      "en-US",
+      "zh-CN",
+      "zh-TW"
+    ],
+    "sharedTableLocales": [
+      "en-US",
+      "zh-TW"
+    ],
+    "webBuild": "passed"
+  },
+  "native": {
+    "syncAndroid": true,
+    "syncIos": true,
+    "androidDebugBuild": "passed",
+    "gradleSeconds": 14,
+    "tasks": 186,
+    "executedTasks": 21,
+    "upToDateTasks": 165,
+    "webFiles": 62,
+    "allWebFilesMatchAndroidIosAndApk": true,
+    "apkCrcValid": true,
+    "apkBytes": 33159791,
+    "apkSha256": "4c6d21e2ffdda5dc9858912ec7c759582d43aecac22ef3e30f8ed454b89fe884"
+  },
+  "publicArcadeDefault": false,
+  "paymentsEnabled": false,
+  "cashOut": false,
+  "physicalDevicesTested": false,
+  "iosCompiled": false,
+  "deployed": false,
+  "dockerImageRebuilt": false
+}

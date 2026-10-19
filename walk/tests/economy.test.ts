@@ -52,3 +52,8 @@ it('exports only own balances and clears deleted worker submissions while return
  await req(b,'/account/delete',{confirm:'DELETE'});const current=(await state()).jobs[0];expect(current).toMatchObject({state:'open',workerId:null,delivery:null});await act(a,j.id,'cancel');expect((await state()).coins).toBe(200);
  const live=(await req(a,'/bootstrap')).json().user.id;await req(a,'/account/delete',{confirm:'DELETE'});expect(instance.store.sqlite.prepare('SELECT * FROM game_coin_entries WHERE user_id=?').all(live)).toEqual([]);expect(instance.store.sqlite.prepare('SELECT * FROM game_jobs').all()).toEqual([]);expect(instance.store.sqlite.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
 });
+
+it('shows only the owners real coin entries and charges a permanent catalog unlock once',async()=>{
+ await claim();await req(a,'/economy/shop',{itemId:'armchair'});const mine=await state();expect(mine.coins).toBe(0);expect(mine.coinHistory.map((e:{kind:string;delta:number})=>[e.kind,e.delta])).toEqual([['shop',-200],['daily',200]]);expect(mine.coinHistory.every((e:{reference?:string})=>!e.reference)).toBe(true);expect((await state(b)).coinHistory).toEqual([]);
+ expect(mine.catalog.filter((i:{kind?:string})=>i.kind)).toHaveLength(10);expect((await req(a,'/economy/shop',{itemId:'armchair'})).statusCode).toBe(200);expect((await state()).coinHistory).toHaveLength(2);expect((await req(a,'/economy/shop',{itemId:'arch'})).statusCode).toBe(409);
+});

@@ -6,7 +6,7 @@ import { avatarFrames } from './world-layout';
 import type { WorldLight } from './world-light';
 
 const fontFamily = '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif';
-type Entrance = { container: Phaser.GameObjects.Container; regions: HitRegion[]; destination?: string };
+type Entrance = { container: Phaser.GameObjects.Container; regions: HitRegion[]; destination?: string; action?:'table'|'shop' };
 // Authored against the integrated painting, in the same 2000 × 1400 space.
 // Roof, wall and doorstep all belong to a building; the surrounding paving doesn't.
 const buildingOutlines: Record<Place['theme'], number[][]> = {
@@ -16,8 +16,9 @@ const buildingOutlines: Record<Place['theme'], number[][]> = {
   future: [[100,535,100,305,237,218,237,167,337,90,440,170,440,220,545,220,545,535], [545,535,545,193,780,30,1025,193,1075,193,1075,535], [1075,550,1075,240,1260,112,1435,240,1435,550]],
   fantasy: [[25,535,25,300,160,195,220,170,220,112,270,112,270,172,370,195,535,300,535,535], [535,535,535,290,647,290,647,190,730,35,810,190,810,187,960,187,1070,300,1070,535], [1070,550,1070,270,1265,148,1490,270,1490,550]],
 };
-function courtyardBuildings(theme: Place['theme']) {
-  return buildingOutlines[theme].map(points => polygon(points.map((value, i) => value * (i % 2 ? 1400 / 1024 : 2000 / 1536))));
+const lanternOutlines=[[95,555,95,306,289,188,548,273,548,555],[530,555,530,277,765,39,996,226,1078,277,1078,555],[1078,565,1078,269,1275,155,1485,267,1485,565]];
+function courtyardBuildings(theme: Place['theme'],lantern=false) {
+  return (lantern?lanternOutlines:buildingOutlines[theme]).map(points => polygon(points.map((value, i) => value * (i % 2 ? 1400 / 1024 : 2000 / 1536))));
 }
 
 export function prepareCourtyard(scene: Phaser.Scene) {
@@ -57,12 +58,13 @@ export function drawCourtyard(scene: Phaser.Scene, place?: Place): Entrance[] | 
   return [0, 1, 2].map(index => {
     const x = [510, 1000, 1490][index], gate = gates.find(g => g.x === x);
     const back = gate?.place.id === place?.parentId;
-    const title = gate ? (back ? '← ' : '') + gate.place.title : index === 1 ? t('行き先の案内') : t('ほかの世界へ');
+    const action=place.id==='venue:lantern'?(index===1?'table':index===2?'shop':undefined):undefined;
+    const title = action?t(action==='table'?'同じ卓を囲む':'暮らしの道具店'):gate ? (back ? '← ' : '') + gate.place.title : index === 1 ? t('行き先の案内') : t('ほかの世界へ');
     const c = scene.add.container(0, 0).setSize(2000, 1400).setDepth(760);
     const halo = scene.add.graphics().lineStyle(3, 0xffedc7, .85).strokeEllipse(x, 760, 235, 24).setVisible(false);
     const label = scene.add.text(x, 780, title, { fontFamily, fontSize: '22px', color: '#594d40', backgroundColor: '#fff7e8', padding: { x: 16, y: 10 } }).setOrigin(.5);
     c.add([halo, label]); c.setData('halo', halo);
-    return { container: c, regions: [courtyardBuildings(place.landscape&&!['garden','japan','future','fantasy'].includes(place.landscape)?'garden':place.theme)[index], rectangle(x - label.width / 2, 780 - label.height / 2, label.width, label.height)], destination: gate?.place.id };
+    return { container: c, regions: [courtyardBuildings(place.landscape&&!['garden','japan','future','fantasy'].includes(place.landscape)?'garden':place.theme,place.id==='venue:lantern')[index], rectangle(x - label.width / 2, 780 - label.height / 2, label.width, label.height)], destination: gate?.place.id,action };
   });
 }
 

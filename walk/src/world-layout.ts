@@ -20,7 +20,8 @@ export function boardAt(posts:readonly {id:string;mapX:number;mapY:number}[],poi
 export function courtyardFollowOffset(height:number,zoom:number){
   return Math.min(430,Math.max(0,(height/2-64)/Math.max(zoom,.01)));
 }
-export function courtyardArt(place?: Pick<Place, 'theme'|'landscape'>) {
+export function courtyardArt(place?: Pick<Place, 'theme'|'landscape'> & {id?:string}) {
+  if(place?.id==='venue:lantern')return '/art/courtyard-lantern.webp';
   const landscape=place?.landscape;
   return landscape&&!['garden','japan','future','fantasy'].includes(landscape)?'/art/world-'+landscape+'.webp':'/art/courtyard-'+(landscape||place?.theme||'garden')+'.webp';
 }

@@ -4,6 +4,7 @@ const stories: Record<
   string,
   { edition: string; subtitle: string; detail: string }
 > = {
+  "venue:lantern": {edition:"THE LANTERN LODGE",subtitle:"駅の奥で、灯りを囲もう。",detail:"昼は静かな庭、夕方には灯りのともる小さな遊戯館。同意した人と同じ卓を囲み、それぞれの無料チップで一回ずつ。"},
   "world:discovery": {
     edition: "THE OPEN COMMONS",
     subtitle: "いつもの日にも、発見は落ちている。",

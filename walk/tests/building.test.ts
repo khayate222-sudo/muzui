@@ -56,3 +56,9 @@ it('checks server-side material ownership and preserves free parts after unlocki
  await req(a,'/economy/coins/claim','POST',{});expect((await req(a,'/economy/shop','POST',{itemId:'sakura'})).statusCode).toBe(200);expect((await save([special])).statusCode).toBe(200);
  expect((await save([special,{...piece,x:3}],1)).statusCode).toBe(200);expect((await req(a,'/economy')).json().coins).toBe(50);expect((await save([{...special,color:'midnight'}],2)).statusCode).toBe(403);expect((await req(a,'/rooms/'+room)).json().build.pieces).toHaveLength(2);
 });
+
+it('unlocks new furniture once and permits repeated placement without per-piece costs or other owners rights',async()=>{
+ const lantern={...piece,kind:'lantern' as const};expect((await save([lantern])).statusCode).toBe(403);await req(a,'/economy/coins/claim','POST',{});
+ expect((await req(a,'/economy/shop','POST',{itemId:'lantern',cost:0})).statusCode).toBe(400);await req(a,'/economy/shop','POST',{itemId:'lantern'});await req(a,'/economy/shop','POST',{itemId:'lantern'});expect((await req(a,'/economy')).json().coins).toBe(100);
+ expect((await save([lantern,{...lantern,x:3}])).statusCode).toBe(200);expect((await req(a,'/economy')).json()).toMatchObject({coins:100,owned:['lantern']});const other=(await req(b,'/rooms','POST',input)).json().id;expect((await save([lantern],0,randomUUID(),b,other)).statusCode).toBe(403);
+});

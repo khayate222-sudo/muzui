@@ -26,7 +26,7 @@ export default function WorldNavigator({
   const place = findPlace(worldId),
     destinations = childrenOf(worldId),
     options = place?.genre ? destinations : destinations.length ? destinations : childrenOf("public");
-  const worlds = options.filter((p) => !p.id.startsWith("activity:")),
+  const worlds = options.filter((p) => !p.id.startsWith("activity:")&&!p.id.startsWith("venue:")),
     activities = options.filter((p) => p.id.startsWith("activity:"));
   const choose = (id: string) => {
     enter(id);
@@ -44,7 +44,7 @@ export default function WorldNavigator({
       </span>
       <PlaceIllustration place={p} />
       <div>
-        <span>{p.ownerId ? t("住人がつくった世界") : p.parentId === "public" ? t("趣味の入口") : t("もっと奥の世界")}</span>
+        <span>{p.id.startsWith("venue:")?t("駅の奥の寄り道"):p.ownerId ? t("住人がつくった世界") : p.parentId === "public" ? t("趣味の入口") : t("もっと奥の世界")}</span>
         <strong>{p.title}</strong>
         <ArrowRight size={17} />
         <p>{worldPresentation(p).subtitle}</p>
@@ -85,6 +85,7 @@ export default function WorldNavigator({
           <div className="destination-grid">{worlds.map(card)}</div>
         </section>
         {worldId==='public'&&data.worlds?.some(p=>p.ownerId===data.user.id)&&<section className="destination-section"><h3>{t("自分が作った世界")}</h3><div className="destination-grid">{data.worlds.filter(p=>p.ownerId===data.user.id).map(card)}</div></section>}
+        {options.some(p=>p.id.startsWith("venue:"))&&<section className="destination-section"><h3>{t("駅の奥の寄り道")}</h3><div className="destination-grid">{options.filter(p=>p.id.startsWith("venue:")).map(card)}</div></section>}
         {activities.length > 0 && (
           <section className="destination-activities">
             <h3>{t("WALKの外で、いまからすること")}</h3>
